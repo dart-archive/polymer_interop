@@ -1,7 +1,7 @@
-# Polymer JS
+# Polymer JS for Dart
 
-This package simply provides the original polymer js sources, see
-https://www.polymer-project.org/ for more information.
+This package simply provides the original polymer js sources for Dart
+developers, see https://www.polymer-project.org/ for more information.
 
 ## Note about versions
 
