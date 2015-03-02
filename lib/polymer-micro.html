@@ -1,0 +1,95 @@
+<div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>(function(scope){function withDependencies(task,depends){depends=depends||[];if(!depends.map){depends=[depends]}return task.apply(this,depends.map(marshal))}function module(name,dependsOrFactory,moduleFactory){var module=null;switch(arguments.length){case 0:return;case 2:module=dependsOrFactory.apply(this);break;default:module=withDependencies(moduleFactory,dependsOrFactory);break}modules[name]=module}function marshal(name){return modules[name]}var modules={};var using=function(depends,task){withDependencies(task,depends)};scope.marshal=marshal;scope.modulate=module;scope.using=using})(this);</script>
+
+<!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>Object.defineProperty(window,"currentImport",{enumerable:true,configurable:true,get:function(){return(document._currentScript||document.currentScript).ownerDocument}});</script>
+
+<!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>modulate("Base",function(){var Base={telemetry:{count:0},addFeature:function(feature,shouldPrepend){this.extend(this,feature)},registerCallback:function(){this.registerFeatures();this.registered()},registered:function(){},createdCallback:function(){Base.telemetry.count++;this.root=this;this.beforeCreated();this.created();this.afterCreated();this.initFeatures()},beforeCreated:function(){},created:function(){},afterCreated:function(){},attachedCallback:function(){this.isAttached=true;this.attached()},attached:function(){},detachedCallback:function(){this.isAttached=false;this.detached()},detached:function(){},attributeChangedCallback:function(name){this.setAttributeToProperty(name);this.attributeChanged.apply(this,arguments)},attributeChanged:function(){},extend:function(prototype,api){if(prototype&&api){Object.getOwnPropertyNames(api).forEach(function(n){var pd=Object.getOwnPropertyDescriptor(api,n);if(pd){Object.defineProperty(prototype,n,pd)}})}return prototype||api}};return Base});</script>
+
+
+<script>modulate("Polymer",["Base"],function(Base){Base.__proto__=HTMLElement.prototype;var Polymer=function(prototype){var elementClass=desugar(prototype);var options={prototype:prototype};if(prototype.extends){options.extends=prototype.extends}document.registerElement(prototype.is,options);return elementClass};var desugar=function(prototype){prototype.__proto__=Base;prototype.registerCallback();return prototype.constructor};window.Polymer=Polymer;Polymer.Class=desugar;return Polymer});</script>
+</div><div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>using("Base",function(Base){Base.addFeature({_prepMixins:function(){if(this.mixins){var host=this;this.mixins.forEach(function(m){if(typeof m==="string"){using(m,function(m){Base.extend(host,m)})}else{Base.extend(host,m)}})}}})});</script>
+</div><div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>using("Base",function(Base){Base.addFeature({_prepExtends:function(){if(this.extends){this.__proto__=this.getExtendedPrototype(this.extends)}},getExtendedPrototype:function(tag){return this.getExtendedNativePrototype(tag)},nativePrototypes:{},getExtendedNativePrototype:function(tag){var p=this.nativePrototypes[tag];if(!p){var np=this.getNativePrototype(tag);p=this.extend(Object.create(np),Base);this.nativePrototypes[tag]=p}return p},getNativePrototype:function(tag){return Object.getPrototypeOf(document.createElement(tag))}})});</script>
+</div><div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>using("Base",function(Base){Base.addFeature({_prepConstructor:function(){if(!this.hasOwnProperty("constructor")){var ctor;if(this.extends){ctor=function(){return document.createElement(this.extends,this.is)}}else{ctor=function(){return document.createElement(this.is)}}Object.defineProperty(this,"constructor",{value:ctor,writable:true,configurable:true});ctor.prototype=this}else{ctor=this.constructor}if(this.hasOwnProperty("extends")){ctor.extends=this.extends}}})});</script>
+</div><div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>using("Base",function(Base){Base.addFeature({published:{},nob:Object.create(null),getPublishInfo:function(property){var p=this.published[property];if(typeof p==="function"){p=this.published[property]={type:p}}return p||Base.nob},getPublishedPropertyType:function(property){return this.getPublishInfo(property).type},isReadOnlyProperty:function(property){return this.getPublishInfo(property).readOnly},isNotifyProperty:function(property){return this.getPublishInfo(property).notify},isReflectedProperty:function(property){return this.getPublishInfo(property).reflect}})});</script>
+</div><div hidden><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<script>using("Base",function(Base){Base.addFeature({_marshalAttributes:function(){this._takeAttributes();this._installHostAttributes(this.hostAttributes)},_installHostAttributes:function(attributes){if(attributes){this.cloneAttributes(this,attributes)}},cloneAttributes:function(node,attr$){attr$.split(" ").forEach(function(a){node.setAttribute(a,"")})},_takeAttributes:function(){this._takeAttributesToModel(this)},_takeAttributesToModel:function(model){for(var name in this.published){var type=this.getPublishedPropertyType(name);if(type===Boolean||this.hasAttribute(name)){this.setAttributeToProperty(model,name,type)}}},setAttributeToProperty:function(model,name,type){type=type||this.getPublishedPropertyType(name);if(type){model[name]=this.deserialize(name,this.getAttribute(name),type)}},deserialize:function(name,value,type){var hasAttribute=this.hasAttribute(name);if(!hasAttribute&&type!=Boolean&&this[name]==null){return}switch(type){case Number:value=Number(value);break;case Boolean:value=hasAttribute;break;case Object:case Array:try{value=JSON.parse(value)}catch(x){value="[invalid JSON]"}break;case Date:value=new Date(value);break;case String:default:break}return value},serialize:function(value){switch(typeof value){case"boolean":return value?"":undefined;case"object":if(value instanceof Date){return value}else if(value){try{return JSON.stringify(value)}catch(x){return""}}default:return value!=null?value:undefined}},reflectPropertyToAttribute:function(name){this.serializeValueToAttribute(this[name],name)},serializeValueToAttribute:function(value,attribute,node){node=node||this;value=this.serialize(value);attribute=this.camelToDashCase(attribute);if(value!==undefined){node.setAttribute(attribute,value)}else{node.removeAttribute(attribute)}},camelToDashCase:function(camel){return camel.replace(/([a-z][A-Z])/g,function(g){return g[0]+"-"+g[1].toLowerCase()})}})});</script>
+</div><script>using("Base",function(Base){Base.addFeature({registerFeatures:function(){this._prepMixins();this._prepExtends();this._prepConstructor()},initFeatures:function(){this._marshalAttributes()}})});</script>

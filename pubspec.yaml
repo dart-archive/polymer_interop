@@ -1,5 +1,5 @@
 name: polymer_js
-version: 0.5.2
+version: 0.8.0-preview
 author: Polymer.dart Authors <web-ui-dev@dartlang.org>
 description: Common package containing the original polymer js sources
 homepage: https://github.com/dart-lang/polymer_js
