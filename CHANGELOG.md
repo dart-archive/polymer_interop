@@ -1,3 +1,6 @@
+## 0.1.0+2
+  * Fix bad import.
+
 ## 0.1.0+1
   * Fix the `replace_polymer_js` transformer.
 

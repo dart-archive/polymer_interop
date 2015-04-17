@@ -8,7 +8,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:js' as js;
 import 'package:web_components/web_components.dart';
-export 'src/js_element_proxy.dart';
+export 'src/polymer_proxy_mixin.dart';
 
 final js.JsObject _polymer = js.context['Polymer'];
 
