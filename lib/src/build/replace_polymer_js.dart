@@ -10,7 +10,7 @@ import 'package:barback/barback.dart';
 class ReplacePolymerJsTransformer extends Transformer {
   BarbackSettings settings;
 
-  ReplacePolymerJsTransformer.asPlugin(BarbackSettings settings);
+  ReplacePolymerJsTransformer.asPlugin(this.settings);
 
   bool isPrimary(AssetId id) {
     if (settings.mode == BarbackMode.RELEASE) return false;
