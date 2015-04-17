@@ -1,19 +1,10 @@
-# Polymer JS for Dart
+# Polymer Interop
 
-This package simply provides the original polymer js sources for Dart
-developers, see https://www.polymer-project.org/ for more information.
-
-## Note about versions
-
-This package follows the same versions as polymer js for clarity, but that does
-mean that it may have breaking changes that are marked by non-breaking version
-bumps. It is recommended that you constrain your versions to upper bounds that
-have already been released and tested.
-
-The exception to this rule is cherry picks which will be added as +x releases.
+This package provides the original polymer js sources, and a dart wrapper around
+them to abstract away the js interop calls.
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/dart-lang/polymer_js/issues
+[tracker]: https://github.com/dart-lang/polymer_interop/issues
