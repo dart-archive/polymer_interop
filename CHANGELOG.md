@@ -1,3 +1,6 @@
+## 0.1.1
+  * Delete `lib/src/polymer.js` when deploying to reduce output size.
+
 ## 0.1.0+2
   * Fix bad import.
 
