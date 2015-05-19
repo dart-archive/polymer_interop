@@ -1,5 +1,5 @@
 name: polymer_interop
-version: 0.1.1
+version: 0.2.0-dev
 author: Polymer.dart Authors <web-ui-dev@dartlang.org>
 description: Common package containing the original polymer js sources
 homepage: https://github.com/dart-lang/polymer_interop
@@ -9,10 +9,3 @@ dependencies:
   web_components: '>=0.11.2 <0.12.0'
 environment:
   sdk: ">=1.9.0 <2.0.0"
-transformers:
-- polymer_interop/src/build/replace_polymer_js:
-    $include:
-      - lib/src/js/polymer.html
-- code_transformers/src/delete_file:
-    $include:
-      - lib/src/js/polymer.js
