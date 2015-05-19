@@ -13,9 +13,9 @@ final _CaseMap = _Polymer['CaseMap'];
 
 /// Wrapper which provides access to many polymer js apis.
 class PolymerJs {
-  String dashToCamelCase(String dash) =>
+  static String dashToCamelCase(String dash) =>
       (_CaseMap['dashToCamelCase'] as js.JsFunction).apply([dash]);
 
-  String camelToDashCase(String camel) =>
+  static String camelToDashCase(String camel) =>
       (_CaseMap['camelToDashCase'] as js.JsFunction).apply([camel]);
 }
