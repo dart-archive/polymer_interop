@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="src/standard/events.html">
 <link rel="import" href="src/standard/gestures.html">
 <link rel="import" href="src/standard/utils.html">
-<link rel="import" href="src/standard/effects.html">
+<link rel="import" href="src/standard/effectBuilder.html">
 <link rel="import" href="src/standard/configure.html">
 <link rel="import" href="src/standard/notify-path.html">
 <link rel="import" href="src/standard/resolveUrl.html">
@@ -28,12 +28,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     _registerFeatures: function() {
       // identity
       this._prepIs();
+      // attributes
+      this._prepAttributes();
       // inheritance
       this._prepExtends();
       // factory
       this._prepConstructor();
       // template
       this._prepTemplate();
+      // styles
+      this._prepStyles();
+      // style properties
+      this._prepStyleProperties();
       // template markup
       this._prepAnnotations();
       // accessors
@@ -47,8 +53,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _prepBehavior: function(b) {
-      this._addPropertyEffects(b.properties || b.accessors);
+      this._addPropertyEffects(b.properties);
       this._addComplexObserverEffects(b.observers);
+      this._addHostAttributes(b.hostAttributes);
     },
 
     _initFeatures: function() {
@@ -56,6 +63,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this._poolContent();
       // manage configuration
       this._setupConfigure();
+      // setup style properties
+      this._setupStyleProperties();
       // host stack
       this._pushHost();
       // instantiate template
@@ -64,6 +73,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this._popHost();
       // concretize template references
       this._marshalAnnotationReferences();
+      // install host attributes
+      this._marshalHostAttributes();
       // setup debouncers
       this._setupDebouncers();
       // concretize effects on instance
@@ -77,8 +88,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _marshalBehavior: function(b) {
-      // publish attributes to instance
-      this._installHostAttributes(b.hostAttributes);
       // establish listeners on instance
       this._listenListeners(b.listeners);
     }
@@ -88,8 +97,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </script>
 
 <link rel="import" href="src/lib/custom-style.html">
-<link rel="import" href="src/lib/template/dom-bind.html">
 <link rel="import" href="src/lib/template/dom-template.html">
 <link rel="import" href="src/lib/template/dom-repeat.html">
 <link rel="import" href="src/lib/template/array-selector.html">
 <link rel="import" href="src/lib/template/dom-if.html">
+<link rel="import" href="src/lib/template/dom-bind.html">

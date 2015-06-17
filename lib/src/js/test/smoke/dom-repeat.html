@@ -9,6 +9,7 @@
 
   <script src="../../../perf-lib/perf.js"></script>
   <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+  <!-- <link rel="import" href="../../polymer-debug.html"> -->
   <link rel="import" href="../../polymer.html">
   <link rel="import" href="../../../layout/layout.html">
   <!-- <link rel="import" href="../../src/lib/experimental/observe-js-behavior.html"> -->
@@ -91,6 +92,7 @@
         <x-labeled-input label="outerObjA.value" value="{{outerObjA.value}}"></x-labeled-input>
         <x-labeled-input label="outerObjB.value" value="{{outerObjB.value}}"></x-labeled-input>
         <x-labeled-input label="outerObjC.value" value="{{outerObjC.value}}"></x-labeled-input>
+        <x-labeled-input label="outerObjD.value" value="{{outerObjD.value}}"></x-labeled-input>
       </div>
 
       <div class="layout horizontal flex">
@@ -104,7 +106,7 @@
               <x-labeled-input label="itemA.name" value="{{itemA.name}}"></x-labeled-input>
               <x-labeled-input label="outerA" value="{{outerA}}"></x-labeled-input>
               <x-labeled-input label="outerObjA.value" value="{{outerObjA.value}}"></x-labeled-input>
-              <x-labeled-input label="computeConcat(itemA.name, outerObjA.value)" value="{{computeConcat(itemA.name, outerObjA.value)}}" disabled></x-labeled-input>
+              <x-labeled-input label="computeConcat(itemA.name, outerObjD.value)" value="{{computeConcat(itemA.name, outerObjD.value)}}" disabled></x-labeled-input>
               <template is="dom-repeat" id="xr1-2" idx$="{{index}}" items="{{itemA.items}}" as="itemB">
                 <div class="item" id="xr1-2" idx$="{{index}}">
                   <div class="index">idx: <span>{{index}}</span></div>
@@ -143,7 +145,7 @@
               <x-labeled-input label="itemA.name" value="{{itemA.name}}"></x-labeled-input>
               <x-labeled-input label="outerA" value="{{outerA}}"></x-labeled-input>
               <x-labeled-input label="outerObjA.value" value="{{outerObjA.value}}"></x-labeled-input>
-              <x-labeled-input label="computeConcat(itemA.name, outerObjA.value)" value="{{computeConcat(itemA.name, outerObjA.value)}}" disabled></x-labeled-input>
+              <x-labeled-input label="computeConcat(itemA.name, outerObjD.value)" value="{{computeConcat(itemA.name, outerObjD.value)}}" disabled></x-labeled-input>
               <template is="dom-repeat" id="xr2-2" idx$="{{index}}" items="{{itemA.items}}" as="itemB">
                 <div class="item" id="xr2-2" idx$="{{index}}">
                   <div class="index">idx: <span>{{index}}</span></div>
@@ -196,9 +198,9 @@
 
     Polymer ({
       is: 'x-observe',
-      behaviors: [
-        Polymer.ObserveJsBehavior
-      ],
+      // behaviors: [
+      //   Polymer.ObserveJsBehavior
+      // ],
       observers: [
         'log(items.0.items.*)'
       ],
@@ -210,9 +212,9 @@
     Polymer ({
       is: 'x-test',
 
-      behaviors: [
-        Polymer.ObserveJsBehavior
-      ],
+      // behaviors: [
+      //   Polymer.ObserveJsBehavior
+      // ],
 
       observers: [
         'logStuff(outerObjA.*)'
@@ -297,6 +299,9 @@
         },
         outerObjC: {
           value: function() { return { value: 'outerObjC.value' }; }
+        },
+        outerObjD: {
+          value: function() { return { value: 'outerObjD.value' }; }
         }
       },
       changeOuterA: function() {

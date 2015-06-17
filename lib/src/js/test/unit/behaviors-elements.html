@@ -26,8 +26,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       overridableProperty: {
         value: false
-      }
+      },
 
+      overridablePropertyB: {
+        value: false
+      },
+
+      hasBehaviorA: {
+        value: true
+      }
+    },
+
+    _simpleProperty: 'A',
+
+    hostAttributes: {
+      behavior: 'A',
+      user: 'A'
     },
 
     listeners: {
@@ -68,9 +82,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hasOptionsB: {
         readOnly: true,
         notify: true
-      }
+      },
+
+      hasBehaviorB: {
+        value: true
+      },
+
+      overridablePropertyB: {
+        value: true
+      },
 
     },
+
+    hostAttributes: {
+      behavior: 'B',
+      user: 'B'
+    },
+
+    _simpleProperty: 'B',
 
     _disabledChanged: function(disabled) {
       this.__disabled = disabled
@@ -106,12 +135,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
 
-    Polymer._toOverride = function() {};
-
     Polymer({
 
       behaviors: [
         Polymer.BehaviorA,
+        null,
         Polymer.BehaviorB
       ],
 
@@ -135,6 +163,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
      _toOverride: Polymer._toOverride
+
+    });
+
+  </script>
+
+</dom-module>
+
+<script>
+
+  Polymer.BehaviorC = {
+
+    properties: {
+
+      hasBehaviorC: {
+        value: true
+      }
+
+    },
+
+    _simpleProperty: 'C'
+
+  };
+
+  Polymer.BehaviorD = {
+
+    properties: {
+
+      hasBehaviorD: {
+        value: true
+      }
+
+    },
+
+    _simpleProperty: 'D'
+
+  };
+
+</script>
+
+<dom-module id="nested-behaviors">
+
+  <script>
+
+    Polymer({
+
+      behaviors: [
+        [[Polymer.BehaviorC, Polymer.BehaviorB], Polymer.BehaviorA],
+        Polymer.BehaviorD
+      ]
 
     });
 

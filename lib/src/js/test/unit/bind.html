@@ -32,8 +32,37 @@ suite('single-element binding effects', function() {
     document.body.removeChild(el);
   });
 
+  test('undefined input value', function() {
+    assert.equal(el.$.boundInput.value, '', 'undefined input value not blank');
+    el.text = 'this is a test';
+    assert.equal(el.$.boundInput.value, 'this is a test', 'binding to input didn\'t go');
+    el.text = undefined;
+    assert.equal(el.$.boundInput.value, '', 'undefined input value not blank');
+  });
+
   test('id is bindable', function() {
-    assert.equal(Polymer.dom(el.root).querySelector('span').id, 'span', 'id bound to <span> not found');
+    assert.equal(Polymer.dom(el.root).querySelector('span[idtest]').id, 'span', 'id bound to <span> not found');
+  });
+
+  test('textContent binding updates', function() {
+    el.text = 'this is a test';
+    assert.equal(el.$.boundText.textContent, 'this is a test', 'Value not propagated to textContent');
+  });
+
+  test('textContent binding to undefined is empty string', function() {
+    el.text = 'this is a test';
+    el.text = undefined;
+    assert.equal(el.$.boundText.textContent, '', 'undefined bound to textContent should be empty string');
+  });
+
+  test('textContent binding to null is empty string', function() {
+    el.text = null;
+    assert.equal(el.$.boundText.textContent, '', 'null bound to textContent should be empty string');
+  });
+
+  test('textContent binding to zero is empty correct', function() {
+    el.text = 0;
+    assert.equal(el.$.boundText.textContent, '0', 'zero bound to textContent should be empty string');
   });
 
   test('camel-case binding updates', function() {
@@ -117,6 +146,19 @@ suite('single-element binding effects', function() {
     assert.equal(el.observerCounts.computedFromMultipleValuesChanged, 1, 'observer not called');
   });
 
+  test('computed annotation with literals', function() {
+    el.bool = true;
+    assert.equal(el.$.boundChild.computedFromMixedLiterals, '3foo', 'Wrong result from mixed literal arg computation');
+    assert.equal(el.$.boundChild.computedFromPureLiterals, '3foo', 'Wrong result from pure literal arg computation');
+    assert.equal(el.$.boundChild.computedFromTrickyLiterals, '3tricky,\'zot\'', 'Wrong result from tricky literal arg computation');
+    assert.equal(el.$.boundChild.computedFromTrickyLiterals2, '3tricky,\'zot\'', 'Wrong result from tricky literal arg computation');
+    assert.equal(el.$.computedContent.textContent, '3tricky,\'zot\'', 'Wrong textContent from tricky literal arg computation');
+  });
+
+  test('computed annotation with no args', function() {
+    assert.equal(el.$.boundChild.computedFromNoArgs, 'no args!', 'Wrong content when computed has no args');
+  });
+
   test('no read-only observer called with assignment', function() {
     el.readolyvalue = 46;
     assert.equal(el.observerCounts.readonlyvalueChanged, 0, 'observer should not be called for readOnly prop assignment');
@@ -160,6 +202,7 @@ suite('single-element binding effects', function() {
     el.divide = 3;
     assert.equal(el.$.boundChild.computedInline, 20, 'computedInline not correct');
     assert.equal(el.$.boundChild.computedInline2, 20, 'computedInline2 not correct');
+    assert.equal(el.$.boundChild.negComputedInline, false, 'negComputedInline not correct');
   });
 
   test('annotated computed attribute', function() {
@@ -539,6 +582,62 @@ suite('avoid non-bubbling event gotchas', function() {
 
 });
 
+suite('warnings', function() {
+
+  var el;
+  var warn;
+
+  setup(function() {
+    el = document.createElement('x-basic');
+    document.body.appendChild(el);
+    warn = el._warn;
+  });
+
+  teardown(function() {
+    document.body.removeChild(el);
+  });
+
+  test('undefined observer', function() {
+    var warned = false;
+    el._warn = function() {
+      warned = true;
+      warn.apply(el, arguments);
+    };
+    el.noObserver = 42;
+    assert.equal(warned, true, 'no warning for undefined observer');
+  });
+
+  test('undefined complex observer', function() {
+    var warned = false;
+    el._warn = function() {
+      warned = true;
+      warn.apply(el, arguments);
+    };
+    el.noComplexObserver = {};
+    assert.equal(warned, true, 'no warning for undefined complex observer');
+  });
+
+  test('undefined computed function', function() {
+    var warned = false;
+    el._warn = function() {
+      warned = true;
+      warn.apply(el, arguments);
+    };
+    el.noComputed = 99;
+    assert.equal(warned, true, 'no warning for undefined computed function');
+  });
+
+  test('undefined inline computed function', function() {
+    var warned = false;
+    el._warn = function() {
+      warned = true;
+      warn.apply(el, arguments);
+    };
+    el.noInlineComputed = 99;
+    assert.equal(warned, true, 'no warning for undefined computed function');
+  });
+
+});
 
 </script>
 

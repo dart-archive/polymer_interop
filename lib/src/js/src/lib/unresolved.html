@@ -8,33 +8,22 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <script>
+(function() {
+  
+  // Ensure that the `unresolved` attribute added by the WebComponents polyfills
+  // is removed. This is done as a convenience so users don't have to remember
+  // to do so themselves. This attribute provides FOUC prevention when
+  // native Custom Elements is not available.
 
-  /**
-   * Automatically extend using objects referenced in `mixins` array. 
-   * 
-   *     Polymer({
-   *     
-   *       mixins: [
-   *         someMixinObject
-   *       ]
-   *     
-   *       ...
-   *     
-   *     });
-   * 
-   * @class base feature: mixins
-   */
+  function resolve() {
+    document.body.removeAttribute('unresolved');
+  }
 
-  Polymer.Base._addFeature({
+  if (window.WebComponents) {
+    addEventListener('WebComponentsReady', resolve);
+  } else {
+    resolve();
+  }
 
-    _prepMixins: function() {
-      if (this.mixins) {
-        this.mixins.forEach(function(m) {
-          Polymer.Base.extend(this, m);
-        }, this);
-      }
-    }
-
-  });
-
+})();
 </script>
