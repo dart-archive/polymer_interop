@@ -1,4 +1,4 @@
-library polymerjs.grind;
+library polymer_interop.grind;
 
 import 'package:grinder/grinder.dart';
 
