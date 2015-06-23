@@ -21,20 +21,7 @@ class Polymer {
       (_CaseMap['camelToDashCase'] as JsFunction).apply([camel]);
 
   /// Polymer provides a custom API for manipulating DOM such that local DOM and
-  /// light DOM trees are properly maintained. These methods and properties have
-  /// the same signatures as their standard DOM equivalents, except that properties
-  /// and methods that return a list of nodes return an Array, not a NodeList.
-  ///
-  /// Note: All DOM manipulation must use this API, as opposed to DOM API directly
-  /// on nodes.
-  ///
-  /// Using these node mutation APIs when manipulating children ensures that
-  /// shady DOM can distribute content elements dynamically. If you change
-  /// attributes or classes that could affect distribution without using the
-  /// Polymer.dom API, call distributeContent on the host element to force it
-  /// to update its distribution.
-  ///
-  /// Other resources: https://www.polymer-project.org/1.0/docs/devguide/local-dom.html
+  /// light DOM trees are properly maintained.
   static PolymerDom dom(node) => new PolymerDom(node);
 }
 
@@ -99,7 +86,7 @@ class PolymerDom {
 
   /// Read-only property that returns the object's first child Element, or null
   /// if there are no child elements.
-  HtmlElement get firstElementChild => _proxy['firstElementChild'];
+  Element get firstElementChild => _proxy['firstElementChild'];
 
   /// Sometimes it’s necessary to access the elements which have been distributed
   /// to a given <content> insertion point or to know to which <content> a given
@@ -114,7 +101,6 @@ class PolymerDom {
   /// getDestinationInsertionPoints methods, respectively, provide this information.
   List<Node> getDistributedNodes() => _proxy.callMethod('getDistributedNodes');
 
-  // TODO: find out what this does
   getOwnerRoot() => _proxy.callMethod('getOwnerRoot');
 
   /// Sets or gets the HTML syntax describing the element's descendants.
@@ -149,7 +135,7 @@ class PolymerDom {
 
   /// Read-only property  that returns the object's last child `Element` or null
   /// if there are no child elements.
-  HtmlElement get lastElementChild => _proxy['lastElementChild'];
+  Element get lastElementChild => _proxy['lastElementChild'];
 
   /// Read-only property that returns the node immediately following the specified
   /// one in its parent's childNodes list, or null if the specified node is the
@@ -159,7 +145,7 @@ class PolymerDom {
   /// Read-only property returns the element immediately following the specified
   /// one in its parent's children list, or null if the specified element is the
   /// last one in the list.
-  HtmlElement get nextElementSibling => _proxy['nextElementSibling'];
+  Element get nextElementSibling => _proxy['nextElementSibling'];
 
   /// Read-only property that returns the parent of the specified node in the
   /// DOM tree.
@@ -168,7 +154,7 @@ class PolymerDom {
   /// Read-only property returns the Element immediately prior to the specified
   /// one in its parent's children list, or null if the specified element is the
   /// first one in the list.
-  HtmlElement get previousElementSibling => _proxy['previousElementSibling'];
+  Element get previousElementSibling => _proxy['previousElementSibling'];
 
   /// Read-only property that returns the node immediately preceding the specified
   /// one in its parent's childNodes list, or null if the specified node is the
@@ -178,17 +164,17 @@ class PolymerDom {
   /// Returns a list of nodes distributed within this. These can be
   /// dom children or elements distributed to children that are insertion
   /// points.
-  List<HtmlElement> queryDistributedElements(String selectors) =>
+  List<Element> queryDistributedElements(String selectors) =>
       _proxy.callMethod('queryDistributedElements', [selectors]);
 
   /// Returns the first element within the document that matches the specified
   /// group of selectors.
-  HtmlElement querySelector(String selectors) =>
+  Element querySelector(String selectors) =>
       _proxy.callMethod('querySelector', [selectors]);
 
   /// Returns a non-live NodeList of all elements descended from the element on
   /// which it is invoked that match the specified group of CSS selectors.
-  List<HtmlElement> querySelectorAll(String selectors) =>
+  List<Element> querySelectorAll(String selectors) =>
       _proxy.callMethod('querySelectorAll', [selectors]);
 
   /// Removes an attribute from the the element.
@@ -226,7 +212,7 @@ class PolymerDom {
 class PolymerClassList {
   final PolymerDom domApi;
 
-  final HtmlElement node;
+  final Element node;
 
   final JsObject _proxy;
 

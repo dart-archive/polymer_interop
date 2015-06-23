@@ -9,7 +9,7 @@ const safari = 'safari';
 
 const macPlatforms = const ['dartium,firefox,chrome,safari'];
 
-const PolymerDom = 'test/PolymerDom_test.dart';
+const PolymerDom = 'test/polymer_dom_test.dart';
 
 const allFiles = const [
   PolymerDom
