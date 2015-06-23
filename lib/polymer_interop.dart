@@ -175,7 +175,7 @@ class PolymerDom {
   /// first in that list.
   Node get previousSibling => _proxy['previousSibling'];
 
-  /// Returns a list of nodes distributed within _proxy.callMethod element. These can be
+  /// Returns a list of nodes distributed within this. These can be
   /// dom children or elements distributed to children that are insertion
   /// points.
   List<HtmlElement> queryDistributedElements(String selectors) =>
@@ -196,7 +196,7 @@ class PolymerDom {
       _proxy.callMethod('removeAttribute', [name]);
 
   /// Removes the given `node` from the element's `lightChildren`.
-  /// _proxy.callMethod method also performs dom composition.
+  /// This method also performs dom composition.
   ///
   /// The removeChild method is transacted lazily in certain cases for
   /// performance. In order to interrogate the dom (e.g. offsetHeight,
@@ -249,7 +249,7 @@ class PolymerClassList {
   remove(String value) => _proxy.callMethod('remove', [value]);
 
   /// Toggles the existence of a class in an element's list of classes. If
-  /// [shouldAdd] is true, _proxy.callMethod method will act the same as `_proxy.callMethod.add`.
+  /// [shouldAdd] is true, This method will act the same as `this.add`.
   toggle(String value, [bool shouldAdd]) =>
       _proxy.callMethod('toggle', [value, shouldAdd]);
 }
