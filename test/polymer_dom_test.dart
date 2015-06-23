@@ -80,7 +80,8 @@ main() async {
       expect(domApi.getDistributedNodes(), new isInstanceOf<List<Node>>());
     });
 
-    // I guess this only works with real custom elements
+    // add the custom-element is not contained in another custom-element, this
+    // should return null
     test('method getOwnerRoot', () {
       expect(domApi.getOwnerRoot(), null);
     });
