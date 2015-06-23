@@ -3,9 +3,12 @@ version: 0.2.0-dev
 author: Polymer.dart Authors <web-ui-dev@dartlang.org>
 description: Common package containing the original polymer js sources
 homepage: https://github.com/dart-lang/polymer_interop
+environment:
+  sdk: ">=1.9.0 <2.0.0"
 dependencies:
   barback: '>=0.14.2 <0.16.0'
   code_transformers: '>=0.2.2 <0.3.0'
   web_components: '>=0.11.2 <0.13.0'
-environment:
-  sdk: ">=1.9.0 <2.0.0"
+dev_dependencies:
+  test: ^0.12.3+2
+  grinder: ^0.7.1+3

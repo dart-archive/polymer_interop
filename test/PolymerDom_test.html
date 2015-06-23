@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel='import' href='packages/polymer_interop/src/js/polymer.html'>
+    <script src='packages/test/dart.js'></script>
+    <link rel='x-dart-test' href='PolymerDom_test.dart'>
+    <!--<script type='application/dart' src='PolymerDom_test.dart'></script>-->
+    <script>
+      Polymer({
+        'is': 'custom-element'
+      })
+    </script>
+  </head>
+  <body>
+    <div id='parent'>
+      <div id='previous-element'></div>
+      <custom-element class='test-element'></custom-element>
+      <div id='next-element'></div>
+    </div>
+  </body>
+</html>
