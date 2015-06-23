@@ -101,7 +101,11 @@ class PolymerDom {
   /// getDestinationInsertionPoints methods, respectively, provide this information.
   List<Node> getDistributedNodes() => _proxy.callMethod('getDistributedNodes');
 
-  getOwnerRoot() => _proxy.callMethod('getOwnerRoot');
+  /// Returns the shadow-dom the element is in. Note that the return type is a `DocumentFragment`. The return object will have a property `host`, which is the
+  /// actual custom element.
+  // TODO: the js object does has this 'host` property
+  // the dart object doesn't have this property...
+  DocumentFragment getOwnerRoot() => _proxy.callMethod('getOwnerRoot');
 
   /// Sets or gets the HTML syntax describing the element's descendants.
   String get innerHtml => _proxy['innerHTML'];
