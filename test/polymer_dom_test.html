@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="packages/web_components/webcomponents-lite.js"></script>
+    <link rel='import' href='packages/polymer_interop/polymer.html'>
+    <script src='packages/test/dart.js'></script>
+    <link rel='x-dart-test' href='polymer_dom_test.dart'>
+    <!--<script type='application/dart' src='polymer_dom_test.dart'></script>-->
+    <script>
+      Polymer({
+        'is': 'custom-element'
+      })
+    </script>
+  </head>
+  <body>
+    <div id='parent'>
+      <div id='previous-element'></div>
+      <custom-element class='test-element'></custom-element>
+      <div id='next-element'></div>
+    </div>
+  </body>
+</html>
