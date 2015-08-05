@@ -7,6 +7,7 @@ library polymer_interop.polymer_interop;
 import 'dart:html';
 import 'dart:js';
 import 'package:web_components/web_components.dart';
+export 'src/behaviors/templatize.dart';
 export 'src/polymer_proxy_mixin.dart';
 
 final JsObject _Polymer = context['Polymer'];
