@@ -126,9 +126,12 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
       jsElement.callMethod('elementMatches', [selector, node]);
 
   /// Dispatches a custom event with an optional detail object.
-  fire(String type, {detail, bool canBubble: true, bool cancelable: true}) =>
-      dispatchEvent(new CustomEvent(type,
-          detail: detail, canBubble: canBubble, cancelable: cancelable));
+  fire(String type,
+      {detail, bool canBubble: true, bool cancelable: true, Node node}) {
+    if (node == null) node = this;
+    node.dispatchEvent(new CustomEvent(type,
+        detail: detail, canBubble: canBubble, cancelable: cancelable));
+  }
 
   /// Immediately calls the debouncer callback and inactivates it.
   void flushDebouncer(String jobName) {
