@@ -64,7 +64,7 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
   js.JsObject get properties => jsElement['properties'];
 
   /// The shady or shadow root for this element.
-  DocumentFragment get root => jsElement['root'];
+  Node get root => jsElement['root'];
 
   /// Runs a callback function asyncronously.
   ///
