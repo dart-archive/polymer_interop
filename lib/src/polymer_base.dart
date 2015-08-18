@@ -19,11 +19,13 @@ import 'package:web_components/web_components.dart'
 
 /// A mixin to make it easier to interoperate with Polymer JS elements.
 ///
-/// You must also mixin an implementation of the [CustomElementProxyMixin] class
-/// `web_components`. The implements statement here enforces that.
+/// Any class which uses this mixin must also implement the
+/// [CustomElementProxyMixin] and [Element] classes.
 ///
 /// This is created from http://polymer.github.io/polymer/, but does not contain
-/// the following methods:
+/// the following methods, since they don't generally apply to dart elements. If
+/// you need one of them please file an issue at
+/// https://github.com/dart-lang/polymer_interop/issues/new:
 ///
 ///   - attachedCallback
 ///   - deserialize
