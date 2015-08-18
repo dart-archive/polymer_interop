@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="packages/web_components/webcomponents-lite.js"></script>
+    <link rel="import" href="packages/web_components/interop_support.html">
+    <link rel='import' href='packages/polymer_interop/polymer.html'>
+
+    <link rel='x-dart-test' href='polymer_base_test.dart'>
+    <script src='packages/test/dart.js'></script>
+  </head>
+  <body>
+
+  <dom-module id="basic-element">
+    <template>
+      <div id="someId"></div>
+    </template>
+  </dom-module>
+  <script>
+    Custom = {
+      Behavior: {
+
+      }
+    };
+
+    Polymer({
+      'is': 'basic-element',
+      'properties': {
+        myString: String
+      },
+      behaviors: [Custom.Behavior],
+      listeners: ['onMyStringChanged(myString)'],
+      onMyStringChanged: function(myString) {},
+      created: function() {
+        this.counterCalledCount = 0;
+      },
+      counter: function() {
+        this.counterCalledCount++;
+      }
+    })
+  </script>
+
+  <dom-module id="distributed-element">
+    <template>
+      <div>
+        <content select=".foo" id="selected"></content>
+      </div>
+      <div>
+        <content id="default"></content >
+      </div>
+    </template>
+  </dom-module>
+  <script>
+    Polymer({
+      'is': 'distributed-element'
+    })
+  </script>
+
+  <dom-module id="parent-element">
+    <template>
+      <child-element id="child"></child-element>
+    </template>
+  </dom-module>
+  <script>
+    Polymer({
+      'is': 'parent-element'
+    })
+  </script>
+
+  <dom-module id="child-element">
+    <template></template>
+  </dom-module>
+  <script>
+    Polymer({
+      'is': 'child-element'
+    })
+  </script>
+
+  <dom-module id="bindings-element">
+    <template>
+      <div id="myObject">{{myObject.string}}</div>
+      <div id="myString">{{myString}}</div>
+    </template>
+  </dom-module>
+  <script>
+    Polymer({
+      'is': 'bindings-element',
+      'properties': {
+        myObject: {
+          type: Object,
+          notify: true
+        },
+        myString: {
+          type: Object,
+          notify: true
+        }
+      }
+    })
+  </script>
+  </body>
+</html>

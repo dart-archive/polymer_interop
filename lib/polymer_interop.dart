@@ -9,7 +9,7 @@ import 'dart:js';
 import 'package:web_components/web_components.dart';
 export 'src/behavior.dart';
 export 'src/behaviors/templatize.dart';
-export 'src/polymer_proxy_mixin.dart';
+export 'src/polymer_base.dart';
 
 final JsObject _Polymer = context['Polymer'];
 final JsObject _CaseMap = _Polymer['CaseMap'];
@@ -104,11 +104,12 @@ class PolymerDom {
   List<Node> getDistributedNodes() => _proxy.callMethod('getDistributedNodes');
 
   /// Returns the shadow-dom the element is in. Note that the return type is a
-  /// `DocumentFragment`. 
+  /// `DocumentFragment`.
   DocumentFragment getOwnerRoot() => _proxy.callMethod('getOwnerRoot');
 
   /// Sets or gets the HTML syntax describing the element's descendants.
   String get innerHtml => _proxy['innerHTML'];
+
   /// Sets or gets the HTML syntax describing the element's descendants.
   void set innerHtml(String value) {
     _proxy['innerHTML'] = value;
