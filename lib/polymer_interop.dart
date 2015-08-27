@@ -34,7 +34,7 @@ class Polymer {
   static LinkElement importHref(String href, {void onLoad(e), void onError(e)}) {
     onLoad = Zone.current.bindUnaryCallback(onLoad);
     onError = Zone.current.bindUnaryCallback(onError);
-    return _Polymer.callMethod('importHref', [href, onLoad, onError]);
+    return _Polymer['Base'].callMethod('importHref', [href, onLoad, onError]);
   }
 }
 

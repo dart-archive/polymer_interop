@@ -53,6 +53,9 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
   /// The underlying behaviors list created for this element.
   js.JsArray<js.JsObject> get behaviors => jsElement['behaviors'];
 
+  // Can be used to directly modify a polymer elements custom css properties.
+  js.JsObject get customStyle => jsElement['customStyle'];
+
   /// Return the element whose local dom within which this element is contained.
   /// This is a shorthand for Polymer.dom(this).getOwnerRoot().host.
   Element get domHost => jsElement['domHost'];
