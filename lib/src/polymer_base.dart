@@ -75,8 +75,8 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
   /// microtask timing, which will occur before paint.
   ///
   /// Returns a number that may be used to cancel the async job.
-  int async(void callback(), {int waitTime}) =>
-      jsElement.callMethod('async', [callback, waitTime]);
+  int async(void callback(), {int waitTime}) => jsElement.callMethod(
+      'async', [Zone.current.bindCallback(callback), waitTime]);
 
   /// Removes an HTML attribute from one node, and adds it to another.
   ///
