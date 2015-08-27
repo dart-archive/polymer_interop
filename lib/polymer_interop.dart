@@ -4,6 +4,7 @@
 @HtmlImport('polymer_micro.html')
 library polymer_interop.polymer_interop;
 
+import 'dart:async';
 import 'dart:html';
 import 'dart:js';
 import 'package:web_components/web_components.dart';
@@ -25,6 +26,16 @@ class Polymer {
   /// Polymer provides a custom API for manipulating DOM such that local DOM and
   /// light DOM trees are properly maintained.
   static PolymerDom dom(node) => new PolymerDom(node);
+
+  static void updateStyles() {
+    _Polymer.callMethod('updateStyles');
+  }
+
+  static LinkElement importHref(String href, {void onLoad(e), void onError(e)}) {
+    onLoad = Zone.current.bindUnaryCallback(onLoad);
+    onError = Zone.current.bindUnaryCallback(onError);
+    return _Polymer.callMethod('importHref', [href, onLoad, onError]);
+  }
 }
 
 /// Polymer provides a custom API for manipulating DOM such that local DOM and
