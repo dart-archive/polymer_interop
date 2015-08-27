@@ -274,7 +274,7 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
   }
 
   /// Cross-platform helper for setting an element's CSS translate3d property.
-  void translate3d(num x, num y, num z, [Element node]) {
+  void translate3d(String x, String y, String z, [Element node]) {
     jsElement.callMethod('translate3d', [x, y, z, node]);
   }
 

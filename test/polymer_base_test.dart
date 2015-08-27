@@ -367,7 +367,7 @@ main() async {
     });
 
     test('translate3d', () {
-      basicElement.translate3d(1, 2, 3);
+      basicElement.translate3d('1px', '2px', '3px');
       // TODO(jakemac): https://github.com/dart-lang/polymer_interop/issues/10
     });
 
