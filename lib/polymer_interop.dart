@@ -9,6 +9,7 @@ import 'dart:html';
 import 'dart:js';
 import 'package:web_components/web_components.dart';
 export 'src/behavior.dart';
+export 'src/convert.dart';
 export 'src/behaviors/templatize.dart';
 export 'src/polymer_base.dart';
 

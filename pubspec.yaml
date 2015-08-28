@@ -8,7 +8,14 @@ environment:
 dependencies:
   barback: '>=0.14.2 <0.16.0'
   code_transformers: '>=0.2.2 <0.3.0'
+  test: ^0.12.3+2
   web_components: '>=0.11.2 <0.13.0'
 dev_dependencies:
-  test: ^0.12.3+2
+  browser: any
   grinder: ^0.7.1+3
+  smoke: '>=0.3.4 <0.4.0'
+transformers:
+- web_components:
+    $include: test/**_test{.*,}.html
+- test/pub_serve:
+    $include: test/**_test{.*,}.dart

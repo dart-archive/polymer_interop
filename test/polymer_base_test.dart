@@ -260,9 +260,7 @@ main() async {
 
     test('linkPaths', () {
       var bindingElement = new BindingsElement();
-      bindingElement.myObject = {
-        'string': 'initialValue',
-      };
+      bindingElement.myObject = {'string': 'initialValue',};
 
       int objectChangedCount = 0;
       bindingElement.on['my-object-changed'].listen((_) {
@@ -423,7 +421,7 @@ class ChildElement extends HtmlElement
 
 @CustomElementProxy('bindings-element')
 class BindingsElement extends HtmlElement
-with PolymerBase, CustomElementProxyMixin {
+    with PolymerBase, CustomElementProxyMixin {
   BindingsElement.created() : super.created();
 
   factory BindingsElement() => document.createElement('bindings-element');
