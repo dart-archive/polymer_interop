@@ -100,7 +100,6 @@ main() async {
     });
 
     test('debounce', () async {
-      var done = new Completer();
       int timesCalled = 0;
 
       increment() {
@@ -152,7 +151,6 @@ main() async {
 
     test('fire', () {
       var done = new Completer();
-      var event = new CustomEvent('my-event', detail: 'some detail');
       basicElement.on['my-event'].take(1).listen((CustomEvent e) {
         expect(e.type, 'my-event');
         expect(e.detail, 'myDetail');
@@ -167,7 +165,6 @@ main() async {
     });
 
     test('flushDebouncer', () {
-      var done = new Completer();
       int timesCalled = 0;
 
       increment() {

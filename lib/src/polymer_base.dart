@@ -42,7 +42,7 @@ import 'package:web_components/web_components.dart'
 ///   - shift
 ///   - splice
 ///   - unshift.
-abstract class PolymerBase implements CustomElementProxyMixin, Element {
+abstract class PolymerBase implements CustomElementProxyMixin {
   /// The underlying Js Element's `$` property.
   js.JsObject get $ => jsElement[r'$'];
 
@@ -131,7 +131,13 @@ abstract class PolymerBase implements CustomElementProxyMixin, Element {
   /// Dispatches a custom event with an optional detail object.
   fire(String type,
       {detail, bool canBubble: true, bool cancelable: true, Node node}) {
-    if (node == null) node = this;
+    if (node == null) {
+      if (this is Node) {
+        node = this as Node;
+      } else {
+        throw 'Attempted to fire event from non-node object';
+      }
+    }
     node.dispatchEvent(new CustomEvent(type,
         detail: detail, canBubble: canBubble, cancelable: cancelable));
   }

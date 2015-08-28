@@ -9,8 +9,6 @@ import 'package:test/test.dart';
 import 'package:polymer_interop/polymer_interop.dart';
 import 'dart:js';
 import 'dart:async';
-import 'package:web_components/web_components.dart';
-
 
 main() async {
   Element node;

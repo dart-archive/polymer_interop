@@ -1,6 +1,5 @@
 library polymer_interop.lib.src.behaviors.templatize;
 
-import 'dart:js';
 import 'package:web_components/web_components.dart' show CustomElementProxyMixin;
 import '../behavior.dart';
 
