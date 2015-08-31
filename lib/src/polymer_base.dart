@@ -31,7 +31,6 @@ import 'convert.dart';
 ///   - attachedCallback
 ///   - deserialize
 ///   - arrayDelete
-///   - get
 ///   - getNativePrototype
 ///   - mixin
 ///   - pop
@@ -39,7 +38,6 @@ import 'convert.dart';
 ///   - ready
 ///   - resolveUrl
 ///   - serialize
-///   - set
 ///   - shift
 ///   - splice
 ///   - unshift.
@@ -335,8 +333,10 @@ abstract class PolymerBase implements CustomElementProxyMixin {
           ..addAll(new List.filled(numToFill, jsValue(fillValue))));
   }
 
-  /// Gets a value at `path`.
-  get(String path) => dartValue(jsElement.callMethod('get', [path]));
+  /// Gets a value at `path` for the `root` object. The `root` defaults to
+  /// `this`. The `root` must be a JsProxy or PolymerElement object.
+  get(String path, [root]) =>
+      dartValue(jsElement.callMethod('get', [path, jsValue(root)]));
 
   /// Inserts `element` at position `index` to the list at `path`.
   void insert(String path, int index, element) {
