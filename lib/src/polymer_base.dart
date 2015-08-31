@@ -305,11 +305,9 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// affect the values of custom properties.
   void updateStyles() => jsElement.callMethod('updateStyles');
 
-
-
   /// Sets a value on an attribute path, and notifies of changes.
   void set(String path, value) =>
-  jsElement.callMethod('set', [path, jsValue(value)]);
+      jsElement.callMethod('set', [path, jsValue(value)]);
 
   /// Add `item` to a list at `path`.
   void add(String path, item) {
@@ -347,8 +345,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Inserts `elements` at position `index` to the list at `path`.
   void insertAll(String path, int index, Iterable elements) {
-    jsElement.callMethod(
-        'splice',
+    jsElement.callMethod('splice',
         [path, index, 0]..addAll(elements.map((element) => jsValue(element))));
   }
 
@@ -359,6 +356,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   bool removeItem(String path, value) {
     List list = get(path);
     var index = list.indexOf(value);
+
     /// Assumes the lists are in sync! We are in lots of trouble if they aren't
     /// though, and verifying it is a lot more expensive.
     jsElement.callMethod('splice', [path, index, 1]);
@@ -422,16 +420,15 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Copies the objects of `iterable`, skipping `skipCount` objects first, into
   /// the range `start`, inclusive, to `end`, exclusive, of the list at `path`.
-  void setRange(
-      String path, int start, int end, Iterable iterable, [int skipCount = 0]) {
+  void setRange(String path, int start, int end, Iterable iterable,
+      [int skipCount = 0]) {
     int numToReplace = end - start;
     jsElement.callMethod(
         'splice',
         [path, start, numToReplace]
-          ..addAll(
-            iterable
-            .skip(skipCount)
-            .take(numToReplace)
-            .map((element) => jsValue(element))));
+          ..addAll(iterable
+              .skip(skipCount)
+              .take(numToReplace)
+              .map((element) => jsValue(element))));
   }
 }
