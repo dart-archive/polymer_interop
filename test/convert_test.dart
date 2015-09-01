@@ -11,14 +11,12 @@ import 'package:smoke/smoke.dart';
 import 'package:test/test.dart';
 
 MyModel model;
-CachedMyModel cachedModel;
 
 main() {
   smoke.useMirrors();
   group('conversions', () {
     setUp(() {
       model = new MyModel();
-      cachedModel = new CachedMyModel();
     });
 
     group('dartValue', () {
@@ -27,7 +25,7 @@ main() {
         var array = new JsArray.from([1, jsValue(model), 'a']);
         var dartList = dartValue(array) as List;
         expect(dartList, [1, model, 'a']);
-        expect(array['__dartClass__'], dartList);
+        expect(getDartInstance(array), dartList);
       });
 
       test('proxy array', () {
@@ -43,7 +41,7 @@ main() {
             new JsObject.jsify({'1': 1, 'model': jsValue(model), 'a': 'a',});
         var dartMap = dartValue(object) as Map;
         expect(dartMap, {'1': 1, 'model': model, 'a': 'a',});
-        expect(object['__dartClass__'], dartMap);
+        expect(getDartInstance(object), dartMap);
       });
 
       test('proxy object', () {
@@ -82,7 +80,7 @@ main() {
         var list = [1, model, 2];
         var jsArray = jsValue(list) as JsArray;
         expect(jsArray, new JsArray.from([1, model.jsProxy, 2]));
-        expect(jsArray['__dartClass__'], list);
+        expect(getDartInstance(jsArray), list);
       });
 
       test('Maps', () {
@@ -131,8 +129,6 @@ class MyModel extends Object with JsProxyInterface {
     return _jsProxyConstructor;
   }
 
-  bool get useCache => false;
-
   JsObject _jsProxy;
   JsObject get jsProxy {
     if (_jsProxy == null) {
@@ -146,10 +142,6 @@ class MyModel extends Object with JsProxyInterface {
   final finalVal = 1;
 
   int incrementBy([int amount = 1]) => value += amount;
-}
-
-class CachedMyModel extends MyModel {
-  bool get useCache => true;
 }
 
 void expectEqual(JsObject actual, Map expected) {
