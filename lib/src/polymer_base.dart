@@ -215,7 +215,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Returns true if notification actually took place, based on a dirty check
   /// of whether the new value was already known
   bool notifyPath(String path, value, {fromAbove}) =>
-      jsElement.callMethod('notifyPath', [path, value, fromAbove]);
+      jsElement.callMethod('notifyPath', [path, jsValue(value), fromAbove]);
 
   /// Serializes a property to its associated attribute.
   ///
@@ -243,7 +243,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// string. If the serialize method returns undefined, the attribute will be
   /// removed (this is the default for boolean type false).
   void serializeValueToAttribute(value, String attribute, [Element node]) {
-    jsElement.callMethod('serializeValueToAttribute', [value, attribute, node]);
+    jsElement.callMethod('serializeValueToAttribute', [jsValue(value), attribute, node]);
   }
 
   /// Override scrolling behavior to all direction, one direction, or none.
