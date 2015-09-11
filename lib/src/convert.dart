@@ -15,6 +15,9 @@ abstract class JsProxyInterface {
 /// TODO(jakemac): Use expando to cache js arrays that mirror dart lists?
 dynamic jsValue(dartValue) {
   if (dartValue is JsObject) {
+    // A JsObject created from dart, and then passed to JS. Set itself as the
+    // dart instance so it doesn't get converted to a Map/List on the way back.
+    addDartInstance(dartValue, dartValue);
     return dartValue;
   } else if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
@@ -23,14 +26,14 @@ dynamic jsValue(dartValue) {
     addDartInstance(newList, dartValue);
     return newList;
   } else if (dartValue is Map) {
-    var newMap = new JsObject(context['Object']);
+    var newMap = new JsObject(_Object);
     dartValue.forEach((k, v) {
       newMap[k] = jsValue(v);
     });
     addDartInstance(newMap, dartValue);
     return newMap;
   } else if (dartValue is DateTime) {
-    return new JsObject(context['Date'], [dartValue.millisecondsSinceEpoch]);
+    return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
   }
   return dartValue;
 }
@@ -53,12 +56,12 @@ dynamic dartValue(jsValue) {
     if (dartClass != null) return dartClass;
 
     var constructor = jsValue['constructor'];
-    if (constructor == context['Date']) {
+    if (constructor == _Date) {
       return new DateTime.fromMillisecondsSinceEpoch(
           jsValue.callMethod('getTime'));
-    } else if (constructor == context['Object']) {
+    } else if (constructor == _Object) {
       var dartMap = {};
-      var keys = context['Object'].callMethod('keys', [jsValue]);
+      var keys = _Object.callMethod('keys', [jsValue]);
       for (var key in keys) {
         dartMap[key] = dartValue(jsValue[key]);
       }
@@ -70,17 +73,17 @@ dynamic dartValue(jsValue) {
 }
 
 Type _dartType(JsFunction jsValue) {
-  if (jsValue == context['String']) {
+  if (jsValue == _String) {
     return String;
-  } else if (jsValue == context['Number']) {
+  } else if (jsValue == _Number) {
     return num;
-  } else if (jsValue == context['Boolean']) {
+  } else if (jsValue == _Boolean) {
     return bool;
-  } else if (jsValue == context['Array']) {
+  } else if (jsValue == _Array) {
     return List;
-  } else if (jsValue == context['Date']) {
+  } else if (jsValue == _Date) {
     return DateTime;
-  } else if (jsValue == context['Object']) {
+  } else if (jsValue == _Object) {
     return Map;
   }
   // Unknown type
@@ -89,14 +92,15 @@ Type _dartType(JsFunction jsValue) {
 
 /// Adds a reference to the original dart instance to a js proxy object.
 void addDartInstance(JsObject jsObject, dartInstance) {
-  var details = new JsObject.jsify(
-      {'configurable': false, 'enumerable': false, 'writeable': false,});
-  // Don't want to jsify the instance, if its a map that will make turn it into
-  // a JsObject.
-  details['value'] = dartInstance;
-  context['Object'].callMethod(
-      'defineProperty', [jsObject, '__dartClass__', details]);
+  jsObject['__dartClass__'] = dartInstance;
 }
 
 /// Gets a reference to the original dart instance from a js proxy object.
 dynamic getDartInstance(JsObject jsObject) => jsObject['__dartClass__'];
+
+final _Object = context['Object'];
+final _String = context['String'];
+final _Number = context['Number'];
+final _Boolean = context['Boolean'];
+final _Array = context['Array'];
+final _Date = context['Date'];
