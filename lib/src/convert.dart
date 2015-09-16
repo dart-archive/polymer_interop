@@ -3,7 +3,9 @@
 // BSD-style license that can be found in the LICENSE file.
 library polymer_interop.lib.src.convert;
 
+import 'dart:html';
 import 'dart:js';
+import 'custom_event_wrapper.dart';
 
 /// This package defines this interface, but does not provide an implementation.
 abstract class JsProxyInterface {
@@ -68,6 +70,9 @@ dynamic dartValue(jsValue) {
       addDartInstance(jsValue, dartMap);
       return dartMap;
     }
+  } else if (jsValue is CustomEvent) {
+    if (jsValue is CustomEventWrapper) return jsValue;
+    return new CustomEventWrapper(jsValue);
   }
   return jsValue;
 }

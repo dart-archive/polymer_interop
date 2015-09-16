@@ -62,6 +62,16 @@ main() {
         var dartDate = dartValue(jsDate) as DateTime;
         expect(dartDate.millisecondsSinceEpoch, 1000);
       });
+
+      test('CustomElement objects', () {
+        var detail = new MyModel();
+        var jsEvent =
+            context.callMethod('createEvent', ['my-event', jsValue(detail)]);
+        var dartEvent = dartValue(jsEvent);
+        expect(dartEvent.detail, detail);
+        expect(
+            new JsObject.fromBrowserObject(jsEvent)['detail'], detail.jsProxy);
+      });
     });
 
     group('jsValue', () {
@@ -122,7 +132,7 @@ class MyModel extends Object with JsProxyInterface {
     _addDescriptor(prototype, #readOnlyVal);
     _addDescriptor(prototype, #finalVal);
     prototype['incrementBy'] =
-    new JsFunction.withThis((jsThis, [int amount = 1]) {
+        new JsFunction.withThis((jsThis, [int amount = 1]) {
       return getDartInstance(jsThis).incrementBy(amount);
     });
 

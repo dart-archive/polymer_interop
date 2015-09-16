@@ -7,5 +7,11 @@
   <!--<script src="packages/browser/dart.js"></script>-->
   <script src="packages/test/dart.js"></script>
 </head>
-<body></body>
+<body>
+  <script type="application/javascript">
+    function createEvent(type, detail) {
+      return new CustomEvent(type, {detail: detail});
+    }
+  </script>
+</body>
 </html>

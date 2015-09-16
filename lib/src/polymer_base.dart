@@ -130,15 +130,11 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Dispatches a custom event with an optional detail object.
   fire(String type,
       {detail, bool canBubble: true, bool cancelable: true, Node node}) {
-    if (node == null) {
-      if (this is Node) {
-        node = this as Node;
-      } else {
-        throw 'Attempted to fire event from non-node object';
-      }
-    }
-    node.dispatchEvent(new CustomEvent(type,
-        detail: detail, canBubble: canBubble, cancelable: cancelable));
+    return jsElement.callMethod('fire', [
+      type,
+      detail,
+      new js.JsObject.jsify({'bubbles': canBubble, 'cancelable': cancelable,})
+    ]);
   }
 
   /// Immediately calls the debouncer callback and inactivates it.
@@ -243,7 +239,8 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// string. If the serialize method returns undefined, the attribute will be
   /// removed (this is the default for boolean type false).
   void serializeValueToAttribute(value, String attribute, [Element node]) {
-    jsElement.callMethod('serializeValueToAttribute', [jsValue(value), attribute, node]);
+    jsElement.callMethod(
+        'serializeValueToAttribute', [jsValue(value), attribute, node]);
   }
 
   /// Override scrolling behavior to all direction, one direction, or none.
