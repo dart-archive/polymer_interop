@@ -17,6 +17,7 @@ import 'dart:js' as js;
 import 'package:web_components/web_components.dart'
     show CustomElementProxyMixin;
 import 'convert.dart';
+import 'custom_event_wrapper.dart';
 
 /// A mixin to make it easier to interoperate with Polymer JS elements.
 ///
@@ -128,13 +129,13 @@ abstract class PolymerBase implements CustomElementProxyMixin {
       jsElement.callMethod('elementMatches', [selector, node]);
 
   /// Dispatches a custom event with an optional detail object.
-  fire(String type,
+  CustomEvent fire(String type,
       {detail, bool canBubble: true, bool cancelable: true, Node node}) {
-    return jsElement.callMethod('fire', [
+    return dartValue(jsElement.callMethod('fire', [
       type,
       detail,
       new js.JsObject.jsify({'bubbles': canBubble, 'cancelable': cancelable,})
-    ]);
+    ]));
   }
 
   /// Immediately calls the debouncer callback and inactivates it.
