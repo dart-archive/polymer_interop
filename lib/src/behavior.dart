@@ -13,19 +13,25 @@ abstract class BehaviorAnnotation {
   JsObject getBehavior(Type type);
 }
 
-// Annotation class for wrappers around behaviors written in javascript.
+// Annotation class for wrappers around behaviors written in Javascript.
 class BehaviorProxy implements BehaviorAnnotation {
-  // Path within js global context object to the original js behavior object.
-  final List<String> _jsPath;
+  // Path within JS global context object to the original JS behavior object.
+  // This can be either a dot separate string or a const list.
+  final _jsPath;
 
   // Returns the actual behavior.
   JsObject getBehavior(Type type) {
     return _behaviorsByType.putIfAbsent(type, () {
-      if (_jsPath.isEmpty) {
-        throw 'Invalid empty path for BehaviorProxy $_jsPath.';
+      if (_jsPath is! String && _jsPath is! List) {
+        throw 'Invalid path for @BehaviorProxy on type $type. Past must be a '
+            'dot separated String or a const List<String>';
       }
+      if (_jsPath.isEmpty) {
+        throw 'Invalid empty path for BehaviorProxy on type: $type';
+      }
+      var path = _jsPath is List ? _jsPath : _jsPath.split('.');
       var obj = context;
-      for (var part in _jsPath) {
+      for (var part in path) {
         obj = obj[part];
       }
       return obj;

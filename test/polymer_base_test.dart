@@ -260,7 +260,7 @@ main() async {
 
     test('linkPaths', () {
       var bindingElement = new BindingsElement();
-      bindingElement.myObject = {'string': 'initialValue',};
+      bindingElement.myObject = {'string': 'initialValue'};
 
       int objectChangedCount = 0;
       bindingElement.on['my-object-changed'].listen((_) {

@@ -7,7 +7,15 @@ import 'dart:html';
 import 'dart:js';
 import 'custom_event_wrapper.dart';
 
+/// An interface for objects which can create a proxy of themselves which is
+/// usable from JS. These proxies should read and write directly from the
+/// original dart object, they are not independent copies of it.
+///
 /// This package defines this interface, but does not provide an implementation.
+///
+/// The full Polymer Dart package defines a `JsProxy` mixin which implements
+/// this interface for any arbitrary class, or you can see an example of a
+/// manual implementation in `convert_test.dart` which does not use reflection.
 abstract class JsProxyInterface {
   JsFunction get jsProxyConstructor;
   JsObject get jsProxy;
@@ -16,12 +24,7 @@ abstract class JsProxyInterface {
 /// Converts a dart value to a js value, using proxies when possible.
 /// TODO(jakemac): Use expando to cache js arrays that mirror dart lists?
 dynamic jsValue(dartValue) {
-  if (dartValue is JsObject) {
-    // A JsObject created from dart, and then passed to JS. Set itself as the
-    // dart instance so it doesn't get converted to a Map/List on the way back.
-    addDartInstance(dartValue, dartValue);
-    return dartValue;
-  } else if (dartValue is JsProxyInterface) {
+  if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
   } else if (dartValue is Iterable) {
     var newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
@@ -49,6 +52,8 @@ dynamic dartValue(jsValue) {
     addDartInstance(jsValue, dartList);
     return dartList;
   } else if (jsValue is JsFunction) {
+    // If we are passed a recognized JS constructor function, return the
+    // corresponding dart type.
     var type = _dartType(jsValue);
     if (type != null) {
       return type;
@@ -97,6 +102,7 @@ Type _dartType(JsFunction jsValue) {
 
 /// Adds a reference to the original dart instance to a js proxy object.
 void addDartInstance(JsObject jsObject, dartInstance) {
+  assert(jsObject['__dartClass__'] == null);
   jsObject['__dartClass__'] = dartInstance;
 }
 

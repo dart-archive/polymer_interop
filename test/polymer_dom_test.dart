@@ -35,6 +35,7 @@ main() async {
   });
 
   group('PolmyerDom', () {
+
     test('field node', () {
       expect(domApi.node, node);
     });
@@ -48,13 +49,6 @@ main() async {
 
     test('getter classList', () {
       expect(domApi.classList, new isInstanceOf<PolymerClassList>());
-      domApi.classList.add('test');
-      Element element = domApi.node;
-      expect(element.classes.contains('test'), true);
-      domApi.classList.toggle('test');
-      expect(element.classes.contains('test'), false);
-      domApi.classList.toggle('test', false);
-      expect(element.classes.contains('test'), false);
     });
 
     test('getter lastChild', () {
@@ -165,6 +159,61 @@ main() async {
     test('setter text', () {
       domApi.text = 'My span.';
       expect(domApi.text, 'My span.');
+    });
+
+    group('PolymerClassList', () {
+      Element element;
+      PolymerClassList classList;
+
+      setUp(() {
+        element = domApi.node;
+        classList = domApi.classList;
+      });
+
+      test('add', () {
+        classList.add('test');
+        expect(element.classes.contains('test'), true);
+        classList.add('test2');
+        expect(element.classes.contains('test'), true);
+        expect(element.classes.contains('test2'), true);
+      });
+
+      test('addAll', () {
+        classList.addAll(['test3', 'test4']);
+        expect(element.classes.contains('test'), true);
+        expect(element.classes.contains('test2'), true);
+        expect(element.classes.contains('test3'), true);
+        expect(element.classes.contains('test4'), true);
+      });
+
+      test('remove', () {
+        classList.remove('test2');
+        expect(element.classes.contains('test'), true);
+        expect(element.classes.contains('test2'), false);
+        expect(element.classes.contains('test3'), true);
+        expect(element.classes.contains('test4'), true);
+        classList.remove('test');
+        expect(element.classes.contains('test'), false);
+      });
+
+      test('removeAll', () {
+        classList.removeAll(['test', 'test2', 'test3']);
+        expect(element.classes.contains('test'), false);
+        expect(element.classes.contains('test2'), false);
+        expect(element.classes.contains('test3'), false);
+        expect(element.classes.contains('test4'), true);
+      });
+
+      test('toggle', () {
+        classList.toggle('class1');
+        expect(element.classes.contains('class1'), true);
+        classList.toggle('class1', true);
+        expect(element.classes.contains('class1'), true);
+        classList.toggle('class1');
+        expect(element.classes.contains('class1'), false);
+        classList.toggle('class1', false);
+        expect(element.classes.contains('class1'), false);
+      });
     });
 
   });

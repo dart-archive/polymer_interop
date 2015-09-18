@@ -29,19 +29,28 @@ import 'custom_event_wrapper.dart';
 /// you need one of them please file an issue at
 /// https://github.com/dart-lang/polymer_interop/issues/new:
 ///
+///   # Methods which shouldn't be directly invoked
 ///   - attachedCallback
+///   - ready
+///
+///   # PolymerSerialize mixin from Polymer adds these
 ///   - deserialize
+///   - serialize
+///
+///   # Array modification apis - replaced with similar dart List apis
 ///   - arrayDelete
-///   - getNativePrototype
-///   - mixin
 ///   - pop
 ///   - push
-///   - ready
-///   - resolveUrl
-///   - serialize
 ///   - shift
 ///   - splice
-///   - unshift.
+///   - unshift
+///
+///   # Apis that don't make sense generally for Dart.
+///   - getNativePrototype
+///   - mixin
+///
+///   # Other
+///   - resolveUrl
 abstract class PolymerBase implements CustomElementProxyMixin {
   /// The underlying Js Element's `$` property.
   js.JsObject get $ => jsElement[r'$'];
@@ -81,7 +90,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Removes an HTML attribute from one node, and adds it to another.
   ///
   /// **Note**: This does not copy the value of the attribute, just the
-  /// attribute itself. The value will always be an empty string.
+  /// attribute name. The value will always be an empty string.
   void attributeFollows(String name, Element toElement, Element fromElement) {
     jsElement.callMethod('attributeFollows', [name, toElement, fromElement]);
   }

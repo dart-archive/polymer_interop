@@ -15,15 +15,18 @@ export 'src/behaviors/templatize.dart';
 export 'src/polymer_base.dart';
 
 final JsObject _Polymer = context['Polymer'];
+final JsObject _PolymerBase = (o) {
+  return o is JsObject ? o : new JsObject.fromBrowserObject(o);
+}(_Polymer['Base']);
 final JsObject _CaseMap = _Polymer['CaseMap'];
 
 /// Wrapper which provides access to many polymer js apis.
 class Polymer {
   static String dashToCamelCase(String dash) =>
-      (_CaseMap['dashToCamelCase'] as JsFunction).apply([dash]);
+      _CaseMap.callMethod('dashToCamelCase', [dash]);
 
   static String camelToDashCase(String camel) =>
-      (_CaseMap['camelToDashCase'] as JsFunction).apply([camel]);
+      _CaseMap.callMethod('camelToDashCase', [camel]);
 
   /// Polymer provides a custom API for manipulating DOM such that local DOM and
   /// light DOM trees are properly maintained.
@@ -33,17 +36,19 @@ class Polymer {
     _Polymer.callMethod('updateStyles');
   }
 
-  static LinkElement importHref(String href, {void onLoad(e), void onError(e)}) {
+  static LinkElement importHref(String href,
+      {void onLoad(e), void onError(e)}) {
     onLoad = Zone.current.bindUnaryCallback(onLoad);
     onError = Zone.current.bindUnaryCallback(onError);
-    return _Polymer['Base'].callMethod('importHref', [href, onLoad, onError]);
+    return _PolymerBase.callMethod('importHref', [href, onLoad, onError]);
   }
 }
 
 /// Polymer provides a custom API for manipulating DOM such that local DOM and
 /// light DOM trees are properly maintained. These methods and properties have
-/// the same signatures as their standard DOM equivalents, except that properties
-/// and methods that return a list of nodes return an Array, not a NodeList.
+/// the same signatures as their standard DOM equivalents, except that
+/// properties and methods that return a list of nodes return an Array, not a
+/// NodeList.
 ///
 /// Note: All DOM manipulation must use this API, as opposed to DOM API directly
 /// on nodes.
@@ -226,7 +231,7 @@ class PolymerDom {
   }
 }
 
-// TODO: add docs
+// Polymer's custom API for manipulating a CssClassSet
 class PolymerClassList {
   final PolymerDom domApi;
 
@@ -252,8 +257,21 @@ class PolymerClassList {
   /// exception.
   remove(String value) => _proxy.callMethod('remove', [value]);
 
+  /// Removes all supplied classes from an element's list of classes. If a class
+  /// does not exist in the element's list of classes, it will not throw an
+  /// error or exception.
+  removeAll(List<String> values) => _proxy.callMethod('remove', values);
+
   /// Toggles the existence of a class in an element's list of classes. If
   /// [shouldAdd] is true, This method will act the same as `this.add`.
-  toggle(String value, [bool shouldAdd]) =>
-      _proxy.callMethod('toggle', [value, shouldAdd]);
+  toggle(String value, [bool shouldAdd]) {
+    if (shouldAdd == null) {
+      return _proxy.callMethod('toggle', [value]);
+    } else {
+      return _proxy.callMethod('toggle', [value, shouldAdd]);
+    }
+  }
+
+  /// Whether or not the given class is currently present.
+  bool contains(value) => _proxy.callMethod('contains', [value]);
 }
