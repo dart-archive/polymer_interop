@@ -33,8 +33,8 @@ dynamic jsValue(dartValue) {
     if (newList==null) {
       newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
       jsArrayExpando[dartValue] = newList;
+      addDartInstance(newList, dartValue);
     }
-    addDartInstance(newList, dartValue);
     return newList;
   } else if (dartValue is Map) {
     var newMap = new JsObject(_Object);
