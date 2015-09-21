@@ -21,13 +21,19 @@ abstract class JsProxyInterface {
   JsObject get jsProxy;
 }
 
+Expando<JsArray> jsArrayExpando = new Expando<JsArray>();
+
 /// Converts a dart value to a js value, using proxies when possible.
 /// TODO(jakemac): Use expando to cache js arrays that mirror dart lists?
 dynamic jsValue(dartValue) {
   if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
   } else if (dartValue is Iterable) {
-    var newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
+    var newList = jsArrayExpando[dartValue];
+    if (newList==null) {
+      newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
+      jsArrayExpando[dartValue] = newList;
+    }
     addDartInstance(newList, dartValue);
     return newList;
   } else if (dartValue is Map) {
