@@ -22,7 +22,7 @@ import 'custom_event_wrapper.dart';
 /// A mixin to make it easier to interoperate with Polymer JS elements.
 ///
 /// Any class which uses this mixin must also implement the
-/// [CustomElementProxyMixin] and [Element] classes.
+/// [CustomElementProxyMixin] class.
 ///
 /// This is created from http://polymer.github.io/polymer/, but does not contain
 /// the following methods, since they don't generally apply to dart elements. If
