@@ -4,6 +4,7 @@
 @TestOn('browser')
 library polymer_interop.test.convert_test;
 
+import 'dart:html';
 import 'dart:js';
 import 'package:polymer_interop/polymer_interop.dart';
 import 'package:smoke/mirrors.dart' as smoke;
@@ -63,14 +64,14 @@ main() {
         expect(dartDate.millisecondsSinceEpoch, 1000);
       });
 
-      test('CustomElement objects', () {
+      test('CustomEvent objects', () {
         var detail = new MyModel();
         var jsEvent =
             context.callMethod('createEvent', ['my-event', jsValue(detail)]);
         var dartEvent = dartValue(jsEvent);
         expect(dartEvent.detail, detail);
         expect(
-            new JsObject.fromBrowserObject(jsEvent)['detail'], detail.jsProxy);
+            new JsObject.fromBrowserObject(jsEvent)['detail'], jsValue(detail));
       });
     });
 
@@ -111,6 +112,12 @@ main() {
         var jsDate = jsValue(dartDate);
         expect(jsDate.callMethod('getTime'), 1000);
       });
+
+      test('CustomEvent objects', () {
+        var event = new CustomEvent('hello');
+        var wrapper = new CustomEventWrapper(event);
+        expect(jsValue(wrapper), event);
+      });
     });
   });
 }
@@ -118,15 +125,12 @@ main() {
 class EmptyModel {}
 
 class MyModel extends Object with JsProxyInterface {
-  JsObject _jsProxyConstructor;
-  JsObject get jsProxyConstructor {
+  static JsFunction _jsProxyConstructor;
+  JsFunction get jsProxyConstructor {
     if (_jsProxyConstructor != null) return _jsProxyConstructor;
+    _jsProxyConstructor = context['MyModelJs'];
 
-    _jsProxyConstructor = new JsFunction.withThis((jsThis, instance) {
-      addDartInstance(jsThis, instance);
-    });
-
-    var prototype = new JsObject(context['Object']);
+    var prototype = _jsProxyConstructor['prototype'];
     _jsProxyConstructor['prototype'] = prototype;
     _addDescriptor(prototype, #value);
     _addDescriptor(prototype, #readOnlyVal);

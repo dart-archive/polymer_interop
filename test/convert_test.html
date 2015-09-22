@@ -12,6 +12,12 @@
     function createEvent(type, detail) {
       return new CustomEvent(type, {detail: detail});
     }
+
+    function MyModelJs(dartInstance) {
+      this.__dartClass__ = dartInstance;
+    }
+
+    MyModelJs.prototype = Object.create(Object.prototype);
   </script>
 </body>
 </html>

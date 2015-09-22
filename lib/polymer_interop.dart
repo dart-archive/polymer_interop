@@ -16,6 +16,7 @@ export 'src/polymer_base.dart';
 
 final JsObject _Polymer = context['Polymer'];
 final JsObject _PolymerBase = (o) {
+  // TODO(jakemac): https://github.com/dart-lang/sdk/issues/24371
   return o is JsObject ? o : new JsObject.fromBrowserObject(o);
 }(_Polymer['Base']);
 final JsObject _CaseMap = _Polymer['CaseMap'];
@@ -264,13 +265,8 @@ class PolymerClassList {
 
   /// Toggles the existence of a class in an element's list of classes. If
   /// [shouldAdd] is true, This method will act the same as `this.add`.
-  toggle(String value, [bool shouldAdd]) {
-    if (shouldAdd == null) {
-      return _proxy.callMethod('toggle', [value]);
-    } else {
-      return _proxy.callMethod('toggle', [value, shouldAdd]);
-    }
-  }
+  toggle(String value, [bool shouldAdd]) => _proxy.callMethod(
+      'toggle', shouldAdd == null ? [value] : [value, shouldAdd]);
 
   /// Whether or not the given class is currently present.
   bool contains(value) => _proxy.callMethod('contains', [value]);

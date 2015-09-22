@@ -7,44 +7,48 @@ import 'dart:html';
 import 'dart:js';
 import 'convert.dart';
 
+/// Wraps a [CustomEvent] to fix the `detail` field. Ensures that it will work
+/// regardless of if the event was fired from JS or Dart.
+///
+/// See https://github.com/dart-lang/sdk/issues/23680.
 class CustomEventWrapper implements CustomEvent {
-  CustomEvent proxy;
+  CustomEvent original;
 
-  CustomEventWrapper(this.proxy);
+  CustomEventWrapper(this.original);
 
   get detail {
-    var value = proxy.detail;
+    var value = original.detail;
     if (value == null) {
-      value = dartValue(new JsObject.fromBrowserObject(proxy)['detail']);
+      value = dartValue(new JsObject.fromBrowserObject(original)['detail']);
     }
     return value;
   }
 
-  bool get bubbles => proxy.bubbles;
+  bool get bubbles => original.bubbles;
 
-  bool get cancelable => proxy.cancelable;
+  bool get cancelable => original.cancelable;
 
-  DataTransfer get clipboardData => proxy.clipboardData;
+  DataTransfer get clipboardData => original.clipboardData;
 
-  EventTarget get currentTarget => proxy.currentTarget;
+  EventTarget get currentTarget => original.currentTarget;
 
-  bool get defaultPrevented => proxy.defaultPrevented;
+  bool get defaultPrevented => original.defaultPrevented;
 
-  int get eventPhase => proxy.eventPhase;
+  int get eventPhase => original.eventPhase;
 
-  Element get matchingTarget => proxy.matchingTarget;
+  Element get matchingTarget => original.matchingTarget;
 
-  List<Node> get path => proxy.path;
+  List<Node> get path => original.path;
 
-  void preventDefault() => proxy.preventDefault();
+  void preventDefault() => original.preventDefault();
 
-  void stopImmediatePropagation() => proxy.stopImmediatePropagation();
+  void stopImmediatePropagation() => original.stopImmediatePropagation();
 
-  void stopPropagation() => proxy.stopPropagation();
+  void stopPropagation() => original.stopPropagation();
 
-  EventTarget get target => proxy.target;
+  EventTarget get target => original.target;
 
-  int get timeStamp => proxy.timeStamp;
+  int get timeStamp => original.timeStamp;
 
-  String get type => proxy.type;
+  String get type => original.type;
 }

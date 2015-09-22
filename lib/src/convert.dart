@@ -39,6 +39,8 @@ dynamic jsValue(dartValue) {
     return newMap;
   } else if (dartValue is DateTime) {
     return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
+  } else if (dartValue is CustomEventWrapper) {
+    return dartValue.original;
   }
   return dartValue;
 }
