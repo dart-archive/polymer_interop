@@ -17,11 +17,11 @@ class CustomEventWrapper implements CustomEvent {
   CustomEventWrapper(this.original);
 
   get detail {
-    var value = original.detail;
+    var value = new JsObject.fromBrowserObject(original)['detail'];
     if (value == null) {
-      value = dartValue(new JsObject.fromBrowserObject(original)['detail']);
+      value = original.detail;
     }
-    return value;
+    return dartValue(value);
   }
 
   bool get bubbles => original.bubbles;
