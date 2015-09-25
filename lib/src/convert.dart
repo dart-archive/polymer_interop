@@ -21,21 +21,32 @@ abstract class JsProxyInterface {
   JsObject get jsProxy;
 }
 
+Expando<JsArray> _jsArrayExpando = new Expando<JsArray>();
+Expando<JsObject> _jsMapExpando = new Expando<JsObject>();
+
 /// Converts a dart value to a js value, using proxies when possible.
 /// TODO(jakemac): Use expando to cache js arrays that mirror dart lists?
 dynamic jsValue(dartValue) {
   if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
   } else if (dartValue is Iterable) {
-    var newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
-    addDartInstance(newList, dartValue);
+    var newList = _jsArrayExpando[dartValue];
+    if (newList == null) {
+      newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
+      _jsArrayExpando[dartValue] = newList;
+      addDartInstance(newList, dartValue);
+    }
     return newList;
   } else if (dartValue is Map) {
-    var newMap = new JsObject(_Object);
-    dartValue.forEach((k, v) {
-      newMap[k] = jsValue(v);
-    });
-    addDartInstance(newMap, dartValue);
+    var newMap = _jsMapExpando[dartValue];
+    if (newMap == null) {
+      newMap = new JsObject(_Object);
+      dartValue.forEach((k, v) {
+        newMap[k] = jsValue(v);
+      });
+      _jsMapExpando[dartValue] = newMap;
+      addDartInstance(newMap, dartValue);
+    }
     return newMap;
   } else if (dartValue is DateTime) {
     return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
@@ -51,6 +62,7 @@ dynamic dartValue(jsValue) {
     var dartList = getDartInstance(jsValue);
     if (dartList != null) return dartList;
     dartList = jsValue.map((item) => dartValue(item)).toList();
+    _jsArrayExpando[dartList] = jsValue;
     addDartInstance(jsValue, dartList);
     return dartList;
   } else if (jsValue is JsFunction) {
@@ -74,6 +86,7 @@ dynamic dartValue(jsValue) {
       for (var key in keys) {
         dartMap[key] = dartValue(jsValue[key]);
       }
+      _jsMapExpando[dartMap] = jsValue;
       addDartInstance(jsValue, dartMap);
       return dartMap;
     }
