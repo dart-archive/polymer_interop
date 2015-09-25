@@ -38,8 +38,8 @@ main() {
 
       test('object', () {
         var model = new MyModel();
-        var object =
-            new JsObject.jsify({'1': 1, 'model': convertToJs(model), 'a': 'a',});
+        var object = new JsObject.jsify(
+            {'1': 1, 'model': convertToJs(model), 'a': 'a',});
         var dartMap = convertToDart(object) as Map;
         expect(dartMap, {'1': 1, 'model': model, 'a': 'a',});
         expect(getDartInstance(object), dartMap);
@@ -66,12 +66,12 @@ main() {
 
       test('CustomEvent objects', () {
         var detail = new MyModel();
-        var jsEvent =
-            context.callMethod('createEvent', ['my-event', convertToJs(detail)]);
+        var jsEvent = context.callMethod(
+            'createEvent', ['my-event', convertToJs(detail)]);
         var dartEvent = convertToDart(jsEvent);
         expect(dartEvent.detail, detail);
-        expect(
-            new JsObject.fromBrowserObject(jsEvent)['detail'], convertToJs(detail));
+        expect(new JsObject.fromBrowserObject(jsEvent)['detail'],
+            convertToJs(detail));
       });
     });
 

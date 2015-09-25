@@ -11,7 +11,6 @@ import 'package:web_components/web_components.dart';
 import 'package:smoke/mirrors.dart' as smoke;
 import 'package:test/test.dart';
 
-
 main() async {
   await initWebComponents();
 

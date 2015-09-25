@@ -352,8 +352,10 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Inserts `elements` at position `index` to the list at `path`.
   void insertAll(String path, int index, Iterable elements) {
-    jsElement.callMethod('splice',
-        [path, index, 0]..addAll(elements.map((element) => convertToJs(element))));
+    jsElement.callMethod(
+        'splice',
+        [path, index, 0]
+          ..addAll(elements.map((element) => convertToJs(element))));
   }
 
   /// Removes the first occurrence of `value` from the list at `path`.
