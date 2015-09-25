@@ -21,7 +21,7 @@ class CustomEventWrapper implements CustomEvent {
     if (value == null) {
       value = original.detail;
     }
-    return dartValue(value);
+    return convertToDart(value);
   }
 
   bool get bubbles => original.bubbles;

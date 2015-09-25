@@ -22,11 +22,11 @@ main() async {
     // if webcomponents are not yet ready, wait until they are ready
     if (context["CustomElements"]["ready"] == null) {
       webComponentsReadyStream.listen(expectAsync(
-              (_) => expect(context["CustomElements"]["ready"], isNotNull)));
+          (_) => expect(context["CustomElements"]["ready"], isNotNull)));
     }
   });
 
-  test('setup', ()  {
+  test('setup', () {
     node = querySelector('.test-element');
     domApi = Polymer.dom(node);
     parent = querySelector('#parent');
@@ -35,7 +35,6 @@ main() async {
   });
 
   group('PolmyerDom', () {
-
     test('field node', () {
       expect(domApi.node, node);
     });
@@ -215,6 +214,5 @@ main() async {
         expect(element.classes.contains('class1'), false);
       });
     });
-
   });
 }
