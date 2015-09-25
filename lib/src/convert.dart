@@ -47,12 +47,6 @@ dynamic convertToJs(dartValue) {
       _jsMapExpando[dartValue] = newMap;
       setDartInstance(newMap, dartValue);
     }
-  } else if (dartValue is Map) {
-    var newMap = new JsObject(_Object);
-    dartValue.forEach((k, v) {
-      newMap[k] = convertToJs(v);
-    });
-    setDartInstance(newMap, dartValue);
     return newMap;
   } else if (dartValue is DateTime) {
     return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
