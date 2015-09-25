@@ -20,11 +20,11 @@ main() {
       model = new MyModel();
     });
 
-    group('dartValue', () {
+    group('convertToDart', () {
       test('array', () {
         var model = new MyModel();
-        var array = new JsArray.from([1, jsValue(model), 'a']);
-        var dartList = dartValue(array) as List;
+        var array = new JsArray.from([1, convertToJs(model), 'a']);
+        var dartList = convertToDart(array) as List;
         expect(dartList, [1, model, 'a']);
         expect(getDartInstance(array), dartList);
       });
@@ -32,15 +32,15 @@ main() {
       test('proxy array', () {
         var model = new MyModel();
         var list = [1, model, 'a'];
-        var array = jsValue(list) as JsArray;
-        expect(dartValue(array), list);
+        var array = convertToJs(list) as JsArray;
+        expect(convertToDart(array), list);
       });
 
       test('object', () {
         var model = new MyModel();
         var object =
-            new JsObject.jsify({'1': 1, 'model': jsValue(model), 'a': 'a',});
-        var dartMap = dartValue(object) as Map;
+            new JsObject.jsify({'1': 1, 'model': convertToJs(model), 'a': 'a',});
+        var dartMap = convertToDart(object) as Map;
         expect(dartMap, {'1': 1, 'model': model, 'a': 'a',});
         expect(getDartInstance(object), dartMap);
       });
@@ -48,48 +48,48 @@ main() {
       test('proxy object', () {
         var model = new MyModel();
         var map = {'1': 1, 'model': model, 'a': 'a',};
-        var object = jsValue(map) as JsObject;
-        expect(dartValue(object), map);
+        var object = convertToJs(map) as JsObject;
+        expect(convertToDart(object), map);
       });
 
       test('custom js objects are left alone', () {
         var constructor = new JsFunction.withThis((_) {});
         var object = new JsObject(constructor);
-        expect(dartValue(object), object);
+        expect(convertToDart(object), object);
       });
 
       test('Date objects', () {
         var jsDate = new JsObject(context['Date'], [1000]);
-        var dartDate = dartValue(jsDate) as DateTime;
+        var dartDate = convertToDart(jsDate) as DateTime;
         expect(dartDate.millisecondsSinceEpoch, 1000);
       });
 
       test('CustomEvent objects', () {
         var detail = new MyModel();
         var jsEvent =
-            context.callMethod('createEvent', ['my-event', jsValue(detail)]);
-        var dartEvent = dartValue(jsEvent);
+            context.callMethod('createEvent', ['my-event', convertToJs(detail)]);
+        var dartEvent = convertToDart(jsEvent);
         expect(dartEvent.detail, detail);
         expect(
-            new JsObject.fromBrowserObject(jsEvent)['detail'], jsValue(detail));
+            new JsObject.fromBrowserObject(jsEvent)['detail'], convertToJs(detail));
       });
     });
 
-    group('jsValue', () {
+    group('convertToJs', () {
       test('JsProxy objects', () {
         var model = new MyModel();
-        expect(jsValue(model), model.jsProxy);
+        expect(convertToJs(model), model.jsProxy);
       });
 
       test('JsObject objects', () {
         var object = new JsObject(context['Object']);
-        expect(jsValue(object), object);
+        expect(convertToJs(object), object);
       });
 
       test('Iterables', () {
         var model = new MyModel();
         var list = [1, model, 2];
-        var jsArray = jsValue(list) as JsArray;
+        var jsArray = convertToJs(list) as JsArray;
         expect(jsArray, new JsArray.from([1, model.jsProxy, 2]));
         expect(getDartInstance(jsArray), list);
       });
@@ -97,26 +97,26 @@ main() {
       test('Maps', () {
         var model = new MyModel();
         var map = {'1': 1, 'model': model, 'a': 'a',};
-        var jsObject = jsValue(map) as JsObject;
+        var jsObject = convertToJs(map) as JsObject;
         expectEqual(jsObject,
             {'1': 1, 'model': model.jsProxy, 'a': 'a', '__dartClass__': map,});
       });
 
       test('Arbitrary class', () {
         var model = new EmptyModel();
-        expect(jsValue(model), model);
+        expect(convertToJs(model), model);
       });
 
       test('DateTime objects', () {
         var dartDate = new DateTime.fromMillisecondsSinceEpoch(1000);
-        var jsDate = jsValue(dartDate);
+        var jsDate = convertToJs(dartDate);
         expect(jsDate.callMethod('getTime'), 1000);
       });
 
       test('CustomEvent objects', () {
         var event = new CustomEvent('hello');
         var wrapper = new CustomEventWrapper(event);
-        expect(jsValue(wrapper), event);
+        expect(convertToJs(wrapper), event);
       });
     });
   });
@@ -168,10 +168,10 @@ void expectEqual(JsObject actual, Map expected) {
 void _addDescriptor(JsObject prototype, Symbol name) {
   var descriptor = {
     'get': new JsFunction.withThis((JsObject instance) {
-      return jsValue(read(getDartInstance(instance), name));
+      return convertToJs(read(getDartInstance(instance), name));
     }),
     'set': new JsFunction.withThis((JsObject instance, value) {
-      write(getDartInstance(instance), name, dartValue(value));
+      write(getDartInstance(instance), name, convertToDart(value));
     }),
   };
   // Add a proxy getter/setter for this property.

@@ -26,13 +26,13 @@ Expando<JsObject> _jsMapExpando = new Expando<JsObject>();
 
 /// Converts a dart value to a js value, using proxies when possible.
 /// TODO(jakemac): Use expando to cache js arrays that mirror dart lists?
-dynamic jsValue(dartValue) {
+dynamic convertToJs(dartValue) {
   if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
   } else if (dartValue is Iterable) {
     var newList = _jsArrayExpando[dartValue];
     if (newList == null) {
-      newList = new JsArray.from(dartValue.map((item) => jsValue(item)));
+      newList = new JsArray.from(dartValue.map((item) => convertToJs(item)));
       _jsArrayExpando[dartValue] = newList;
       addDartInstance(newList, dartValue);
     }
@@ -42,11 +42,17 @@ dynamic jsValue(dartValue) {
     if (newMap == null) {
       newMap = new JsObject(_Object);
       dartValue.forEach((k, v) {
-        newMap[k] = jsValue(v);
+        newMap[k] = convertToJs(v);
       });
       _jsMapExpando[dartValue] = newMap;
       addDartInstance(newMap, dartValue);
     }
+  } else if (dartValue is Map) {
+    var newMap = new JsObject(_Object);
+    dartValue.forEach((k, v) {
+      newMap[k] = convertToJs(v);
+    });
+    addDartInstance(newMap, dartValue);
     return newMap;
   } else if (dartValue is DateTime) {
     return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
@@ -57,11 +63,11 @@ dynamic jsValue(dartValue) {
 }
 
 /// Converts a js value to a dart value, unwrapping proxies as they are found.
-dynamic dartValue(jsValue) {
+dynamic convertToDart(jsValue) {
   if (jsValue is JsArray) {
     var dartList = getDartInstance(jsValue);
     if (dartList != null) return dartList;
-    dartList = jsValue.map((item) => dartValue(item)).toList();
+    dartList = jsValue.map((item) => convertToDart(item)).toList();
     _jsArrayExpando[dartList] = jsValue;
     addDartInstance(jsValue, dartList);
     return dartList;
@@ -84,7 +90,7 @@ dynamic dartValue(jsValue) {
       var dartMap = {};
       var keys = _Object.callMethod('keys', [jsValue]);
       for (var key in keys) {
-        dartMap[key] = dartValue(jsValue[key]);
+        dartMap[key] = convertToDart(jsValue[key]);
       }
       _jsMapExpando[dartMap] = jsValue;
       addDartInstance(jsValue, dartMap);

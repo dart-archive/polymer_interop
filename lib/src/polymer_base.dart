@@ -140,7 +140,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Dispatches a custom event with an optional detail object.
   CustomEvent fire(String type,
       {detail, bool canBubble: true, bool cancelable: true, Node node}) {
-    return dartValue(jsElement.callMethod('fire', [
+    return convertToDart(jsElement.callMethod('fire', [
       type,
       detail,
       new js.JsObject.jsify({'bubbles': canBubble, 'cancelable': cancelable,})
@@ -221,7 +221,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Returns true if notification actually took place, based on a dirty check
   /// of whether the new value was already known
   bool notifyPath(String path, value, {fromAbove}) =>
-      jsElement.callMethod('notifyPath', [path, jsValue(value), fromAbove]);
+      jsElement.callMethod('notifyPath', [path, convertToJs(value), fromAbove]);
 
   /// Serializes a property to its associated attribute.
   ///
@@ -250,7 +250,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// removed (this is the default for boolean type false).
   void serializeValueToAttribute(value, String attribute, [Element node]) {
     jsElement.callMethod(
-        'serializeValueToAttribute', [jsValue(value), attribute, node]);
+        'serializeValueToAttribute', [convertToJs(value), attribute, node]);
   }
 
   /// Override scrolling behavior to all direction, one direction, or none.
@@ -312,17 +312,17 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Sets a value on an attribute path, and notifies of changes.
   void set(String path, value) =>
-      jsElement.callMethod('set', [path, jsValue(value)]);
+      jsElement.callMethod('set', [path, convertToJs(value)]);
 
   /// Add `item` to a list at `path`.
   void add(String path, item) {
-    jsElement.callMethod('push', [path, jsValue(item)]);
+    jsElement.callMethod('push', [path, convertToJs(item)]);
   }
 
   /// Add `items` to a list at `path`.
   void addAll(String path, Iterable items) {
     jsElement.callMethod(
-        'push', [path]..addAll(items.map((item) => jsValue(item))));
+        'push', [path]..addAll(items.map((item) => convertToJs(item))));
   }
 
   /// Remove all items from a list at `path`.
@@ -337,23 +337,23 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     jsElement.callMethod(
         'splice',
         [path, start, numToFill]
-          ..addAll(new List.filled(numToFill, jsValue(fillValue))));
+          ..addAll(new List.filled(numToFill, convertToJs(fillValue))));
   }
 
   /// Gets a value at `path` for the `root` object. The `root` defaults to
   /// `this`. The `root` must be a JsProxy or PolymerElement object.
   get(String path, [root]) =>
-      dartValue(jsElement.callMethod('get', [path, jsValue(root)]));
+      convertToDart(jsElement.callMethod('get', [path, convertToJs(root)]));
 
   /// Inserts `element` at position `index` to the list at `path`.
   void insert(String path, int index, element) {
-    jsElement.callMethod('splice', [path, index, 0, jsValue(element)]);
+    jsElement.callMethod('splice', [path, index, 0, convertToJs(element)]);
   }
 
   /// Inserts `elements` at position `index` to the list at `path`.
   void insertAll(String path, int index, Iterable elements) {
     jsElement.callMethod('splice',
-        [path, index, 0]..addAll(elements.map((element) => jsValue(element))));
+        [path, index, 0]..addAll(elements.map((element) => convertToJs(element))));
   }
 
   /// Removes the first occurrence of `value` from the list at `path`.
@@ -373,12 +373,12 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Removes the item at `index` from the list at `path`. Returns the removed
   /// element.
   dynamic removeAt(String path, int index) {
-    return dartValue(jsElement.callMethod('splice', [path, index, 1])[0]);
+    return convertToDart(jsElement.callMethod('splice', [path, index, 1])[0]);
   }
 
   /// Removes the last from the list at `path`. Returns the removed element.
   dynamic removeLast(String path) {
-    return dartValue(jsElement.callMethod('pop', [path]));
+    return convertToDart(jsElement.callMethod('pop', [path]));
   }
 
   /// Removes the objects in the range `start` inclusive to `end` exclusive from
@@ -406,7 +406,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     jsElement.callMethod(
         'splice',
         [path, start, end - start]
-          ..addAll(replacement.map((element) => jsValue(element))));
+          ..addAll(replacement.map((element) => convertToJs(element))));
   }
 
   /// Removes all objects from the list at `path` that fail to satisfy `test`.
@@ -422,7 +422,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     jsElement.callMethod(
         'splice',
         [path, index, numToRemove]
-          ..addAll(iterable.map((element) => jsValue(element))));
+          ..addAll(iterable.map((element) => convertToJs(element))));
   }
 
   /// Copies the objects of `iterable`, skipping `skipCount` objects first, into
@@ -436,6 +436,6 @@ abstract class PolymerBase implements CustomElementProxyMixin {
           ..addAll(iterable
               .skip(skipCount)
               .take(numToReplace)
-              .map((element) => jsValue(element))));
+              .map((element) => convertToJs(element))));
   }
 }
