@@ -34,7 +34,7 @@ dynamic convertToJs(dartValue) {
     if (newList == null) {
       newList = new JsArray.from(dartValue.map((item) => convertToJs(item)));
       _jsArrayExpando[dartValue] = newList;
-      addDartInstance(newList, dartValue);
+      setDartInstance(newList, dartValue);
     }
     return newList;
   } else if (dartValue is Map) {
@@ -45,14 +45,14 @@ dynamic convertToJs(dartValue) {
         newMap[k] = convertToJs(v);
       });
       _jsMapExpando[dartValue] = newMap;
-      addDartInstance(newMap, dartValue);
+      setDartInstance(newMap, dartValue);
     }
   } else if (dartValue is Map) {
     var newMap = new JsObject(_Object);
     dartValue.forEach((k, v) {
       newMap[k] = convertToJs(v);
     });
-    addDartInstance(newMap, dartValue);
+    setDartInstance(newMap, dartValue);
     return newMap;
   } else if (dartValue is DateTime) {
     return new JsObject(_Date, [dartValue.millisecondsSinceEpoch]);
@@ -69,7 +69,7 @@ dynamic convertToDart(jsValue) {
     if (dartList != null) return dartList;
     dartList = jsValue.map((item) => convertToDart(item)).toList();
     _jsArrayExpando[dartList] = jsValue;
-    addDartInstance(jsValue, dartList);
+    setDartInstance(jsValue, dartList);
     return dartList;
   } else if (jsValue is JsFunction) {
     // If we are passed a recognized JS constructor function, return the
@@ -93,7 +93,7 @@ dynamic convertToDart(jsValue) {
         dartMap[key] = convertToDart(jsValue[key]);
       }
       _jsMapExpando[dartMap] = jsValue;
-      addDartInstance(jsValue, dartMap);
+      setDartInstance(jsValue, dartMap);
       return dartMap;
     }
   } else if (jsValue is CustomEvent) {
@@ -122,7 +122,7 @@ Type _dartType(JsFunction jsValue) {
 }
 
 /// Adds a reference to the original dart instance to a js proxy object.
-void addDartInstance(JsObject jsObject, dartInstance) {
+void setDartInstance(JsObject jsObject, dartInstance) {
   assert(jsObject['__dartClass__'] == null);
   jsObject['__dartClass__'] = dartInstance;
 }
