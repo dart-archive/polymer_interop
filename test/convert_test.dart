@@ -58,6 +58,12 @@ main() {
         expect(convertToDart(object), object);
       });
 
+      test('objects created with Object.create() are left alone', () {
+        var object = context['Object']
+            .callMethod('create', [new JsObject(context['Object'])]);
+        expect(convertToDart(object), object);
+      });
+
       test('Date objects', () {
         var jsDate = new JsObject(context['Date'], [1000]);
         var dartDate = convertToDart(jsDate) as DateTime;

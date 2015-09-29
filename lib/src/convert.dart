@@ -80,7 +80,8 @@ dynamic convertToDart(jsValue) {
     if (constructor == _Date) {
       return new DateTime.fromMillisecondsSinceEpoch(
           jsValue.callMethod('getTime'));
-    } else if (constructor == _Object) {
+    } else if (constructor == _Object &&
+        jsValue['__proto__'] == _ObjectPrototype) {
       var dartMap = {};
       var keys = _Object.callMethod('keys', [jsValue]);
       for (var key in keys) {
@@ -125,6 +126,7 @@ void setDartInstance(JsObject jsObject, dartInstance) {
 dynamic getDartInstance(JsObject jsObject) => jsObject['__dartClass__'];
 
 final _Object = context['Object'];
+final _ObjectPrototype = _Object['prototype'];
 final _String = context['String'];
 final _Number = context['Number'];
 final _Boolean = context['Boolean'];
