@@ -7,32 +7,18 @@ import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:polymer_interop/polymer_interop.dart';
+import 'package:web_components/web_components.dart';
 import 'dart:js';
 import 'dart:async';
 
 main() async {
-  Element node;
-  PolymerDom domApi;
-  DivElement parent;
-  SpanElement child;
-  SpanElement beforeNode;
-  Stream webComponentsReadyStream = window.on['WebComponentsReady'];
+  await initWebComponents();
 
-  test("WebComponentsReady", () {
-    // if webcomponents are not yet ready, wait until they are ready
-    if (context["CustomElements"]["ready"] == null) {
-      webComponentsReadyStream.listen(expectAsync(
-          (_) => expect(context["CustomElements"]["ready"], isNotNull)));
-    }
-  });
-
-  test('setup', () {
-    node = querySelector('.test-element');
-    domApi = Polymer.dom(node);
-    parent = querySelector('#parent');
-    child = new SpanElement()..text = 'My span.';
-    beforeNode = new SpanElement()..text = 'Before Node. ';
-  });
+  CustomElement node = querySelector('.test-element');
+  PolymerDom domApi = Polymer.dom(node);
+  DivElement parent = querySelector('#parent');
+  SpanElement child = new SpanElement()..text = 'My span.';
+  SpanElement beforeNode = new SpanElement()..text = 'Before Node. ';
 
   group('PolmyerDom', () {
     test('field node', () {
@@ -214,5 +200,34 @@ main() async {
         expect(element.classes.contains('class1'), false);
       });
     });
+
+    test('PolymerEvent', () {
+      var button = node.$['myButton'];
+      var done = document.body.on['click'].first.then((event) {
+        event = Polymer.dom(event) as PolymerEvent;
+        expect(event.localTarget, node);
+        expect(event.rootTarget, button);
+        expect(event.path, [
+          button,
+          node.$['wrapper'],
+          node.root,
+          node,
+          parent,
+          document.body,
+          document.documentElement,
+          document,
+          window,
+        ]);
+      });
+
+      button.click();
+      return done;
+    });
   });
+}
+
+@CustomElementProxy('custom-element')
+class CustomElement extends HtmlElement
+    with PolymerBase, CustomElementProxyMixin {
+  CustomElement.created() : super.created();
 }

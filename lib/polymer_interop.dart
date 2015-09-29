@@ -31,7 +31,16 @@ class Polymer {
 
   /// Polymer provides a custom API for manipulating DOM such that local DOM and
   /// light DOM trees are properly maintained.
-  static PolymerDom dom(node) => new PolymerDom(node);
+  ///
+  /// Also supports unified events for Shady/Shadow dom as described here
+  /// https://www.polymer-project.org/1.0/docs/devguide/events.html#retargeting
+  static dom(nodeOrEvent) {
+    if (nodeOrEvent is Event) {
+      return new PolymerEvent(nodeOrEvent);
+    } else {
+      return new PolymerDom(nodeOrEvent);
+    }
+  }
 
   static void updateStyles() {
     _Polymer.callMethod('updateStyles');
@@ -270,4 +279,25 @@ class PolymerClassList {
 
   /// Whether or not the given class is currently present.
   bool contains(value) => _proxy.callMethod('contains', [value]);
+}
+
+/// A normalized event object that provides equivalent target data on both shady
+/// DOM and shadow DOM. See the following for more information
+/// https://www.polymer-project.org/1.0/docs/devguide/events.html#retargeting.
+class PolymerEvent {
+  final JsObject _proxy;
+
+  PolymerEvent(Event event)
+      : _proxy = _Polymer.callMethod('dom', [event]);
+
+  /// The original or root target before shadow retargeting (equivalent to
+  /// event.path[0] under shadow DOM or event.target under shadyDOM).
+  get rootTarget => _proxy['rootTarget'];
+
+  /// Retargeted event target (equivalent to event.target under shadow DOM)
+  get localTarget => _proxy['localTarget'];
+
+  /// Array of nodes through which event will pass (equivalent to event.path
+  /// under shadow DOM).
+  get path => _proxy['path'];
 }
