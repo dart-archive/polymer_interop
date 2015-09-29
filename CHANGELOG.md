@@ -1,3 +1,7 @@
+## 0.2.0
+  * Update to polymer js
+    [v1.1.0](https://github.com/Polymer/polymer/tree/v1.1.0)
+
 ## 0.1.1
   * Delete `lib/src/polymer.js` when deploying to reduce output size.
 
