@@ -81,6 +81,9 @@
     <template>
       <div id="myObject">{{myObject.string}}</div>
       <div id="myString">{{myString}}</div>
+      <template is="dom-repeat" items="{{myArray}}">
+        <span class="item">{{item}}</span>
+      </template>
     </template>
   </dom-module>
   <script>
@@ -93,6 +96,10 @@
         },
         myString: {
           type: Object,
+          notify: true
+        },
+        myArray: {
+          type: Array,
           notify: true
         }
       }
