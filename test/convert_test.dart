@@ -10,11 +10,14 @@ import 'package:polymer_interop/polymer_interop.dart';
 import 'package:smoke/mirrors.dart' as smoke;
 import 'package:smoke/smoke.dart';
 import 'package:test/test.dart';
+import 'package:web_components/web_components.dart';
 
 MyModel model;
 
-main() {
+main() async {
   smoke.useMirrors();
+  await initWebComponents();
+
   group('conversions', () {
     setUp(() {
       model = new MyModel();
