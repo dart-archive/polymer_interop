@@ -151,15 +151,21 @@ main() async {
 
     test('fire', () {
       var done = new Completer();
-      basicElement.on['my-event'].take(1).listen((CustomEvent e) {
-        expect(e.type, 'my-event');
-        expect(e.detail, 'myDetail');
-        expect(e.bubbles, isFalse);
-        expect(e.cancelable, isFalse);
+      var detail = {'hello': 'world'};
+      basicElement.on['my-event'].take(1).listen((e) {
+        var jsDetail = new JsObject.fromBrowserObject(e)['detail'];
+        expect(jsDetail is JsObject, isTrue);
+        expect(jsDetail, convertToJs(detail));
+
+        CustomEventWrapper dartEvent = convertToDart(e);
+        expect(dartEvent.type, 'my-event');
+        expect(dartEvent.detail, detail);
+        expect(dartEvent.bubbles, isFalse);
+        expect(dartEvent.cancelable, isFalse);
         done.complete();
       });
       basicElement.fire('my-event',
-          detail: 'myDetail', canBubble: false, cancelable: false);
+          detail: detail, canBubble: false, cancelable: false);
 
       return done.future;
     });
@@ -301,7 +307,11 @@ main() async {
 
       test('List indexes', () {
         var bindingsElement = new BindingsElement();
-        bindingsElement.myArray = [{'value': 1}, {'value': 2}, {'value': 3}];
+        bindingsElement.myArray = [
+          {'value': 1},
+          {'value': 2},
+          {'value': 3}
+        ];
         // Get indexes/keys out of sync
         bindingsElement.removeAt('myArray', 0);
         var done =
