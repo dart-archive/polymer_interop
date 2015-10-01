@@ -221,9 +221,9 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Returns true if notification actually took place, based on a dirty check
   /// of whether the new value was already known
   ///
-  /// Today this just delegates to `set`, which is a bit more expensive but
-  /// does the right thing in all cases. We actually need to update values on
-  /// the JS Side of things for many types of objects.
+  /// **Dart Note**: Today this just delegates to `set`, which is a bit more
+  /// expensive but does the right thing in all cases. We actually need to
+  /// update values on the JS Side of things anyways for many types of objects.
   void notifyPath(String path, value) => set(path, value);
 
   /// Serializes a property to its associated attribute.
