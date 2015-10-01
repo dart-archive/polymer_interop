@@ -1,0 +1,16 @@
+<link rel="import" href="../polymer_micro.html">
+<script>
+  (function() {
+    var descriptor = {
+      'enumerable': false, 'configurable': false, 'writable': false};
+
+    Polymer.PolymerInterop = {
+      // Sets a dart instance on a js object, using a non-enumerable,
+      // non-configurable, non-writable field.
+      setDartInstance: function(jsObject, dartObject) {
+        descriptor.value = dartObject;
+        Object.defineProperty(jsObject, '__dartClass__', descriptor);
+      }
+    }
+  })();
+</script>

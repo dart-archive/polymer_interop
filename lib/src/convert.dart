@@ -1,10 +1,12 @@
 // Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
+@HtmlImport('convert.html')
 library polymer_interop.lib.src.convert;
 
 import 'dart:html';
 import 'dart:js';
+import 'package:web_components/web_components.dart';
 import 'custom_event_wrapper.dart';
 
 /// An interface for objects which can create a proxy of themselves which is
@@ -116,10 +118,12 @@ Type _dartType(JsFunction jsValue) {
   return null;
 }
 
+final JsFunction _setDartInstance = context['Polymer']['PolymerInterop']
+    ['setDartInstance'];
+
 /// Adds a reference to the original dart instance to a js proxy object.
 void setDartInstance(JsObject jsObject, dartInstance) {
-  assert(jsObject['__dartClass__'] == null);
-  jsObject['__dartClass__'] = dartInstance;
+  _setDartInstance.apply([jsObject, dartInstance]);
 }
 
 /// Gets a reference to the original dart instance from a js proxy object.
