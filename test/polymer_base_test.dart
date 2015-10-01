@@ -282,19 +282,45 @@ main() async {
       expect(basicElement.counterCalledCount, 1);
     });
 
-    test('notifyPath', () {
-      var done = new Completer();
-      var bindingsElement = new BindingsElement();
-      bindingsElement.myObject = {};
-      bindingsElement.on['my-object-changed'].take(1).listen((CustomEvent e) {
-        expect(e.detail, isNotNull);
-        expect(e.detail['path'], 'myObject.foo');
-        expect(e.detail['value'], 'bar');
-        done.complete();
+    group('notifyPath', () {
+      test('Model object', () {
+        var done = new Completer();
+        var bindingsElement = new BindingsElement();
+        bindingsElement.myObject = {};
+        bindingsElement.on['my-object-changed'].take(1).listen((CustomEvent e) {
+          expect(e.detail, isNotNull);
+          expect(e.detail['path'], 'myObject.foo');
+          expect(e.detail['value'], 'bar');
+          done.complete();
+        });
+
+        /// This actually acts like `set`, in that it will update the JS Object.
+        bindingsElement.notifyPath('myObject.foo', 'bar');
+        return done.future;
       });
-      bindingsElement.myObject['foo'] = 'bar';
-      bindingsElement.notifyPath('myObject.foo', 'bar');
-      return done.future;
+
+      test('List indexes', () {
+        var bindingsElement = new BindingsElement();
+        bindingsElement.myArray = [{'value': 1}, {'value': 2}, {'value': 3}];
+        // Get indexes/keys out of sync
+        bindingsElement.removeAt('myArray', 0);
+        var done =
+            bindingsElement.on['my-array-changed'].first.then((CustomEvent e) {
+          expect(e.detail, isNotNull);
+          // Notification fires with the key, not the index.
+          expect(e.detail['path'], 'myArray.2.value');
+          expect(e.detail['value'], 4);
+
+          // The list is still correct!
+          expect(bindingsElement.jsElement['myArray'].length, 2);
+          expect(bindingsElement.jsElement['myArray'][0]['value'], 2);
+          expect(bindingsElement.jsElement['myArray'][1]['value'], 4);
+        });
+
+        /// This actually acts like `set`, in that it will update the JS Array.
+        bindingsElement.notifyPath('myArray.1.value', 4);
+        return done;
+      });
     });
 
     test('reflectPropertyToAttribute', () {
@@ -434,5 +460,10 @@ class BindingsElement extends HtmlElement
   String get myString => jsElement['myString'];
   void set myString(val) {
     jsElement['myString'] = val;
+  }
+
+  JsArray get myArray => jsElement['myArray'];
+  void set myArray(List val) {
+    jsElement['myArray'] = new JsObject.jsify(val);
   }
 }
