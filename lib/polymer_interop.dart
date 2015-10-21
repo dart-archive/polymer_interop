@@ -9,6 +9,7 @@ import 'dart:html';
 import 'dart:js';
 import 'package:web_components/web_components.dart';
 export 'src/behavior.dart';
+import 'src/convert.dart';
 export 'src/convert.dart';
 export 'src/custom_event_wrapper.dart';
 export 'src/behaviors/templatize.dart';
@@ -288,7 +289,7 @@ class PolymerEvent {
   final JsObject _proxy;
 
   PolymerEvent(Event event)
-      : _proxy = _Polymer.callMethod('dom', [event]);
+      : _proxy = _Polymer.callMethod('dom', [convertToJs(event)]);
 
   /// The original or root target before shadow retargeting (equivalent to
   /// event.path[0] under shadow DOM or event.target under shadyDOM).
