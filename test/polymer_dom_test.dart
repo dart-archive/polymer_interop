@@ -200,27 +200,49 @@ main() async {
         expect(element.classes.contains('class1'), false);
       });
     });
+  });
 
-    test('PolymerEvent', () {
-      var button = node.$['myButton'];
+  group('PolymerEvent', () {
+    var button;
+
+    setUp(() {
+      button = node.$['myButton'];
+    });
+
+    void testEvent(event) {
+      event = Polymer.dom(event) as PolymerEvent;
+      expect(event.localTarget, node);
+      expect(event.rootTarget, button);
+      expect(event.path, [
+        button,
+        node.$['wrapper'],
+        node.root,
+        node,
+        parent,
+        document.body,
+        document.documentElement,
+        document,
+        window,
+      ]);
+    }
+
+    test('basic', () {
       var done = document.body.on['click'].first.then((event) {
-        event = Polymer.dom(event) as PolymerEvent;
-        expect(event.localTarget, node);
-        expect(event.rootTarget, button);
-        expect(event.path, [
-          button,
-          node.$['wrapper'],
-          node.root,
-          node,
-          parent,
-          document.body,
-          document.documentElement,
-          document,
-          window,
-        ]);
+        testEvent(event);
       });
 
       button.click();
+      return done;
+    });
+
+    test('works with CustomEventWrapper objects', () {
+      var button = node.$['myButton'];
+
+      var done = document.body.on['hello'].first.then((event) {
+        testEvent(new CustomEventWrapper(event));
+      });
+
+      button.dispatchEvent(new CustomEvent('hello', detail: 'world'));
       return done;
     });
   });

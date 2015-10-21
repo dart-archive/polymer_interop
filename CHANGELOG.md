@@ -1,3 +1,7 @@
+## 1.0.0-rc.2
+  * Call `convertToJs` automatically on any events passed to `Polymer.dom`,
+    [#28](https://github.com/dart-lang/polymer_interop/issues/28).
+
 ## 1.0.0-rc.1
   * Update to polymer js
     [v1.1.4](https://github.com/Polymer/polymer/tree/v1.1.4).
