@@ -143,7 +143,8 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     return convertToDart(jsElement.callMethod('fire', [
       type,
       convertToJs(detail),
-      new js.JsObject.jsify({'bubbles': canBubble, 'cancelable': cancelable,})
+      new js.JsObject.jsify(
+          {'bubbles': canBubble, 'cancelable': cancelable, 'node': node})
     ]));
   }
 

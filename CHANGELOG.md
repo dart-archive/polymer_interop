@@ -1,3 +1,6 @@
+## 1.0.0-rc.3
+  * Fix `node` optional argument to `fire` method of `PolymerBase` class.
+
 ## 1.0.0-rc.2
   * Call `convertToJs` automatically on any events passed to `Polymer.dom`,
     [#28](https://github.com/dart-lang/polymer_interop/issues/28).
