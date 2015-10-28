@@ -149,25 +149,44 @@ main() async {
           basicElement.elementMatches('other-element', basicElement), isFalse);
     });
 
-    test('fire', () {
-      var done = new Completer();
-      var detail = {'hello': 'world'};
-      basicElement.on['my-event'].take(1).listen((e) {
-        var jsDetail = new JsObject.fromBrowserObject(e)['detail'];
-        expect(jsDetail is JsObject, isTrue);
-        expect(jsDetail, convertToJs(detail));
+    group('fire', () {
+      test('on self', () {
+        var detail = {'hello': 'world'};
+        var done = basicElement.on['my-event'].first.then((e) {
+          var jsDetail = new JsObject.fromBrowserObject(e)['detail'];
+          expect(jsDetail is JsObject, isTrue);
+          expect(jsDetail, convertToJs(detail));
 
-        CustomEventWrapper dartEvent = convertToDart(e);
-        expect(dartEvent.type, 'my-event');
-        expect(dartEvent.detail, detail);
-        expect(dartEvent.bubbles, isFalse);
-        expect(dartEvent.cancelable, isFalse);
-        done.complete();
+          CustomEventWrapper dartEvent = convertToDart(e);
+          expect(dartEvent.type, 'my-event');
+          expect(dartEvent.detail, detail);
+          expect(dartEvent.bubbles, isFalse);
+          expect(dartEvent.cancelable, isFalse);
+          expect(dartEvent.target, basicElement);
+        });
+        basicElement.fire('my-event',
+            detail: detail, canBubble: false, cancelable: false);
+
+        return done;
       });
-      basicElement.fire('my-event',
-          detail: detail, canBubble: false, cancelable: false);
 
-      return done.future;
+      test('on another node', () {
+        var detail = {'hello': 'world'};
+        var done = document.body.on['my-event'].first.then((e) {
+          CustomEventWrapper dartEvent = convertToDart(e);
+          expect(dartEvent.type, 'my-event');
+          expect(dartEvent.detail, detail);
+          expect(dartEvent.bubbles, isFalse);
+          expect(dartEvent.cancelable, isFalse);
+          expect(dartEvent.target, document.body);
+        });
+        basicElement.fire('my-event',
+            detail: detail,
+            canBubble: false,
+            cancelable: false,
+            node: document.body);
+        return done;
+      });
     });
 
     test('flushDebouncer', () {
