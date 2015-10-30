@@ -446,6 +446,39 @@ abstract class PolymerBase implements CustomElementProxyMixin {
               .take(numToReplace)
               .map((element) => convertToJs(element))));
   }
+
+  /// Returns a list of nodes that are the effective childNodes. The effective
+  /// childNodes list is the same as the element's childNodes except that
+  /// any `<content>` elements are replaced with the list of nodes distributed
+  /// to the `<content>`, the result of its `getDistributedNodes` method.
+  List<Node> getEffectiveChildNodes() =>
+      jsElement.callMethod('getEffectiveChildNodes');
+
+  /// Returns a list of elements that are the effective children. The effective
+  /// children list is the same as the element's children except that
+  /// any `<content>` elements are replaced with the list of elements
+  /// distributed to the `<content>`.
+  List<Element> getEffectiveChildren() =>
+      jsElement.callMethod('getEffectiveChildren');
+
+  /// Returns a string of text content that is the concatenation of the
+  /// text content's of the element's effective childNodes (the elements
+  /// returned by [getEffectiveChildNodes].
+  String getEffectiveText() => jsElement.callMethod('getEffectiveTextContent');
+
+  Element queryEffectiveChildren(String selector) =>
+      jsElement.callMethod('queryEffectiveChildren', [selector]);
+
+  List<Element> queryAllEffectiveChildren(String selector) =>
+      jsElement.callMethod('queryAllEffectiveChildren', [selector]);
+
+  /// Checks whether an element is in this element's light DOM tree.
+  bool isLightDescendant(Element node) =>
+      jsElement.callMethod('isLightDescendant', [node]);
+
+  /// Checks whether an element is in this element's local DOM tree.
+  bool isLocalDescendant(Element node) =>
+      jsElement.callMethod('isLocalDescendant', [node]);
 }
 
 final js.JsObject _PolymerInterop = js.context['Polymer']['PolymerInterop'];

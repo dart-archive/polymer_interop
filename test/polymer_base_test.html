@@ -43,12 +43,8 @@
 
   <dom-module id="distributed-element">
     <template>
-      <div>
-        <content select=".foo" id="selected"></content>
-      </div>
-      <div>
-        <content id="default"></content >
-      </div>
+      <content select=".foo" id="selected"></content>
+      <content id="default"></content >
     </template>
   </dom-module>
   <script>
@@ -105,5 +101,34 @@
       }
     })
   </script>
+
+  <dom-module id="distributed-element-container">
+    <template>
+      <distributed-element id="child">
+        a
+        <div>b</div>
+        <div class="foo">c</div>
+        d
+        <content select=".bar"></content>
+        <div class="e">e</div>
+        <content></content>
+        <div>f</div>
+        g
+      </distributed-element>
+    </template>
+  </dom-module>
+  <script>
+    Polymer({
+      'is': 'distributed-element-container'
+    })
+  </script>
+
+  <distributed-element-container id="distrubutedContainer">
+    <div>h</div>
+    i
+    <div class="bar">j</div>
+    k
+    <div class="foo">l</div>
+  </distributed-element-container>
   </body>
 </html>

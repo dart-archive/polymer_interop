@@ -240,6 +240,21 @@ class PolymerDom {
   void set text(String text) {
     _proxy['textContent'] = text;
   }
+
+  /// Observes children for changes and invokes `callback` with a
+  /// [PolymerDomMutation] object for each observed mutation.
+  ///
+  /// Returns a handle which can be used to cancel observers.
+  observeNodes(void callback(PolymerDomMutation mutation)) {
+    var wrappedCallback = (JsObject info) {
+      callback(new PolymerDomMutation(info));
+    };
+    return _proxy.callMethod('observeNodes', [wrappedCallback]);
+  }
+
+  /// Removes a mutation observer based on the handle returned from
+  /// [observeNodes].
+  void unobserveNodes(handle) => _proxy.callMethod('unobserveNodes', [handle]);
 }
 
 // Polymer's custom API for manipulating a CssClassSet
@@ -301,4 +316,16 @@ class PolymerEvent {
   /// Array of nodes through which event will pass (equivalent to event.path
   /// under shadow DOM).
   get path => _proxy['path'];
+}
+
+class PolymerDomMutation {
+  final JsObject _proxy;
+
+  Node get target => _proxy['target'];
+
+  List<Node> get addedNodes => _proxy['addedNodes'];
+
+  List<Node> get removedNodes => _proxy['removedNodes'];
+
+  PolymerDomMutation(this._proxy);
 }

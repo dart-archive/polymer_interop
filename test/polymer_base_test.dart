@@ -337,7 +337,7 @@ main() async {
             bindingsElement.on['my-array-changed'].first.then((CustomEvent e) {
           expect(e.detail, isNotNull);
           // Notification fires with the key, not the index.
-          expect(e.detail['path'], 'myArray.2.value');
+          expect(e.detail['path'], 'myArray.#2.value');
           expect(e.detail['value'], 4);
 
           // The list is still correct!
@@ -430,6 +430,77 @@ main() async {
       basicElement.updateStyles();
       // TODO(jakemac): https://github.com/dart-lang/polymer_interop/issues/10
     });
+
+    group('getEffective* methods', () {
+      var container = document.querySelector('#distrubutedContainer')
+          as DistributedElementContainer;
+      var child = container.$['child'] as DistributedElement;
+
+      test('getEffectiveChildNodes', () {
+        var expectedOrder = [
+          'a',
+          'b',
+          'c',
+          'd',
+          'j',
+          'e',
+          'h',
+          'i',
+          'k',
+          'l',
+          'f',
+          'g'
+        ];
+        var nodes = child.getEffectiveChildNodes();
+        var expectedIndex = 0;
+        var foundOrder = [];
+        for (var node in nodes) {
+          if (node.text.trim().isEmpty) continue;
+          foundOrder.add(node.text.trim());
+        }
+        expect(foundOrder, expectedOrder);
+      });
+
+      test('getEffectiveChildren', () {
+        var expectedOrder = ['b', 'c', 'j', 'e', 'h', 'l', 'f'];
+        var nodes = child.getEffectiveChildren();
+        var expectedIndex = 0;
+        var foundOrder = [];
+        for (var node in nodes) {
+          if (node.text.trim().isEmpty) continue;
+          foundOrder.add(node.text.trim());
+        }
+        expect(foundOrder, expectedOrder);
+      });
+
+      test('getEffectiveText', () {
+        expect(
+            child.getEffectiveText().replaceAll(' ', '').replaceAll('\n', ''),
+            'abcdjehiklfg');
+      });
+
+      test('queryEffectiveChildren', () {
+        expect(child.queryEffectiveChildren('.foo').text, 'c');
+        expect(child.queryEffectiveChildren('.bar').text, 'j');
+        expect(child.queryEffectiveChildren('.e').text, 'e');
+      });
+
+      test('queryAllEffectiveChildren', () {
+        expect(child.queryAllEffectiveChildren('div').length, 7);
+      }, skip: 'https://github.com/dart-lang/polymer-dart/issues/631');
+
+      test('isLightDescendant', () {
+        expect(container.isLightDescendant(child), isFalse);
+        var el = container.queryEffectiveChildren('.bar');
+        expect(container.isLightDescendant(el), isTrue);
+      });
+
+      test('isLocalDescendant', () {
+        expect(container.isLocalDescendant(child), isTrue);
+        var el = container.queryEffectiveChildren('.bar');
+        expect(container.isLocalDescendant(el), isFalse);
+      });
+    });
   });
 }
 
@@ -495,4 +566,13 @@ class BindingsElement extends HtmlElement
   void set myArray(List val) {
     jsElement['myArray'] = new JsObject.jsify(val);
   }
+}
+
+@CustomElementProxy('distributed-element-container')
+class DistributedElementContainer extends HtmlElement
+    with PolymerBase, CustomElementProxyMixin {
+  DistributedElementContainer.created() : super.created();
+
+  factory DistributedElementContainer() =>
+      document.createElement('distributed-element-container');
 }

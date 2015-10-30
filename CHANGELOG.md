@@ -1,3 +1,21 @@
+## 1.0.0-rc.4
+  * Update to Polymer JS
+    [v1.2.0](https://github.com/Polymer/polymer/tree/v1.2.0).
+  * There are a few new methods on the `PolymerBase` mixin:
+    * `List<Node> getEffectiveChildNodes()`
+    * `List<Element> getEffectiveChildren()`
+    * `String getEffectiveText()`
+    * `Element queryEffectiveChildren(String selector)`
+    * `List<Element> queryAllEffectiveChildren(String selector)`
+    * `bool isLightDescendant(Element node)`
+    * `bool isLocalDescendant(Element node)`
+  * New methods on `PolymerDom` class which enable dom mutation observers:
+    * `observeNodes(void callback(PolymerDomMutation mutation))`
+    * `void unobserveNodes(handle)`
+  * Path notifications now distinguish between array indices and keys. The
+    `set`, `get`, and `notifyPath` apis all support both array indices and keys
+    as well.
+
 ## 1.0.0-rc.3
   * Fix `node` optional argument to `fire` method of `PolymerBase` class.
 
@@ -25,5 +43,4 @@
   * Fix the `replace_polymer_js` transformer.
 
 ## 0.1.0
-
   * Initial commit, up to date with polymer js version 0.5.5.

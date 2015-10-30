@@ -144,6 +144,43 @@ main() async {
     test('setter text', () {
       domApi.text = 'My span.';
       expect(domApi.text, 'My span.');
+      domApi.text = '';
+    });
+
+    test('observeNodes', () async {
+      var mutations = <PolymerDomMutation>[];
+      var handle = domApi.observeNodes((mutation) {
+        mutations.add(mutation);
+      });
+      var div = new DivElement();
+      domApi.append(div);
+      PolymerDom.flush();
+      expect(mutations.length, 1);
+      expect(mutations[0].addedNodes, [div]);
+
+      domApi.removeChild(div);
+      PolymerDom.flush();
+      expect(mutations.length, 2);
+      expect(mutations[1].removedNodes, [div]);
+
+      domApi.unobserveNodes(handle);
+    });
+
+    test('unobserveNodes', () async {
+      var mutations = <PolymerDomMutation>[];
+      var handle = domApi.observeNodes((mutation) {
+        mutations.add(mutation);
+      });
+
+      var div = new DivElement();
+      domApi.append(div);
+      PolymerDom.flush();
+      expect(mutations.length, 1);
+
+      domApi.unobserveNodes(handle);
+      domApi.removeChild(div);
+      PolymerDom.flush();
+      expect(mutations.length, 1);
     });
 
     group('PolymerClassList', () {
