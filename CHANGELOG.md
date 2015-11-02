@@ -1,3 +1,8 @@
+## 1.0.0-rc.4+1
+  * Ensure that `interop_support.html` is loaded before polymer. This fixes an
+    issue where built in elements (like `dom-bind`) that existed on the page
+    initially might not get properly upgraded.
+
 ## 1.0.0-rc.4
   * Update to Polymer JS
     [v1.2.0](https://github.com/Polymer/polymer/tree/v1.2.0).
