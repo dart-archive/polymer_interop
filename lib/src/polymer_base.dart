@@ -333,7 +333,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Remove all items from a list at `path`.
   void clear(String path) {
-    jsElement.callMethod('splice', [path, 0, jsElement[path].length]);
+    jsElement.callMethod('splice', [path, 0]);
   }
 
   /// Sets the objects in the range `start` inclusive to `end` exclusive to the
