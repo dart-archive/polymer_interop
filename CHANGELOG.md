@@ -1,3 +1,6 @@
+## 1.0.0-rc.4+2
+  * Fix `clear` method so it supports deep paths.
+
 ## 1.0.0-rc.4+1
   * Ensure that `interop_support.html` is loaded before polymer. This fixes an
     issue where built in elements (like `dom-bind`) that existed on the page
