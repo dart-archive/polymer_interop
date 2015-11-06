@@ -213,20 +213,16 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Convenience method to add an event listener on a given element, late bound
   /// to a named method on this element.
   ///
-  /// **Dart note**: You must annotate the method with @eventHandler to ensure
+  /// **Dart note**: You must annotate the method with @reflectable to ensure
   /// it is available to be invoked.
   void listen(Element node, String eventName, String methodName) {
     jsElement.callMethod('listen', [node, eventName, methodName]);
   }
 
-  /// Returns true if notification actually took place, based on a dirty check
-  /// of whether the new value was already known
-  ///
-  /// **Dart Note**: Today this just delegates to `set`, which is a bit more
-  /// expensive but does the right thing in all cases. We actually need to
-  /// update values on the JS Side of things anyways for many types of objects.
-  void notifyPath(String path, value) {
-    _PolymerDartNotifyPath.apply([path, convertToJs(value)], thisArg: this);
+  /// Notify that a value at a path has been changed.
+  void notifyPath(String path, value, {fromAbove: false}) {
+    _PolymerDartNotifyPath.apply([path, convertToJs(value), fromAbove],
+        thisArg: jsElement);
   }
 
   /// Serializes a property to its associated attribute.
