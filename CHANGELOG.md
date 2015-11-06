@@ -1,3 +1,9 @@
+## 1.0.0-rc.5
+  * `notifyPath` now supports the `fromAbove` argument.
+  * Added a `PolymerCollection` class which can be used to deal with keys in
+    notification paths.
+  * Updated the `Templatizer` behavior with the `modelForElement` method.
+
 ## 1.0.0-rc.4+2
   * Fix `clear` method so it supports deep paths.
 

@@ -14,6 +14,7 @@ export 'src/convert.dart';
 export 'src/custom_event_wrapper.dart';
 export 'src/behaviors/templatize.dart';
 export 'src/polymer_base.dart';
+export 'src/polymer_collection.dart';
 
 final JsObject _Polymer = context['Polymer'];
 final JsObject _PolymerBase = (o) {

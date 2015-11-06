@@ -326,11 +326,11 @@ main() async {
 
       test('List indexes', () {
         var bindingsElement = new BindingsElement();
-        bindingsElement.myArray = [
+        bindingsElement.myArray = new JsObject.jsify([
           {'value': 1},
           {'value': 2},
           {'value': 3}
-        ];
+        ]);
         // Get indexes/keys out of sync
         bindingsElement.removeAt('myArray', 0);
         var done =
@@ -346,7 +346,7 @@ main() async {
           expect(bindingsElement.jsElement['myArray'][1]['value'], 4);
         });
 
-        /// This actually acts like `set`, in that it will update the JS Array.
+        bindingsElement.myArray[1]['value'] = 4;
         bindingsElement.notifyPath('myArray.1.value', 4);
         return done;
       });
