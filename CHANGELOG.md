@@ -1,3 +1,7 @@
+## 1.0.0-rc.6
+  * Moved `test` to a dev_dependency and removed the `code_transformers`
+    dependency.
+
 ## 1.0.0-rc.5
   * `notifyPath` now supports the `fromAbove` argument.
   * Added a `PolymerCollection` class which can be used to deal with keys in

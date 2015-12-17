@@ -1,5 +1,5 @@
 name: polymer_interop
-version: 1.0.0-rc.5
+version: 1.0.0-rc.6
 author: Polymer.dart Authors <web-ui-dev@dartlang.org>
 description: Common package containing the original polymer js sources
 homepage: https://github.com/dart-lang/polymer_interop
@@ -7,13 +7,12 @@ environment:
   sdk: ">=1.9.0 <2.0.0"
 dependencies:
   barback: '>=0.14.2 <0.16.0'
-  code_transformers: '>=0.2.2 <0.3.0'
-  test: ^0.12.3+2
   web_components: '>=0.11.2 <0.13.0'
 dev_dependencies:
   browser: any
   grinder: ^0.7.1+3
   smoke: '>=0.3.4 <0.4.0'
+  test: ^0.12.3+2
 transformers:
 - polymer_interop/src/build/minify_transformer:
     $include:
