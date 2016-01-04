@@ -299,10 +299,17 @@ main() async {
       expect(objectChangedCount, 1);
     }, skip: 'https://github.com/dart-lang/polymer_interop/issues/9');
 
-    test('listen', () {
+    test('listen/unlisten', () {
       var div = new DivElement();
+      // listen
       basicElement.listen(div, 'some-event', 'counter');
       expect(basicElement.counterCalledCount, 0);
+      div.dispatchEvent(new Event('some-event'));
+      expect(basicElement.counterCalledCount, 1);
+
+      // unlisten
+      basicElement.unlisten(div, 'some-event', 'counter');
+      expect(basicElement.counterCalledCount, 1);
       div.dispatchEvent(new Event('some-event'));
       expect(basicElement.counterCalledCount, 1);
     });

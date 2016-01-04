@@ -219,6 +219,15 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     jsElement.callMethod('listen', [node, eventName, methodName]);
   }
 
+  /// Convenience method to remove an event listener from a given element,
+  /// late bound to a named method on this element.
+  ///
+  /// **Dart note**: You must annotate the method with @reflectable to ensure
+  /// it is available to be invoked.
+  void  unlisten(Element node, String eventName, String methodName) {
+    jsElement.callMethod('unlisten', [node, eventName, methodName]);
+  }
+
   /// Notify that a value at a path has been changed.
   void notifyPath(String path, value, {fromAbove: false}) {
     _PolymerDartNotifyPath.apply([path, convertToJs(value), fromAbove],
