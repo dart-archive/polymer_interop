@@ -1,3 +1,6 @@
+## 0.1.2
+  * update code_transformers and web_components dependencies.
+
 ## 0.1.1
   * Delete `lib/src/polymer.js` when deploying to reduce output size.
 
