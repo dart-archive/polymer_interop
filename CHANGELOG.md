@@ -1,3 +1,6 @@
+## 1.0.0-rc.7
+  * Added the `unlisten` method for removing late bound event listeners.
+
 ## 1.0.0-rc.6
   * Moved `test` to a dev_dependency and removed the `code_transformers`
     dependency.
