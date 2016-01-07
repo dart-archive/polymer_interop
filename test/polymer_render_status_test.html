@@ -1,0 +1,38 @@
+<!--
+Copyright (c) 2016, the Dart project authors.  Please see the AUTHORS file
+for details. All rights reserved. Use of this source code is governed by a
+BSD-style license that can be found in the LICENSE file.
+-->
+<!doctype html>
+<html>
+  <head>
+    <script src="packages/web_components/webcomponents-lite.js"></script>
+    <link rel="import" href="packages/web_components/interop_support.html">
+    <link rel='import' href='packages/polymer_interop/polymer.html'>
+
+    <link rel='x-dart-test' href='polymer_render_status_test.dart'>
+    <!-- <script type="application/dart" src='polymer_render_status_test.dart'></script> -->
+    <!-- <script src="packages/browser/dart.js"></script> -->
+    <script src='packages/test/dart.js'></script>
+  </head>
+  <body>
+    <dom-module id="basic-element">
+      <template>
+        <div id="name">{{name}}</div>
+      </template>
+    </dom-module>
+    <script>
+      Polymer({
+        is: 'basic-element',
+        properties: {
+          name: {
+            type: String,
+            value: 'Jack'
+          }
+        }
+      })
+    </script>
+
+    <basic-element></basic-element>
+  </body>
+</html>

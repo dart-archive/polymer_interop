@@ -236,8 +236,8 @@ main() async {
         var done = new Completer();
 
         LinkElement linkEl;
-        linkEl = basicElement.importHref('fixtures/test_import.html',
-            onLoad: (e) {
+        linkEl =
+            basicElement.importHref('fixtures/test_import.html', onLoad: (e) {
           expect((linkEl.import as HtmlDocument).body.text, contains('Hello!'));
           done.complete();
         }, onError: (e) {
@@ -319,7 +319,8 @@ main() async {
         var done = new Completer();
         var bindingsElement = new BindingsElement();
         bindingsElement.myObject = {};
-        bindingsElement.on['my-object-changed'].take(1).listen((CustomEvent e) {
+        bindingsElement.on['my-object-changed'].take(1).listen((e) {
+          e = convertToDart(e);
           expect(e.detail, isNotNull);
           expect(e.detail['path'], 'myObject.foo');
           expect(e.detail['value'], 'bar');
@@ -340,8 +341,8 @@ main() async {
         ]);
         // Get indexes/keys out of sync
         bindingsElement.removeAt('myArray', 0);
-        var done =
-            bindingsElement.on['my-array-changed'].first.then((CustomEvent e) {
+        var done = bindingsElement.on['my-array-changed'].first.then((e) {
+          e = convertToDart(e);
           expect(e.detail, isNotNull);
           // Notification fires with the key, not the index.
           expect(e.detail['path'], 'myArray.#2.value');
@@ -459,7 +460,6 @@ main() async {
           'g'
         ];
         var nodes = child.getEffectiveChildNodes();
-        var expectedIndex = 0;
         var foundOrder = [];
         for (var node in nodes) {
           if (node.text.trim().isEmpty) continue;
@@ -471,7 +471,6 @@ main() async {
       test('getEffectiveChildren', () {
         var expectedOrder = ['b', 'c', 'j', 'e', 'h', 'l', 'f'];
         var nodes = child.getEffectiveChildren();
-        var expectedIndex = 0;
         var foundOrder = [];
         for (var node in nodes) {
           if (node.text.trim().isEmpty) continue;
@@ -494,7 +493,7 @@ main() async {
 
       test('queryAllEffectiveChildren', () {
         expect(child.queryAllEffectiveChildren('div').length, 7);
-      }, skip: 'https://github.com/dart-lang/polymer-dart/issues/631');
+      });
 
       test('isLightDescendant', () {
         expect(container.isLightDescendant(child), isFalse);

@@ -1,3 +1,16 @@
+## 1.0.0-rc.8
+  * Update to Polymer JS
+    [v1.2.3](https://github.com/Polymer/polymer/tree/v1.2.3)
+    * Added a workaround for the fact that many custom events now use a normal
+      Event object when fired from JS.
+    * Added `deepContains(node)` method to `PolymerDom`.
+    * New `strip-whitespace` attribute supported for element templates.
+    * New `PolymerRenderStatus` class.
+        * Static getter `whenReady` which returns a Future that completes after
+          the initial render of the entire app is done.
+        * Static function `afterNextRender(element)` which returns a Future that
+          completes after that element is done being rendered the next time.
+
 ## 1.0.0-rc.7
   * Added the `unlisten` method for removing late bound event listeners.
 
