@@ -10,16 +10,22 @@ import 'convert.dart';
 /// Wraps a [CustomEvent] to fix the `detail` field. Ensures that it will work
 /// regardless of if the event was fired from JS or Dart.
 ///
+/// Polymer JS may also fire normal Events and add a `detail` field to spoof a
+/// real custom event, and these are also supported.
+///
 /// See https://github.com/dart-lang/sdk/issues/23680.
 class CustomEventWrapper implements CustomEvent {
-  CustomEvent original;
+  final Event original;
+
+  @Deprecated('For dart:html compatibility only, will always be null')
+  JsObject blink_jsObject;
 
   CustomEventWrapper(this.original);
 
   get detail {
     var value = new JsObject.fromBrowserObject(original)['detail'];
-    if (value == null) {
-      value = original.detail;
+    if (value == null && original is CustomEvent) {
+      value = (original as CustomEvent).detail;
     }
     return convertToDart(value);
   }

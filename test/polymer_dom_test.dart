@@ -8,8 +8,6 @@ import 'dart:html';
 import 'package:test/test.dart';
 import 'package:polymer_interop/polymer_interop.dart';
 import 'package:web_components/web_components.dart';
-import 'dart:js';
-import 'dart:async';
 
 main() async {
   await initWebComponents();
@@ -34,6 +32,21 @@ main() async {
 
     test('getter classList', () {
       expect(domApi.classList, new isInstanceOf<PolymerClassList>());
+    });
+
+    test('method deepContains', () {
+      // Self
+      expect(domApi.deepContains(node), isTrue);
+
+      // Local Dom
+      var button = node.$['myButton'];
+      expect(button, isNotNull);
+      expect(new PolymerDom(parent).deepContains(button), isTrue);
+      expect(domApi.deepContains(button), isTrue);
+
+      // Sanity check
+      var newNode = new DivElement();
+      expect(domApi.deepContains(newNode), isFalse);
     });
 
     test('getter lastChild', () {

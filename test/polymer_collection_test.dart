@@ -4,8 +4,6 @@
 @TestOn('browser')
 library polymer_interop.polymer_collection_test;
 
-import 'dart:html';
-
 import 'package:test/test.dart';
 import 'package:polymer_interop/polymer_interop.dart';
 import 'dart:js';

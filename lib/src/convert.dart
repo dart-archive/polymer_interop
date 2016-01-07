@@ -93,7 +93,9 @@ dynamic convertToDart(jsValue) {
       setDartInstance(jsValue, dartMap);
       return dartMap;
     }
-  } else if (jsValue is CustomEvent) {
+  } else if (jsValue is CustomEvent ||
+      (jsValue is Event &&
+          new JsObject.fromBrowserObject(jsValue)['detail'] != null)) {
     if (jsValue is CustomEventWrapper) return jsValue;
     return new CustomEventWrapper(jsValue);
   }
@@ -118,8 +120,8 @@ Type _dartType(JsFunction jsValue) {
   return null;
 }
 
-final JsFunction _setDartInstance = context['Polymer']['PolymerInterop']
-    ['setDartInstance'];
+final JsFunction _setDartInstance =
+    context['Polymer']['PolymerInterop']['setDartInstance'];
 
 /// Adds a reference to the original dart instance to a js proxy object.
 void setDartInstance(JsObject jsObject, dartInstance) {
