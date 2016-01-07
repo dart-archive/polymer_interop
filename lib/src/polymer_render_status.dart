@@ -9,14 +9,14 @@ import 'dart:js';
 
 import 'common.dart';
 
-final JsObject PolymerRenderStatusJs = PolymerJs['RenderStatus'];
+final JsObject _PolymerRenderStatusJs = PolymerJs['RenderStatus'];
 
 /// Wrapper around Polymer.RenderStatus from Polymer JS.
 class PolymerRenderStatus {
   /// Returns a [Future] which completes once [element] renders.
   static Future afterNextRender(Node element) {
     var done = new Completer();
-    PolymerRenderStatusJs.callMethod(
+    _PolymerRenderStatusJs.callMethod(
       'afterNextRender', [element, () => done.complete()]);
     return done.future;
   }
@@ -24,7 +24,7 @@ class PolymerRenderStatus {
   /// Returns a [Future] which completes once the first render occurs.
   static Future get whenReady {
     var done = new Completer();
-    PolymerRenderStatusJs.callMethod('whenReady', [() => done.complete()]);
+    _PolymerRenderStatusJs.callMethod('whenReady', [() => done.complete()]);
     return done.future;
   }
 }
