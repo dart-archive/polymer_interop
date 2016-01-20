@@ -1,3 +1,7 @@
+## 0.1.2+1
+
+  * Update to support code_transformers `0.4.x`.
+
 ## 0.1.2
   * update code_transformers and web_components dependencies.
 
