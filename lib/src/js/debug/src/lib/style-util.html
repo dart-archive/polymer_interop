@@ -24,15 +24,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rules = this.parser.parse(rules);
         }
         if (callback) {
-          this.forEachStyleRule(rules, callback);
+          this.forEachRule(rules, callback);
         }
         return this.parser.stringify(rules, preserveProperties);
       },
 
-      forRulesInStyles: function(styles, callback) {
+      forRulesInStyles: function(styles, styleRuleCallback, keyframesRuleCallback) {
         if (styles) {
           for (var i=0, l=styles.length, s; (i<l) && (s=styles[i]); i++) {
-            this.forEachStyleRule(this.rulesForStyle(s), callback);
+            this.forEachRule(
+                this.rulesForStyle(s),
+                styleRuleCallback,
+                keyframesRuleCallback);
           }
         }
       },
@@ -44,26 +47,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return style.__cssRules;
       },
 
-      clearStyleRules: function(style) {
-        style.__cssRules = null;
+      // Tests if a rule is a keyframes selector, which looks almost exactly
+      // like a normal selector but is not (it has nothing to do with scoping
+      // for example).
+      isKeyframesSelector: function(rule) {
+        return rule.parent &&
+            rule.parent.type === this.ruleTypes.KEYFRAMES_RULE;
       },
 
-      forEachStyleRule: function(node, callback) {
+      forEachRule: function(node, styleRuleCallback, keyframesRuleCallback) {
         if (!node) {
           return;
         }
-        var s = node.parsedSelector;
         var skipRules = false;
         if (node.type === this.ruleTypes.STYLE_RULE) {
-          callback(node);
-        } else if (node.type === this.ruleTypes.KEYFRAMES_RULE ||
-            node.type === this.ruleTypes.MIXIN_RULE) {
+          styleRuleCallback(node);
+        } else if (keyframesRuleCallback &&
+                   node.type === this.ruleTypes.KEYFRAMES_RULE) {
+          keyframesRuleCallback(node);
+        } else if (node.type === this.ruleTypes.MIXIN_RULE) {
           skipRules = true;
         }
         var r$ = node.rules;
         if (r$ && !skipRules) {
           for (var i=0, l=r$.length, r; (i<l) && (r=r$[i]); i++) {
-            this.forEachStyleRule(r, callback);
+            this.forEachRule(r, styleRuleCallback, keyframesRuleCallback);
           }
         }
       },
@@ -112,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var cssText = '';
         // if element is a template, get content from its .content
         var content = element.content || element;
-        var e$ = Polymer.DomApi.arrayCopy(
+        var e$ = Polymer.TreeApi.arrayCopy(
           content.querySelectorAll(this.MODULE_STYLES_SELECTOR));
         for (var i=0, e; i < e$.length; i++) {
           e = e$[i];

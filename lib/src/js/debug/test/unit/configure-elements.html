@@ -119,7 +119,45 @@
         },
         stomp: {
           value: 5
+        },
+        attrDash: {
+          observer: 'attrDashChanged',
+          value: 'default'
+        },
+        attrNumber: {
+          type: Number,
+          observer: 'attrNumberChanged',
+          value: 0
+        },
+        attrBoolean: {
+          type: Boolean,
+          observer: 'attrBooleanChanged',
+          value: true
         }
+      },
+
+      created: function() {
+        this.attrDashChanged = sinon.spy();
+        this.attrNumberChanged = sinon.spy();
+        this.attrBooleanChanged = sinon.spy();
+      }
+
+    });
+  </script>
+</dom-module>
+
+<dom-module id="x-configure-simple-child">
+  <script>
+    Polymer({
+
+      is: 'x-configure-simple-child',
+
+      properties: {
+        noeffect: String
+      },
+
+      ready: function() {
+        this.hasPropertyAtReadyTime = (this.noeffect !== undefined);
       }
 
     });
@@ -128,7 +166,8 @@
 
 <dom-module id="x-configure-host">
   <template>
-    <x-configure-child id="child" content="{{content}}" object="{{object.goo}}"></x-configure-child>
+    <x-configure-child id="child" content="{{content}}" object="{{object.goo}}" attr$="{{attrValue}}" attr-dash$="{{attrValue}}" attr-number$="{{attrNumber}}" attr-boolean$="{{attrBoolean}}"></x-configure-child>
+    <x-configure-simple-child id="simple" noeffect="{{simple}}"></x-configure-simple-child>
   </template>
   <script>
     Polymer({
@@ -156,6 +195,18 @@
         },
         stomp: {
           value: 5
+        },
+        attrValue: {
+          value: 'attrValue'
+        },
+        attrNumber: {
+          value: 42
+        },
+        attrBoolean: {
+          value: false
+        },
+        simple: {
+          value: 'simple'
         }
       }
 

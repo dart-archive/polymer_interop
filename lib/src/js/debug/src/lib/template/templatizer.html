@@ -124,6 +124,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       archetype._scopeElementClass = this._scopeElementClassImpl;
       archetype.listen = this._listenImpl;
       archetype._showHideChildren = this._showHideChildrenImpl;
+      archetype.__setPropertyOrig = this.__setProperty;
+      archetype.__setProperty = this.__setPropertyImpl;
       // boilerplate code
       var _constructor = this._constructorImpl;
       var ctor = function TemplateInstance(model, host) {
@@ -168,11 +170,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    __setPropertyImpl: function(property, value, fromAbove, node) {
+      if (node && node.__hideTemplateChildren__ && property == 'textContent') {
+        property = '__polymerTextContent__';
+      }
+      this.__setPropertyOrig(property, value, fromAbove, node);
+    },
+
     _debounceTemplate: function(fn) {
       Polymer.dom.addDebouncer(this.debounce('_debounceTemplate', fn));
     },
 
-    _flushTemplates: function(debouncerExpired) {
+    _flushTemplates: function() {
       Polymer.dom.flush();
     },
 
@@ -182,7 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         archetype._addPropertyEffect(prop, 'function',
           this._createHostPropEffector(prop));
       }
-      for (var prop in this._instanceProps) {
+      for (prop in this._instanceProps) {
         archetype._addPropertyEffect(prop, 'function',
           this._createInstancePropEffector(prop));
       }
@@ -242,7 +251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }, {
               kind: 'notify',
               fn: Polymer.Bind._notifyEffect,
-              effect: {event: 
+              effect: {event:
                 Polymer.CaseMap.camelToDashCase(parentProp) + '-changed'}
             }];
             Polymer.Bind._createAccessors(proto, parentProp, effects);
@@ -259,7 +268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         this._extendTemplate(template, proto);
         template._pathEffector = function(path, value, fromAbove) {
-          return self._pathEffectorImpl(path, value, fromAbove);  
+          return self._pathEffectorImpl(path, value, fromAbove);
         }
       }
     },
@@ -289,6 +298,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // values (_propertySetter back on instance once accessor is installed)
     _extendTemplate: function(template, proto) {
       var n$ = Object.getOwnPropertyNames(proto);
+      if (proto._propertySetter) {
+        // _propertySetter API may need to be copied onto the template,
+        // and it needs to come first to allow the property swizzle below
+        template._propertySetter = proto._propertySetter;
+      }
       for (var i=0, n; (i<n$.length) && (n=n$[i]); i++) {
         var val = template[n];
         var pd = Object.getOwnPropertyDescriptor(proto, n);
@@ -300,12 +314,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Extension points for Templatizer sub-classes
+    /* eslint-disable no-unused-vars */
     _showHideChildren: function(hidden) { },
     _forwardInstancePath: function(inst, path, value) { },
     _forwardInstanceProp: function(inst, prop, value) { },
     // Defined-check rather than thunk used to avoid unnecessary work for these:
     // _forwardParentPath: function(path, value) { },
     // _forwardParentProp: function(prop, value) { },
+    /* eslint-enable no-unused-vars */
 
     _notifyPathUpImpl: function(path, value) {
       var dataHost = this.dataHost;
@@ -407,7 +423,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this._parentProps) {
         var templatized = this._templatized;
         for (var prop in this._parentProps) {
-          model[prop] = templatized[this._parentPropPrefix + prop];
+          if (model[prop] === undefined) {
+            model[prop] = templatized[this._parentPropPrefix + prop];
+          }
         }
       }
       return new this.ctor(model, this);
@@ -437,7 +455,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // An element with a _templateInstance marks the top boundary
         // of a scope; walk up until we find one, and then ensure that
         // its dataHost matches `this`, meaning this dom-repeat stamped it
-        if (model = el._templateInstance) {
+        if ((model = el._templateInstance)) {
           // Found an element stamped by another template; keep walking up
           // from its dataHost
           if (model.dataHost != this) {

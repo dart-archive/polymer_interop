@@ -1,3 +1,59 @@
+<dom-module id="x-keyframes">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        border: 10px solid blue;
+        left: 0px;
+        /* Prefix required by Safari <= 8 */
+        -webkit-animation-duration: 0.3s;
+        animation-duration: 0.3s;
+        -webkit-animation-fill-mode: forwards;
+        animation-fill-mode: forwards;
+      }
+
+      :host([animated]) {
+        /* Prefix required by Safari <= 8 */
+        -webkit-animation-name: x-keyframes-animation;
+        animation-name: x-keyframes-animation;
+      }
+
+      /* Prefix required by Safari <= 8 */
+      @-webkit-keyframes x-keyframes-animation {
+        0% {
+          left: var(--keyframes0, 0px);
+        }
+
+        100% {
+          left: var(--keyframes100, 10px);
+        }
+      }
+      @keyframes x-keyframes-animation {
+        0% {
+          left: var(--keyframes0, 0px);
+        }
+
+        100% {
+          left: var(--keyframes100, 10px);
+        }
+      }
+    </style>
+    x-keyframes
+  </template>
+  <script>
+    Polymer({
+      is: 'x-keyframes',
+      properties: {
+        animated: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      }
+    });
+  </script>
+</dom-module>
 <dom-module id="x-gchild">
   <template>
     <!-- styles can be in templates -->
@@ -70,10 +126,15 @@
     :host {
       display: block;
       border: 1px solid orange;
+      --keyframes100: 100px;
     }
 
     :host(.wide) {
       border-width: 2px;
+    }
+
+    #keyframes2.special {
+      --keyframes100: 200px;
     }
 
     #simple {
@@ -169,6 +230,8 @@
       <circle id="circle" cx="12" cy="12" r="10"></circle>
     </svg>
     <x-scope-class id="scopeClass"></x-scope-class>
+    <x-keyframes id="keyframes"></x-keyframes>
+    <x-keyframes id="keyframes2"></x-keyframes>
   </template>
 </dom-module>
 <script>
@@ -286,7 +349,6 @@
 })();
 </script>
 
-
 <template id="dynamic-style-template">
   <style>
     :host {
@@ -308,4 +370,175 @@
     }
   });
 })();
+</script>
+
+<template id="svg">
+  <svg class="svg" viewBox="0 0 24 24">
+    <circle id="circle" r="12" cx="12" cy="12" />
+  </svg>
+</template>
+
+<dom-module id="x-dynamic-svg">
+  <template>
+    <style>
+      .svg {
+        height: 24px;
+        width: 24px;
+      }
+      #circle {
+        fill: red;
+        fill-opacity: 0.5;
+      }
+    </style>
+    <div id="container"></div>
+  </template>
+  <script>
+    (function() {
+      var doc = document._currentScript.ownerDocument;
+      var template = doc.querySelector('template#svg');
+
+      Polymer({
+        is: 'x-dynamic-svg',
+        ready: function() {
+          this.scopeSubtree(this.$.container, true);
+          var dom = document.importNode(template.content, true);
+          this.$.container.appendChild(dom);
+        }
+      });
+    })();
+  </script>
+</dom-module>
+
+<dom-module id="x-specificity">
+  <template>
+    <style>
+      :host {
+        border-top: 1px solid red;
+      }
+      :host(.bar) {
+        border-top: 2px solid red;
+      }
+    </style>
+    <content></content>
+  </template>
+  <script>
+    Polymer({is: 'x-specificity'});
+  </script>
+</dom-module>
+
+<style is="custom-style">
+  :root {
+    --x-specificity-parent : {
+      border: 10px solid blue;
+    };
+    --x-specificity-nested : {
+      border: 3px solid red;
+    };
+  }
+</style>
+
+<dom-module id="x-specificity-parent">
+  <template>
+    <style>
+      /* TODO remove `:host` when https://github.com/Polymer/polymer/pull/2419 merged */
+      :host ::content > :not(template) {
+        @apply(--x-specificity-parent);
+      }
+    </style>
+    <content></content>
+  </template>
+  <script>
+    Polymer({is: 'x-specificity-parent', extends: 'div'});
+  </script>
+</dom-module>
+
+<dom-module id="x-specificity-nested">
+  <template>
+    <style>
+      :host {
+        @apply(--x-specificity-nested);
+      }
+    </style>
+  </template>
+  <script>
+    Polymer({is: 'x-specificity-nested', extends: 'div'});
+  </script>
+</dom-module>
+
+<style is="custom-style">
+  :root {
+    --x-overriding : {
+      border-top: 1px solid red;
+    }
+  }
+</style>
+
+<dom-module id="x-overriding">
+  <template>
+    <style>
+      .red {
+        @apply(--x-overriding);
+      }
+      .green {
+        @apply(--x-overriding);
+        border-top: 2px solid green;
+      }
+      .red-2 {
+        border-top: 2px solid green;
+        @apply(--x-overriding);
+      }
+      .blue {
+        @apply(--x-overriding);
+        border-top: 3px solid blue;
+      }
+    </style>
+
+    <div class="red">red</div>
+    <div class="green">green</div>
+    <div class="red-2">green-2</div>
+    <div class="blue">blue</div>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'x-overriding'
+  });
+</script>
+
+<dom-module id="x-attr-selector">
+  <template>
+    <style>
+      #foo1 ~ #bar1 {
+        border: 2px solid red;
+      }
+
+      #foo1 ~ #bar1 ~ #foo2[attr~=foo2] ~ #bar2[attr~=bar2]  {
+        border: 4px solid red;
+      }
+
+      #foo1 ~ #bar1 ~ #foo2[attr~=foo2] ~ #bar2[attr~=bar2] ~ #foo3[attr~=foo3][a~=a] ~ #bar3[attr~=bar3][a~=a] {
+        border: 6px solid red;
+      }
+    </style>
+    <div id="foo1"></div>
+    <div id="bar1">bar1</div>
+    <div id="foo2" attr="foo2"></div>
+    <div id="bar2" attr="bar2">bar2</div>
+    <div id="foo3" attr="foo3" a="a"></div>
+    <div id="bar3" attr="bar3" a="a">bar3</div>
+   
+  </template>
+  <script>
+    Polymer({is: 'x-attr-selector'});
+  </script>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'x-scope-no-class',
+    ready: function() {
+      this.scopeSubtree(this, true);
+    }
+  });
 </script>

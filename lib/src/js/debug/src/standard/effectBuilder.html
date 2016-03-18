@@ -79,13 +79,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _addComputedEffect: function(name, expression) {
       var sig = this._parseMethod(expression);
+
+      var dynamicFn = sig.dynamicFn;
+
       for (var i=0, arg; (i<sig.args.length) && (arg=sig.args[i]); i++) {
         this._addPropertyEffect(arg.model, 'compute', {
           method: sig.method,
           args: sig.args,
           trigger: arg,
-          name: name
+          name: name,
+          dynamicFn: dynamicFn
         });
+      }
+      if (dynamicFn) {
+        this._addPropertyEffect(sig.method, 'compute', {
+          method: sig.method,
+          args: sig.args,
+          trigger: null,
+          name: name,
+          dynamicFn: dynamicFn
+        })
       }
     },
 
@@ -106,11 +119,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _addComplexObserverEffect: function(observer) {
       var sig = this._parseMethod(observer);
+
+      if (!sig) {
+        throw new Error("Malformed observer expression '" + observer + "'");
+      }
+
+      var dynamicFn = sig.dynamicFn;
+
       for (var i=0, arg; (i<sig.args.length) && (arg=sig.args[i]); i++) {
         this._addPropertyEffect(arg.model, 'complexObserver', {
           method: sig.method,
           args: sig.args,
-          trigger: arg
+          trigger: arg,
+          dynamicFn: dynamicFn
+        });
+      }
+      if (dynamicFn) {
+        this._addPropertyEffect(sig.method, 'complexObserver', {
+          method: sig.method,
+          args: sig.args,
+          trigger: null,
+          dynamicFn: dynamicFn
         });
       }
     },
@@ -131,7 +160,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (Polymer.Bind._shouldAddListener(note)) {
         // <node>.on.<dash-case-property>-changed: <path> = e.detail.value
         Polymer.Bind._addAnnotatedListener(this, index,
-          note.name, note.parts[0].value, note.parts[0].event);
+          note.name, note.parts[0].value, note.parts[0].event, note.parts[0].negate);
       }
       for (var i=0; i<note.parts.length; i++) {
         var part = note.parts[i];
@@ -143,6 +172,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             kind: note.kind,
             index: index,
             name: note.name,
+            propertyName: note.propertyName,
             value: part.value,
             isCompound: note.isCompound,
             compoundIndex: part.compoundIndex,
@@ -161,9 +191,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         for (var i=0, arg; (i<sig.args.length) && (arg=sig.args[i]); i++) {
           if (!arg.literal) {
-            this.__addAnnotatedComputationEffect(arg.model, index, note, part, 
+            this.__addAnnotatedComputationEffect(arg.model, index, note, part,
               arg);
           }
+        }
+        if (sig.dynamicFn) {
+          // trigger=null is sufficient as long as we don't allow paths to be
+          // used. If we change our mind, we must first implement this in the
+          // effects anyway where we basically do a `fn = this[methodName]` at
+          // the moment.
+          this.__addAnnotatedComputationEffect(
+              sig.method, index, note, part, null);
         }
       }
     },
@@ -178,16 +216,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         negate: part.negate,
         method: part.signature.method,
         args: part.signature.args,
-        trigger: trigger
+        trigger: trigger,
+        dynamicFn: part.signature.dynamicFn
       });
     },
 
     // method expressions are of the form: `name([arg1, arg2, .... argn])`
     _parseMethod: function(expression) {
       // tries to match valid javascript property names
-      var m = expression.match(/([^\s]+)\((.*)\)/);
+      var m = expression.match(/([^\s]+?)\(([\s\S]*)\)/);
       if (m) {
         var sig = { method: m[1], static: true };
+        // TODO(kaste): Optimize/memoize `getPropertyInfo`.
+        if (this.getPropertyInfo(sig.method) !== Polymer.nob) {
+          sig.static = false;
+          sig.dynamicFn = true;
+        }
         if (m[2].trim()) {
           // replace escaped commas with comma entity, split on un-escaped commas
           var args = m[2].replace(/\\,/g, '&comma;').split(',');
@@ -222,8 +266,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ;
       // basic argument descriptor
       var a = {
-        name: arg,
-        model: this._modelForPath(arg)
+        name: arg
       };
       // detect literal value (must be String or Number)
       var fc = arg[0];
@@ -246,6 +289,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       // if not literal, look for structured path
       if (!a.literal) {
+        a.model = this._modelForPath(arg);
         // detect structured path (has dots)
         a.structured = arg.indexOf('.') > 0;
         if (a.structured) {
@@ -289,11 +333,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             (node.localName == 'input' && property == 'value')) {
           value = value == undefined ? '' : value;
         }
-        // setProperty using fromAbove to avoid spinning the wheel needlessly.
+        // Ideally we would call setProperty using fromAbove: true to avoid
+        // spinning the wheel needlessly, but we found that users were listening
+        // for change events outside of bindings
         var pinfo;
-        if (!node._propertyInfo || !(pinfo = node._propertyInfo[property]) || 
+        if (!node._propertyInfo || !(pinfo = node._propertyInfo[property]) ||
           !pinfo.readOnly) {
-          this.__setProperty(property, value, true, node);
+          this.__setProperty(property, value, false, node);
         }
       }
     },
