@@ -196,12 +196,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
       jsElement.callMethod('instanceTemplate', [template]);
 
   /// Returns whether a named debouncer is active.
-  bool isDebouncerActive(String jobName) {
-    // TODO(jakemac): Just return once
-    // https://github.com/Polymer/polymer/pull/2291 is submitted.
-    var value = jsElement.callMethod('isDebouncerActive', [jobName]);
-    return value is bool ? value : value != null;
-  }
+  bool isDebouncerActive(String jobName) => jsElement.callMethod('isDebouncerActive', [jobName]);
 
   /// Aliases one data path as another, such that path notifications from one
   /// are routed to the other.
@@ -477,7 +472,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
       jsElement.callMethod('queryAllEffectiveChildren', [selector]);
 
   /// Checks whether an element is in this element's light DOM tree.
-  bool isLightDescendant(Element node) =>
+  bool isLightDescendant(Node node) =>
       jsElement.callMethod('isLightDescendant', [node]);
 
   /// Checks whether an element is in this element's local DOM tree.

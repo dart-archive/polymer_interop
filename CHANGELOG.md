@@ -1,8 +1,8 @@
 ## 1.0.0-rc.9
   * Update to Polymer JS
-    [v1.4](https://github.com/Polymer/polymer/tree/v1.4)
+    [v1.4](https://github.com/Polymer/polymer/tree/v1.4.0)
     * Added `activeElement` method to `PolymerDom`
-    * Added `initialCount`, `targetFramerate`, `renderedItemCount` 
+    * Added `initialCount`, `targetFramerate`, `renderedItemCount`
       properties to `DomRepeat`
 
 ## 1.0.0-rc.8

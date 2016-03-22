@@ -102,13 +102,8 @@ class PolymerDom {
     _proxy['innerHTML'] = value;
   }
 
-  /// Sets or gets `activeElement`
+  /// gets `activeElement`
   Element get activeElement => _proxy['activeElement'];
-
-  void set activeElement(Element value) {
-    _proxy['activeElement'] = value;
-  }
-
 
   /// Calling `insertBefore` where parent is a custom Polymer element adds the
   /// node to the light DOM of the element.
