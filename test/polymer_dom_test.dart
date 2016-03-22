@@ -28,8 +28,7 @@ main() async {
       ButtonElement btn = rootApi.querySelector("#myButton");
       btn.focus();
       expect(rootApi.activeElement,btn);
-
-
+      expect(new PolymerDom(document).activeElement, node);
     });
 
     test('method append',

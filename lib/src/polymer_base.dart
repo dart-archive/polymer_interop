@@ -83,8 +83,8 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// microtask timing, which will occur before paint.
   ///
   /// Returns a number that may be used to cancel the async job.
-  int async(void callback(), {int waitTime}) => jsElement.callMethod(
-      'async', [Zone.current.bindCallback(callback), waitTime]);
+  int async(void callback(), {int waitTime}) => jsElement
+      .callMethod('async', [Zone.current.bindCallback(callback), waitTime]);
 
   /// Removes an HTML attribute from one node, and adds it to another.
   ///
@@ -196,7 +196,8 @@ abstract class PolymerBase implements CustomElementProxyMixin {
       jsElement.callMethod('instanceTemplate', [template]);
 
   /// Returns whether a named debouncer is active.
-  bool isDebouncerActive(String jobName) => jsElement.callMethod('isDebouncerActive', [jobName]);
+  bool isDebouncerActive(String jobName) =>
+      jsElement.callMethod('isDebouncerActive', [jobName]);
 
   /// Aliases one data path as another, such that path notifications from one
   /// are routed to the other.
@@ -218,14 +219,14 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   ///
   /// **Dart note**: You must annotate the method with @reflectable to ensure
   /// it is available to be invoked.
-  void  unlisten(Element node, String eventName, String methodName) {
+  void unlisten(Element node, String eventName, String methodName) {
     jsElement.callMethod('unlisten', [node, eventName, methodName]);
   }
 
   /// Notify that a value at a path has been changed.
   void notifyPath(String path, value, {fromAbove: false}) {
-    _PolymerDartNotifyPath.apply([path, convertToJs(value), fromAbove],
-        thisArg: jsElement);
+    _PolymerDartNotifyPath
+        .apply([path, convertToJs(value), fromAbove], thisArg: jsElement);
   }
 
   /// Serializes a property to its associated attribute.
