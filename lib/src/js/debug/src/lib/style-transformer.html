@@ -30,11 +30,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
      * :host(...) -> scopeName...
 
-     * ::content -> ' ' NOTE: requires use of scoping selector and selectors
-       cannot otherwise be scoped:
-       e.g. :host ::content > .bar -> x-foo > .bar
+     * ::content -> ' '
 
-     * ::shadow, /deep/: processed simimlar to ::content
+     * ::shadow, /deep/: processed similar to ::content
 
      * :host-context(...): scopeName..., ... scopeName
 
@@ -86,7 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     .replace(scope, ''));
                 }
               } else {
-                element.setAttribute(CLASS, c + (c ? ' ' : '') +
+                element.setAttribute(CLASS, (c ? c + ' ' : '') +
                   SCOPE_NAME + ' ' + scope);
               }
             }
@@ -97,7 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       elementStyles: function(element, callback) {
         var styles = element._styles;
         var cssText = '';
-        for (var i=0, l=styles.length, s, text; (i<l) && (s=styles[i]); i++) {
+        for (var i=0, l=styles.length, s; (i<l) && (s=styles[i]); i++) {
           var rules = styleUtil.rulesForStyle(s);
           cssText += nativeShadow ?
             styleUtil.toCssText(rules, callback) :
@@ -148,11 +146,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // transforms a css rule to a scoped rule.
       _transformRule: function(rule, transformer, scope, hostScope) {
         var p$ = rule.selector.split(COMPLEX_SELECTOR_SEP);
-        for (var i=0, l=p$.length, p; (i<l) && (p=p$[i]); i++) {
-          p$[i] = transformer.call(this, p, scope, hostScope);
+        // we want to skip transformation of rules that appear in keyframes,
+        // because they are keyframe selectors, not element selectors.
+        if (!styleUtil.isKeyframesSelector(rule)) {
+          for (var i=0, l=p$.length, p; (i<l) && (p=p$[i]); i++) {
+            p$[i] = transformer.call(this, p, scope, hostScope);
+          }
         }
         // NOTE: save transformedSelector for subsequent matching of elements
-        // agsinst selectors (e.g. when calculating style properties)
+        // against selectors (e.g. when calculating style properties)
         rule.selector = rule.transformedSelector =
           p$.join(COMPLEX_SELECTOR_SEP);
       },
@@ -161,6 +163,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var stop = false;
         var hostContext = false;
         var self = this;
+        selector = selector.replace(CONTENT_START, HOST + ' $1');
         selector = selector.replace(SIMPLE_SELECTOR_SEP, function(m, c, s) {
           if (!stop) {
             var info = self._transformCompoundSelector(s, c, scope, hostScope);
@@ -250,22 +253,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var SCOPE_DOC_SELECTOR = ':not([' + SCOPE_NAME + '])' +
       ':not(.' + SCOPE_NAME + ')';
     var COMPLEX_SELECTOR_SEP = ',';
-    var SIMPLE_SELECTOR_SEP = /(^|[\s>+~]+)([^\s>+~]+)/g;
+    var SIMPLE_SELECTOR_SEP = /(^|[\s>+~]+)((?:\[.+?\]|[^\s>+~=\[])+)/g;
     var HOST = ':host';
     var ROOT = ':root';
     // NOTE: this supports 1 nested () pair for things like
     // :host(:not([selected]), more general support requires
     // parsing which seems like overkill
-    var HOST_PAREN = /(\:host)(?:\(((?:\([^)(]*\)|[^)(]*)+?)\))/g;
+    var HOST_PAREN = /(:host)(?:\(((?:\([^)(]*\)|[^)(]*)+?)\))/g;
     var HOST_CONTEXT = ':host-context';
-    var HOST_CONTEXT_PAREN = /(.*)(?:\:host-context)(?:\(((?:\([^)(]*\)|[^)(]*)+?)\))(.*)/;
+    var HOST_CONTEXT_PAREN = /(.*)(?::host-context)(?:\(((?:\([^)(]*\)|[^)(]*)+?)\))(.*)/;
     var CONTENT = '::content';
-    var SCOPE_JUMP = /\:\:content|\:\:shadow|\/deep\//;
+    var SCOPE_JUMP = /::content|::shadow|\/deep\//;
     var CSS_CLASS_PREFIX = '.';
     var CSS_ATTR_PREFIX = '[' + SCOPE_NAME + '~=';
     var CSS_ATTR_SUFFIX = ']';
     var PSEUDO_PREFIX = ':';
     var CLASS = 'class';
+    var CONTENT_START = new RegExp('^(' + CONTENT + ')');
 
     // exports
     return api;

@@ -43,6 +43,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <span id="dom-bind-dynamic" class$="[[dynamic]]">[[dynamic]]</span>
   </template>
 
+  <x-dynamic-svg></x-dynamic-svg>
+  <x-specificity></x-specificity>
+  <x-specificity class="bar"></x-specificity>
+  <div is="x-specificity-parent">
+    <div is="x-specificity-nested"></div>
+  </div>
+  <x-overriding></x-overriding>
+
+  <x-scope-no-class>
+    <div></div>
+  </x-scope-no-class>
+
 <script>
   suite('scoped-styling', function() {
 
@@ -61,7 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   test(':host, :host(...)', function() {
     assertComputed(styled, '1px');
     assertComputed(styledWide, '2px');
-    
+
   });
 
   test(':host-context(...)', function() {
@@ -118,14 +130,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     assertComputed(d, '4px');
     Polymer.dom(document.body).appendChild(d);
     Polymer.dom.flush();
-    assert.notInclude(d.getAttribute('style-scoped'), styled.is, 'scoping attribute not removed when added to other root');
+    assert.notInclude(d.getAttribute('style-scoped') || '', styled.is, 'scoping attribute not removed when added to other root');
     assert.notInclude(d.className, styled.is, 'scoping class not removed when added to other root');
     Polymer.dom(styled.root).appendChild(d);
     Polymer.dom.flush();
     assertComputed(d, '4px');
     Polymer.dom(styled.root).removeChild(d);
     Polymer.dom.flush();
-    assert.notInclude(d.getAttribute('style-scoped'), styled.is, 'scoping attribute not removed when removed from root');
+    assert.notInclude(d.getAttribute('style-scoped') || '', styled.is, 'scoping attribute not removed when removed from root');
     assert.notInclude(d.className, styled.is, 'scoping class not removed when removed from root');
     Polymer.dom(styled.root).appendChild(d);
     Polymer.dom.flush();
@@ -142,18 +154,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     assertComputed(d, '0px');
     Polymer.dom(document.body).appendChild(d);
     Polymer.dom.flush();
-    assert.notInclude(d.getAttribute('style-scoped'), styled.is, 'scoping attribute not removed when added to other root');
+    assert.notInclude(d.getAttribute('style-scoped') || '', styled.is, 'scoping attribute not removed when added to other root');
     assert.notInclude(d.className, styled.is, 'scoping class not removed when added to other root');
     Polymer.dom(styled).appendChild(d);
     Polymer.dom.flush();
     assertComputed(d, '0px');
     Polymer.dom(styled).removeChild(d);
     Polymer.dom.flush();
-    assert.notInclude(d.getAttribute('style-scoped'), styled.is, 'scoping attribute not removed when removed from root');
+    assert.notInclude(d.getAttribute('style-scoped') || '', styled.is, 'scoping attribute not removed when removed from root');
     assert.notInclude(d.className, styled.is, 'scoping class not removed when removed from root');
     Polymer.dom(styled).appendChild(d);
     Polymer.dom.flush();
     assertComputed(d, '0px');
+  });
+
+  test('keyframes change scope', function(done) {
+    var xKeyframes = styled.$.keyframes;
+
+    var onAnimationEnd = function() {
+      xKeyframes.removeEventListener('animationend', onAnimationEnd);
+      xKeyframes.removeEventListener('webkitAnimationEnd', onAnimationEnd);
+      assertComputed(xKeyframes, '100px', 'left');
+
+      xKeyframes = styled.$.keyframes2;
+
+      onAnimationEnd = function() {
+        xKeyframes.removeEventListener('animationend', onAnimationEnd);
+        xKeyframes.removeEventListener('webkitAnimationEnd', onAnimationEnd);
+        assertComputed(xKeyframes, '200px', 'left');
+        done();
+      };
+
+      xKeyframes.addEventListener('animationend', onAnimationEnd);
+      xKeyframes.addEventListener('webkitAnimationEnd', onAnimationEnd);
+
+      Polymer.dom(xKeyframes).classList.add('special');
+      xKeyframes.updateStyles();
+      xKeyframes.animated = true;
+    };
+
+    xKeyframes.addEventListener('animationend', onAnimationEnd);
+    xKeyframes.addEventListener('webkitAnimationEnd', onAnimationEnd);
+
+    xKeyframes.animated = true;
+    assertComputed(xKeyframes, '0px', 'left');
   });
 
   test('elements with computed classes', function() {
@@ -196,6 +240,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     document.body.removeChild(el);
   });
 
+  test('attribute inclusive selector and general sibling selectors', function() {
+    var e = document.createElement('x-attr-selector');
+    document.body.appendChild(e);
+    assertComputed(e.$.bar1, '2px');
+    assertComputed(e.$.bar2, '4px');
+    assertComputed(e.$.bar3, '6px');
+  });
+
     suite('scoped-styling-shady-only', function() {
 
       suiteSetup(function() {
@@ -209,18 +261,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('styles shimmed in registration order', function() {
-        var s$ = document.head.querySelectorAll('style[scope]');
-        var expected = ['x-gchild', 'x-child2', 'x-styled', 'x-button', 
-        'x-mixed-case', 'x-mixed-case-button', 'x-dynamic-scope', 'x-dynamic-template'];
-        var actual = [];
-        for (var i=0; i<s$.length; i++) {
-          actual.push(s$[i].getAttribute('scope'));
+        var regList = Polymer.telemetry.registrations.map(function(reg) {
+          return reg.is;
+        });
+        function regIndex(styleScope) {
+          for (var i=0, r; (r=regList[i]); i++) {
+            if (styleScope.match(new RegExp(r + '\\-?\\d*$'))) {
+              return i;
+            }
+          }
         }
-        assert.deepEqual(actual, expected);
+        var s$ = document.head.querySelectorAll('style[scope]');
+        for (var i=0, scope, n=0, o=0; i<s$.length; i++) {
+          scope = s$[i].getAttribute('scope');
+          n = regIndex(scope);
+          assert.isTrue(n >= o, 'style not in registration order: ' + scope);
+          o = n;
+        }
       });
 
       test('svg elements properly scoped', function() {
         assert.include(styled.$.circle.getAttribute('class'), 'style-scope x-styled');
+        assert.notInclude(styled.$.circle.getAttribute('class'), 'null');
         assertComputed(styled.$.circle, '1px', 'strokeWidth');
       });
 
@@ -252,10 +314,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         x = document.createElement('button', 'x-mixed-case-button');
         document.body.appendChild(x);
         assertComputed(x, '14px');
-       
+      });
+
+      test('specificity of :host selector with class', function() {
+        assertComputed(document.querySelector('x-specificity'), '1px');
+        assertComputed(document.querySelector('x-specificity.bar'), '2px');
+      });
+
+      test('specificity of ::content > :not(template) selector', function() {
+        assertComputed(document.querySelector('[is=x-specificity-nested]'), '10px');
+      });
+
+      test('overwriting mixin properties', function() {
+        var root = document.querySelector('x-overriding');
+        assertComputed(root.querySelector('.red'), '1px');
+        assertComputed(root.querySelector('.green'), '2px');
+        assertComputed(root.querySelector('.red-2'), '1px');
+        assertComputed(root.querySelector('.blue'), '3px');
+      });
+
+      test('x-scope with no class attribute', function () {
+        assert.equal(document.querySelector('x-scope-no-class > div').className, 'style-scope x-scope-no-class');
       });
     });
-  
+
+    test('svg classes are dynamically scoped correctly', function() {
+      var container = document.querySelector('x-dynamic-svg').$.container;
+      var svg = container.querySelector('.svg');
+      var computed = getComputedStyle(svg);
+      assert.equal(computed.height, '24px');
+      assert.equal(computed.width, '24px');
+      var circle = container.querySelector('#circle');
+      computed = getComputedStyle(circle);
+      assert.equal(computed['fill-opacity'], '0.5');
+    });
+
 });
 
 </script>

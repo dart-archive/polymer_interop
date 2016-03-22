@@ -23,6 +23,14 @@ main() async {
       expect(domApi.node, node);
     });
 
+    test('active element', () {
+      PolymerDom rootApi = new PolymerDom(node.root);
+      ButtonElement btn = rootApi.querySelector("#myButton");
+      btn.focus();
+      expect(rootApi.activeElement,btn);
+      expect(new PolymerDom(document).activeElement, node);
+    });
+
     test('method append',
         () => expect(domApi.append(child), new isInstanceOf<SpanElement>()));
 

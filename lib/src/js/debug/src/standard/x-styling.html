@@ -19,7 +19,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     var propertyUtils = Polymer.StyleProperties;
     var styleTransformer = Polymer.StyleTransformer;
-    var styleUtil = Polymer.StyleUtil;
     var styleDefaults = Polymer.StyleDefaults;
 
     var nativeShadow = Polymer.Settings.useNativeShadow;
@@ -29,14 +28,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _prepStyleProperties: function() {
         // note: an element should produce an x-scope stylesheet
         // if it has any _stylePropertyNames
-        this._ownStylePropertyNames = this._styles ?
+        this._ownStylePropertyNames = this._styles && this._styles.length ?
           propertyUtils.decorateStyles(this._styles) :
           null;
       },
 
       /**
-       * An element's style properties can be directly modified by 
-       * setting key-value pairs in `customStyle` on the element 
+       * An element's style properties can be directly modified by
+       * setting key-value pairs in `customStyle` on the element
        * (analogous to setting `style`) and then calling `updateStyles()`.
        *
        */
@@ -55,6 +54,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // here we have an instance time spot to put custom property data
       _setupStyleProperties: function() {
         this.customStyle = {};
+        this._styleCache = null;
+        this._styleProperties = null;
+        this._scopeSelector = null;
+        this._ownStyleProperties = null;
+        this._customStyle = null;
       },
 
       _needsStyleProperties: function() {
@@ -72,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _findStyleHost: function() {
         var e = this, root;
-        while (root = Polymer.dom(e).getOwnerRoot()) {
+        while ((root = Polymer.dom(e).getOwnerRoot())) {
           if (Polymer.isInstance(root.host)) {
             return root.host;
           }
@@ -125,7 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             style: style,
             _scopeSelector: this._scopeSelector,
             _styleProperties: this._styleProperties
-          }
+          };
           scopeData.key.customStyle = {};
           this.mixin(scopeData.key.customStyle, this.customStyle);
           scope._styleCache.store(this.is, info, scopeData.key, this._styles);
@@ -203,14 +207,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         // note: using Polymer.dom here ensures that any attribute sets
         // will provoke distribution if necessary; do this iff necessary
-        node = (this.shadyRoot && this.shadyRoot._hasDistributed) ? 
+        node = (this.shadyRoot && this.shadyRoot._hasDistributed) ?
           Polymer.dom(node) : node;
         serializeValueToAttribute.call(this, value, attribute, node);
       },
 
       _scopeElementClass: function(element, selector) {
         if (!nativeShadow && !this._scopeCssViaAttr) {
-          selector += (selector ? ' ' : '') + SCOPE_NAME + ' ' + this.is +
+          selector = (selector ? selector + ' ' : '') + SCOPE_NAME + ' ' + this.is +
             (element._scopeSelector ? ' ' +  XSCOPE_NAME + ' ' +
             element._scopeSelector : '');
         }
