@@ -1,3 +1,6 @@
+## 1.0.0-rc.19
+  * Update to Polymer JS [v1.6.0](https://github.com/Polymer/polymer/tree/v1.6.0)
+
 ## 1.0.0-rc.9
   * Update to Polymer JS
     [v1.4](https://github.com/Polymer/polymer/tree/v1.4.0)
