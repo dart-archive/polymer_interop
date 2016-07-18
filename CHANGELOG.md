@@ -1,4 +1,4 @@
-## 1.0.0-rc.19
+## 1.0.0-rc.10
   * Update to Polymer JS [v1.6.0](https://github.com/Polymer/polymer/tree/v1.6.0)
   * __breaking change__ : `notifyPath` signature has been changed in order to
     mirror the `JS` version (parameter `fromAbove` is now an optiona parameter
