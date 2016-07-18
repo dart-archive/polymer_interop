@@ -27,4 +27,7 @@ class PolymerRenderStatus {
     _PolymerRenderStatusJs.callMethod('whenReady', [() => done.complete()]);
     return done.future;
   }
+
+  /// Returns a [bool] which indicates whether or not the first render has occurred
+  static bool get hasRendered => _PolymerRenderStatusJs['hasRendered'];
 }
