@@ -8,9 +8,9 @@ library polymer_interop.polymer_base_test;
 import 'dart:html';
 import 'dart:js';
 
+import 'package:polymer_interop/src/polymer_gestures.dart';
 import 'package:test/test.dart';
 import 'package:web_components/web_components.dart';
-import 'package:polymer_interop/src/polymer_gestures.dart';
 
 void showTestRunnerFrame() {
   // Make testrunner iFrame visible otherwise transitions not get fired ...
@@ -47,6 +47,7 @@ main() async {
 
     tearDown(() {
       document.body.children.remove(app);
+      hideTestRunnerFrame();
     });
 
     test('tap on x-foo and check localTarget and rootTarget', () {
@@ -55,13 +56,7 @@ main() async {
       expect(jsApp['_testLocalTarget'], app, reason: 'local target');
       expect(jsApp['_testRootTarget'], foo, reason: 'root target');
     });
-
-    test('tap on x-foo.div and check target info', () {}, skip: 'not meaningful for dart');
-
-    test('HTMLElement.click triggers tap', () {}, skip: 'not meaningful for dart');
   });
-
-  group('Event Setup and Teardown', () {}, skip: 'not meaningful for dart');
 
   group('target finding', () {
     DivElement div;
@@ -86,14 +81,16 @@ main() async {
     });
 
     test('find the div in document', () {
-      var x = divLocation.left, y = divLocation.top;
+      var x = divLocation.left,
+          y = divLocation.top;
       var actual = PolymerGestures.deepTargetFind(x, y);
       expect(actual, div);
     });
 
     test('find the div with a shadowroot', () {
       div.createShadowRoot();
-      var x = divLocation.left, y = divLocation.top;
+      var x = divLocation.left,
+          y = divLocation.top;
       var actual = PolymerGestures.deepTargetFind(x, y);
       expect(actual, div);
     });
@@ -101,9 +98,13 @@ main() async {
     test('find the div inside a shadowroot', () {
       SpanElement divOwner = new SpanElement();
       document.body.children.add(divOwner);
-      divOwner.createShadowRoot().children.add(div);
+      divOwner
+          .createShadowRoot()
+          .children
+          .add(div);
       Rectangle bcr = divOwner.getBoundingClientRect();
-      var x = bcr.left, y = bcr.top;
+      var x = bcr.left,
+          y = bcr.top;
       Node actual = PolymerGestures.deepTargetFind(x, y);
       expect(actual, div);
     });
@@ -112,9 +113,13 @@ main() async {
       div.createShadowRoot();
       var divOwner = document.createElement('span');
       document.body.children.add(divOwner);
-      divOwner.createShadowRoot().children.add(div);
+      divOwner
+          .createShadowRoot()
+          .children
+          .add(div);
       var bcr = divOwner.getBoundingClientRect();
-      var x = bcr.left, y = bcr.top;
+      var x = bcr.left,
+          y = bcr.top;
       var actual = PolymerGestures.deepTargetFind(x, y);
       expect(actual, div);
     });
@@ -157,12 +162,7 @@ main() async {
       expect(elJs['stream'][1].type, 'up', reason: 'up was found');
     });
 
-    test('nested track and tap with touch', () {}, skip: 'not meaningful for dart');
   });
-
-  group('Buttons', () {}, skip: 'not meaningful for dart');
-
-  group('SD Polyfill', () {}, skip: 'not meaningful for dart');
 
   group('Reference Cleanup', () {
     Element el;

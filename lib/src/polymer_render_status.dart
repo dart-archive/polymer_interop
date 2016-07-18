@@ -28,6 +28,6 @@ class PolymerRenderStatus {
     return done.future;
   }
 
-  /// Returns a [Future] which completes once the first render occurs.
+  /// Returns a [bool] which indicates whether or not the first render has occurred
   static bool get hasRendered => _PolymerRenderStatusJs['hasRendered'];
 }

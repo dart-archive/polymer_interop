@@ -4,18 +4,9 @@
 library polymer_interop.src.js_element_proxy;
 
 import 'dart:async';
-import 'dart:html'
-    show
-        Element,
-        DocumentFragment,
-        CustomEvent,
-        Node,
-        LinkElement,
-        DocumentFragment,
-        TemplateElement;
+import 'dart:html' show Element, DocumentFragment, CustomEvent, Node, LinkElement, DocumentFragment, TemplateElement;
 import 'dart:js' as js;
-import 'package:web_components/web_components.dart'
-    show CustomElementProxyMixin;
+import 'package:web_components/web_components.dart' show CustomElementProxyMixin;
 import 'convert.dart';
 
 /// A mixin to make it easier to interoperate with Polymer JS elements.
@@ -83,8 +74,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// microtask timing, which will occur before paint.
   ///
   /// Returns a number that may be used to cancel the async job.
-  int async(void callback(), {int waitTime}) => jsElement
-      .callMethod('async', [Zone.current.bindCallback(callback), waitTime]);
+  int async(void callback(), {int waitTime}) => jsElement.callMethod('async', [Zone.current.bindCallback(callback), waitTime]);
 
   /// Removes an HTML attribute from one node, and adds it to another.
   ///
@@ -110,8 +100,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   }
 
   /// Convenience method for creating an element and configuring it.
-  Element create(String tag, Map props) =>
-      jsElement.callMethod('create', [tag, new js.JsObject.jsify(props)]);
+  Element create(String tag, Map props) => jsElement.callMethod('create', [tag, new js.JsObject.jsify(props)]);
 
   /// Call debounce to collapse multiple requests for a named task into one
   /// invocation which is made after the wait time has elapsed with no new
@@ -133,17 +122,14 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   }
 
   /// Polyfill for Element.prototype.matches, which is sometimes still prefixed.
-  bool elementMatches(String selector, Element node) =>
-      jsElement.callMethod('elementMatches', [selector, node]);
+  bool elementMatches(String selector, Element node) => jsElement.callMethod('elementMatches', [selector, node]);
 
   /// Dispatches a custom event with an optional detail object.
-  CustomEvent fire(String type,
-      {detail, bool canBubble: true, bool cancelable: true, Node node}) {
+  CustomEvent fire(String type, {detail, bool canBubble: true, bool cancelable: true, Node node}) {
     return convertToDart(jsElement.callMethod('fire', [
       type,
       convertToJs(detail),
-      new js.JsObject.jsify(
-          {'bubbles': canBubble, 'cancelable': cancelable, 'node': node})
+      new js.JsObject.jsify({'bubbles': canBubble, 'cancelable': cancelable, 'node': node})
     ]));
   }
 
@@ -156,8 +142,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   ///
   /// If this element contans more than one <content> in its local DOM, an
   /// optional selector may be passed to choose the desired content.
-  List<Node> getContentChildNodes([String selector]) =>
-      jsElement.callMethod('getContentChildNodes', [selector]);
+  List<Node> getContentChildNodes([String selector]) => jsElement.callMethod('getContentChildNodes', [selector]);
 
   /// Returns a list of element children distributed to this element's
   /// <content>.
@@ -165,16 +150,14 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// If this element contans more than one <content> in its local DOM, an
   /// optional selector may be passed to choose the desired content. This method
   /// differs from getContentChildNodes in that only elements are returned.
-  List<Element> getContentChildren([String selector]) =>
-      jsElement.callMethod('getContentChildren', [selector]);
+  List<Element> getContentChildren([String selector]) => jsElement.callMethod('getContentChildren', [selector]);
 
   /// Returns a property descriptor object for the property specified.
   ///
   /// This method allows introspecting the configuration of a Polymer element's
   /// properties as configured in its properties object. Note, this method
   /// normalizes shorthand forms of the properties object into longhand form.
-  js.JsObject getPropertyInfo(String property) =>
-      jsElement.callMethod('getPropertyInfo', [property]);
+  js.JsObject getPropertyInfo(String property) => jsElement.callMethod('getPropertyInfo', [property]);
 
   /// Convenience method for importing an HTML document imperatively.
   ///
@@ -192,12 +175,10 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Calls importNode on the content of the template specified and returns a
   /// document fragment containing the imported content.
-  DocumentFragment instanceTemplate(TemplateElement template) =>
-      jsElement.callMethod('instanceTemplate', [template]);
+  DocumentFragment instanceTemplate(TemplateElement template) => jsElement.callMethod('instanceTemplate', [template]);
 
   /// Returns whether a named debouncer is active.
-  bool isDebouncerActive(String jobName) =>
-      jsElement.callMethod('isDebouncerActive', [jobName]);
+  bool isDebouncerActive(String jobName) => jsElement.callMethod('isDebouncerActive', [jobName]);
 
   /// Aliases one data path as another, such that path notifications from one
   /// are routed to the other.
@@ -224,15 +205,17 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   }
 
   /// Notify that a value at a path has been changed.
-  void notifyPath(String path, value, {fromAbove: false}) {
-    _PolymerDartNotifyPath
-        .apply([path, convertToJs(value), fromAbove], thisArg: jsElement);
+  void notifyPath(String path, [value = _missingValue, bool fromAbove = false]) {
+    if (value == _missingValue) {
+      _PolymerDartNotifyPath.apply([path], thisArg: jsElement);
+    } else {
+      _PolymerDartNotifyPath.apply([path, convertToJs(value), fromAbove], thisArg: jsElement);
+    }
   }
 
   /// Notify that a value at a path has been changed (without passing the value).
   void notifyPath1(String path) {
-    _PolymerDartNotifyPath
-        .apply([path], thisArg: jsElement);
+    _PolymerDartNotifyPath.apply([path], thisArg: jsElement);
   }
 
   /// Serializes a property to its associated attribute.
@@ -261,8 +244,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// string. If the serialize method returns undefined, the attribute will be
   /// removed (this is the default for boolean type false).
   void serializeValueToAttribute(value, String attribute, [Element node]) {
-    jsElement.callMethod(
-        'serializeValueToAttribute', [convertToJs(value), attribute, node]);
+    jsElement.callMethod('serializeValueToAttribute', [convertToJs(value), attribute, node]);
   }
 
   /// Override scrolling behavior to all direction, one direction, or none.
@@ -323,8 +305,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   void updateStyles() => jsElement.callMethod('updateStyles');
 
   /// Sets a value on an attribute path, and notifies of changes.
-  void set(String path, value) =>
-      jsElement.callMethod('set', [path, convertToJs(value)]);
+  void set(String path, value) => jsElement.callMethod('set', [path, convertToJs(value)]);
 
   /// Add `item` to a list at `path`.
   void add(String path, item) {
@@ -333,8 +314,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Add `items` to a list at `path`.
   void addAll(String path, Iterable items) {
-    jsElement.callMethod(
-        'push', [path]..addAll(items.map((item) => convertToJs(item))));
+    jsElement.callMethod('push', [path]..addAll(items.map((item) => convertToJs(item))));
   }
 
   /// Remove all items from a list at `path`.
@@ -346,16 +326,12 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// given `fillValue` on the list at `path`.
   void fillRange(String path, int start, int end, [fillValue]) {
     var numToFill = end - start;
-    jsElement.callMethod(
-        'splice',
-        [path, start, numToFill]
-          ..addAll(new List.filled(numToFill, convertToJs(fillValue))));
+    jsElement.callMethod('splice', [path, start, numToFill]..addAll(new List.filled(numToFill, convertToJs(fillValue))));
   }
 
   /// Gets a value at `path` for the `root` object. The `root` defaults to
   /// `this`. The `root` must be a JsProxy or PolymerElement object.
-  get(String path, [root]) =>
-      convertToDart(jsElement.callMethod('get', [path, convertToJs(root)]));
+  get(String path, [root]) => convertToDart(jsElement.callMethod('get', [path, convertToJs(root)]));
 
   /// Inserts `element` at position `index` to the list at `path`.
   void insert(String path, int index, element) {
@@ -364,10 +340,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
 
   /// Inserts `elements` at position `index` to the list at `path`.
   void insertAll(String path, int index, Iterable elements) {
-    jsElement.callMethod(
-        'splice',
-        [path, index, 0]
-          ..addAll(elements.map((element) => convertToJs(element))));
+    jsElement.callMethod('splice', [path, index, 0]..addAll(elements.map((element) => convertToJs(element))));
   }
 
   /// Removes the first occurrence of `value` from the list at `path`.
@@ -417,10 +390,7 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   /// Removes the objects in the range `start` inclusive to `end` exclusive and
   /// inserts the contents of `replacement` in its place for the list at `path`.
   void replaceRange(String path, int start, int end, Iterable replacement) {
-    jsElement.callMethod(
-        'splice',
-        [path, start, end - start]
-          ..addAll(replacement.map((element) => convertToJs(element))));
+    jsElement.callMethod('splice', [path, start, end - start]..addAll(replacement.map((element) => convertToJs(element))));
   }
 
   /// Removes all objects from the list at `path` that fail to satisfy `test`.
@@ -433,59 +403,51 @@ abstract class PolymerBase implements CustomElementProxyMixin {
   void setAll(String path, int index, Iterable iterable) {
     var list = get(path);
     var numToRemove = list.length - index;
-    jsElement.callMethod(
-        'splice',
-        [path, index, numToRemove]
-          ..addAll(iterable.map((element) => convertToJs(element))));
+    jsElement.callMethod('splice', [path, index, numToRemove]..addAll(iterable.map((element) => convertToJs(element))));
   }
 
   /// Copies the objects of `iterable`, skipping `skipCount` objects first, into
   /// the range `start`, inclusive, to `end`, exclusive, of the list at `path`.
-  void setRange(String path, int start, int end, Iterable iterable,
-      [int skipCount = 0]) {
+  void setRange(String path, int start, int end, Iterable iterable, [int skipCount = 0]) {
     int numToReplace = end - start;
-    jsElement.callMethod(
-        'splice',
-        [path, start, numToReplace]
-          ..addAll(iterable
-              .skip(skipCount)
-              .take(numToReplace)
-              .map((element) => convertToJs(element))));
+    jsElement.callMethod('splice', [path, start, numToReplace]..addAll(iterable.skip(skipCount).take(numToReplace).map((element) => convertToJs(element))));
   }
 
   /// Returns a list of nodes that are the effective childNodes. The effective
   /// childNodes list is the same as the element's childNodes except that
   /// any `<content>` elements are replaced with the list of nodes distributed
   /// to the `<content>`, the result of its `getDistributedNodes` method.
-  List<Node> getEffectiveChildNodes() =>
-      jsElement.callMethod('getEffectiveChildNodes');
+  List<Node> getEffectiveChildNodes() => jsElement.callMethod('getEffectiveChildNodes');
 
   /// Returns a list of elements that are the effective children. The effective
   /// children list is the same as the element's children except that
   /// any `<content>` elements are replaced with the list of elements
   /// distributed to the `<content>`.
-  List<Element> getEffectiveChildren() =>
-      jsElement.callMethod('getEffectiveChildren');
+  List<Element> getEffectiveChildren() => jsElement.callMethod('getEffectiveChildren');
 
   /// Returns a string of text content that is the concatenation of the
   /// text content's of the element's effective childNodes (the elements
   /// returned by [getEffectiveChildNodes].
   String getEffectiveText() => jsElement.callMethod('getEffectiveTextContent');
 
-  Element queryEffectiveChildren(String selector) =>
-      jsElement.callMethod('queryEffectiveChildren', [selector]);
+  Element queryEffectiveChildren(String selector) => jsElement.callMethod('queryEffectiveChildren', [selector]);
 
-  List<Element> queryAllEffectiveChildren(String selector) =>
-      jsElement.callMethod('queryAllEffectiveChildren', [selector]);
+  List<Element> queryAllEffectiveChildren(String selector) => jsElement.callMethod('queryAllEffectiveChildren', [selector]);
 
   /// Checks whether an element is in this element's light DOM tree.
-  bool isLightDescendant(Node node) =>
-      jsElement.callMethod('isLightDescendant', [node]);
+  bool isLightDescendant(Node node) => jsElement.callMethod('isLightDescendant', [node]);
 
   /// Checks whether an element is in this element's local DOM tree.
-  bool isLocalDescendant(Element node) =>
-      jsElement.callMethod('isLocalDescendant', [node]);
+  bool isLocalDescendant(Element node) => jsElement.callMethod('isLocalDescendant', [node]);
 }
+
+// Const class used as a missing value placeholder in an optional parameter list
+class _MissingValue {
+  const _MissingValue();
+}
+
+// Const used as a missing value placeholder in an optional parameter list
+const _missingValue = const _MissingValue();
 
 final js.JsObject _PolymerInterop = js.context['Polymer']['PolymerInterop'];
 final js.JsFunction _PolymerDartNotifyPath = _PolymerInterop['notifyPath'];
