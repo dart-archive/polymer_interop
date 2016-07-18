@@ -12,26 +12,6 @@ import 'package:polymer_interop/src/polymer_gestures.dart';
 import 'package:test/test.dart';
 import 'package:web_components/web_components.dart';
 
-void showTestRunnerFrame() {
-  // Make testrunner iFrame visible otherwise transitions not get fired ...
-
-  WindowBase w = window.parent;
-
-  JsObject doc = new JsObject.fromBrowserObject(w)['document'];
-
-  JsObject res = doc.callMethod("querySelector", ['iframe']);
-  res['style']['visibility'] = 'visible';
-}
-
-void hideTestRunnerFrame() {
-  WindowBase w = window.parent;
-
-  JsObject doc = new JsObject.fromBrowserObject(w)['document'];
-
-  JsObject res = doc.callMethod("querySelector", ['iframe']);
-  res['style']['visibility'] = '';
-}
-
 main() async {
   await initWebComponents();
   group('simulate events', () {
@@ -42,12 +22,10 @@ main() async {
       app = new Element.tag('x-app');
       jsApp = new JsObject.fromBrowserObject(app);
       document.body.children.add(app);
-      showTestRunnerFrame();
     });
 
     tearDown(() {
       document.body.children.remove(app);
-      hideTestRunnerFrame();
     });
 
     test('tap on x-foo and check localTarget and rootTarget', () {
@@ -68,7 +46,6 @@ main() async {
       div.id = 'target';
       document.body.children.add(div);
       divLocation = div.getBoundingClientRect();
-      showTestRunnerFrame();
     });
 
     tearDown(() {
@@ -166,11 +143,9 @@ main() async {
 
   group('Reference Cleanup', () {
     Element el;
-    JsObject elJs;
 
     setUp(() {
       el = new Element.tag('x-buttons');
-      elJs = new JsObject.fromBrowserObject(el);
       document.body.children.add(el);
     });
 
