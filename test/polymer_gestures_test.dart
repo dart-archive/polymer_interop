@@ -160,9 +160,9 @@ main() async {
     test('nested track and tap with touch', () {}, skip: 'not meaningful for dart');
   });
 
-  group('Down and Up', () {}, skip: 'not meaningful for dart');
+  group('Buttons', () {}, skip: 'not meaningful for dart');
 
-  group('Tap', () {}, skip: 'not meaningful for dart');
+  group('SD Polyfill', () {}, skip: 'not meaningful for dart');
 
   group('Reference Cleanup', () {
     Element el;
