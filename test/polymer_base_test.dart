@@ -332,6 +332,25 @@ main() async {
         return done.future;
       });
 
+
+      test('Model object - notify without args', () {
+        var done = new Completer();
+        var bindingsElement = new BindingsElement();
+        bindingsElement.myObject = {};
+        bindingsElement.on['my-object-changed'].take(1).listen((e) {
+          e = convertToDart(e);
+          expect(e.detail, isNotNull);
+          expect(e.detail['path'], 'myObject.foo');
+          expect(e.detail['value'], 'bar');
+          done.complete();
+        });
+
+        /// This actually acts like `set`, in that it will update the JS Object.
+        bindingsElement.myObject['foo'] = 'bar';
+        bindingsElement.notifyPath('myObject.foo');
+        return done.future;
+      });
+
       test('List indexes', () {
         var bindingsElement = new BindingsElement();
         bindingsElement.myArray = new JsObject.jsify([
