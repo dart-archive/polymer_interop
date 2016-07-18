@@ -1,0 +1,218 @@
+<!--
+Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+for details. All rights reserved. Use of this source code is governed by a
+BSD-style license that can be found in the LICENSE file.
+-->
+<!doctype html>
+<html>
+  <head>
+    <script src="packages/web_components/webcomponents-lite.js"></script>
+    <link rel="import" href="packages/web_components/interop_support.html">
+    <link rel='import' href='packages/polymer_interop/polymer.html'>
+
+    <link rel='x-dart-test' href='polymer_gestures_test.dart'>
+    <!--<script type="application/dart" src='polymer_base_test.dart'></script>-->
+    <!--<script src="packages/browser/dart.js"></script>-->
+    <script src='packages/test/dart.js'></script>
+  </head>
+  <body>
+
+  <dom-module id="x-foo">
+    <style>
+      #div {
+        height: 40px;
+        background: red;
+      }
+    </style>
+
+    <template>
+      <div id="div"></div>
+    </template>
+
+    <script>
+      Polymer({
+        is: 'x-foo',
+        listeners: {
+          tap: 'tapHandler'
+        },
+        tapHandler: function(e) {
+          var ev = Polymer.dom(e);
+          this._testLocalTarget = ev.localTarget;
+          this._testRootTarget = ev.rootTarget;
+        }
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-app">
+
+    <template>
+      <x-foo id="foo"></x-foo>
+    </template>
+
+    <script>
+      Polymer({
+        is: 'x-app',
+        listeners: {
+          tap: 'tapHandler'
+        },
+        tapHandler: function(e) {
+          var ev = Polymer.dom(e);
+          this._testLocalTarget = ev.localTarget;
+          this._testRootTarget = ev.rootTarget;
+        }
+      });
+    </script>
+
+  </dom-module>
+
+  <dom-module id="x-setup">
+    <template>
+      <div id="inner" on-tap="handler" on-track="handler" on-down="handler"
+           on-up="handler"></div>
+    </template>
+    <script>
+      Polymer({
+        is: 'x-setup',
+        listeners: {
+          tap: 'handler',
+          track: 'handler',
+          down: 'handler',
+          up: 'handler'
+        },
+        handler: function() {
+        }
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-dynamic">
+    <script>
+      Polymer({
+        is: 'x-dynamic',
+        handler: function(){},
+        setup: function() {
+          this.listen(this, 'tap', 'handler');
+        },
+        teardown: function() {
+          this.unlisten(this, 'tap', 'handler');
+        }
+      });
+    </script>
+  </dom-module>
+
+  <script>
+    var EventCaptureBehavior = {
+      properties: {
+        stream: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        }
+      },
+      handle: function(e) {
+        this.stream.push(e);
+      }
+    };
+  </script>
+
+  <dom-module id="x-prevent">
+    <script>
+      Polymer({
+        listeners: {
+          'down': 'prevent',
+          'up': 'handle',
+          'tap': 'handle',
+          'track': 'handle'
+        },
+        behaviors: [EventCaptureBehavior],
+        is: 'x-prevent',
+        prevent: function(e, detail) {
+          detail.prevent('tap');
+          detail.prevent('track');
+          e.preventDefault();
+          this.handle(e);
+        }
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-buttons">
+    <script>
+      Polymer({
+        is: 'x-buttons',
+        listeners: {
+          'down': 'handle',
+          'up': 'handle',
+          'tap': 'handle',
+          'track': 'handle'
+        },
+        behaviors: [EventCaptureBehavior]
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-document-listener">
+    <script>
+      Polymer({
+        is: 'x-document-listener',
+        setup: function() {
+          this.listen(document, 'down', 'handle');
+        },
+        teardown: function() {
+          this.unlisten(document, 'down', 'handle');
+        },
+        behaviors: [EventCaptureBehavior]
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-nested-child-prevent">
+    <script>
+      Polymer({
+        is: 'x-nested-child-prevent',
+        listeners: {
+          tap: 'handle'
+        },
+        behaviors: [EventCaptureBehavior]
+      });
+    </script>
+  </dom-module>
+
+  <dom-module id="x-nested-prevent">
+    <template>
+      <style>
+        :host {
+          position: absolute;
+          display: block;
+          background: orange;
+          height: 100px;
+          width: 100px;
+        }
+        #child {
+          position: relative;
+          display: block;
+          background: blue;
+          height: 50px;
+          width: 50px;
+          margin-top: 25px;
+          margin-left: 25px;
+        }
+      </style>
+      <x-nested-child-prevent id="child"></x-nested-child-prevent>
+    </template>
+    <script>
+      Polymer({
+        is: 'x-nested-prevent',
+        listeners: {
+          track: 'handle'
+        },
+        behaviors: [EventCaptureBehavior]
+      });
+    </script>
+  </dom-module>
+
+
+  </body>
+</html>

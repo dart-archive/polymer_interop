@@ -34,7 +34,7 @@ class CustomEventWrapper implements CustomEvent {
 
   bool get cancelable => original.cancelable;
 
-  DataTransfer get clipboardData => original.clipboardData;
+  DataTransfer get clipboardData => (original as ClipboardEvent).clipboardData;
 
   EventTarget get currentTarget => original.currentTarget;
 
