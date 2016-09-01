@@ -10,7 +10,11 @@ final JsObject _polymerInteropDartES6 = context['Polymer']['PolymerInterop']['ES
 
 final JsFunction _createES6JsProxyForArrayJs = _initES6ListProxySupport();
 
+final JsFunction _createES6JsProxyForMapJs = _initES6MapProxySupport();
+
 JsObject createES6JsProxyForList(List list) => _createES6JsProxyForArrayJs.apply([list]);
+
+JsObject createES6JsProxyForMap(Map map) => _createES6JsProxyForMapJs.apply([map]);
 
 final JsObject _Unsupported = _polymerInteropDartES6['Unsupported'];
 
@@ -55,4 +59,15 @@ JsFunction _initES6ListProxySupport() {
   });
 
   return   _polymerInteropDartES6['createES6JsProxyForArray'];
+}
+
+JsFunction _initES6MapProxySupport() {
+  <String, Function>{
+    '_dartGet': (Map instance, key) => convertToJs(instance[key]),
+    '_dartPut': (Map instance, key, val) => instance[key] = convertToDart(val),
+  }.forEach((String k, Function fun) {
+    _polymerInteropDartES6[k] = fun;
+  });
+
+  return   _polymerInteropDartES6['createES6JsProxyForMaps'];
 }

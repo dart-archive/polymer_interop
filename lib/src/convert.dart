@@ -43,6 +43,8 @@ dynamic convertToJs(dartValue) {
       setDartInstance(newList, dartValue);
     }
     return newList;
+  } else if (dartValue is Map && PolymerInteropConfiguration.mapConversionStrategy == JsConversionStrategy.es6Proxy) {
+    return createES6JsProxyForMap(dartValue);
   } else if (dartValue is Map) {
     var newMap = _jsMapExpando[dartValue];
     if (newMap == null) {

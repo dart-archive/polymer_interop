@@ -24,6 +24,9 @@ BSD-style license that can be found in the LICENSE file.
     ES6._dartArrayLength = isADartMethod;
     ES6._dartArrayPush = isADartMethod;
 
+    ES6._dartGet = isADartMethod;
+    ES6._dartPut = isADartMethod;
+
     /**
      * List ES6JsProxy support
      */
@@ -75,10 +78,38 @@ BSD-style license that can be found in the LICENSE file.
       });
     };
 
-    ES6.createMethodInvoker = function(dartInvoker) {
-      return function() {
-        dartInvoker(Array.prototype.slice.call(arguments));
-      };
+
+    /**
+     * Maps ES6JsProxy support
+     */
+
+    var mapCommonBehaviors = {
+      '__dartClass__' : function(instance) { return instance; },
+      '__isES6Proxy__' : function(instance) { return true; }
+    };
+
+    ES6.createES6JsProxyForMaps = function(instance) {
+      return new Proxy({},{
+        'get' : function(target,propertyName,proxy) {
+
+          // target first! (because of '__proto__' , 'constructor' , and dart interop internals ... )
+          var _cache = target[propertyName];
+          if(_cache) {
+            return _cache;
+          }
+
+          if (mapCommonBehaviors.hasOwnProperty(propertyName)) {
+            return mapCommonBehaviors[propertyName](instance);
+          }
+
+          return ES6._dartGet(instance,propertyName);
+        },
+
+        'set' : function(target,propertyName,value,proxy) {
+          ES6._dartArrayPut(instance,propertyName,value);
+          return true;
+        }
+      });
     };
 
   })(Polymer.PolymerInterop.ES6);
