@@ -15,8 +15,8 @@ BSD-style license that can be found in the LICENSE file.
 
       // Use current value when not specified as a parameter
       var info = {};
-      var v = this._get(path, this, info);
       if (arguments.length === 1) {
+        var v = this._get(path, this, info);
         value = v;
       }
 
@@ -43,6 +43,13 @@ BSD-style license that can be found in the LICENSE file.
       var last = parts.splice(parts.length - 1)[0];
       var obj = this.get(parts);
 
+      // Take care of conversion strategies
+      if (obj.__isES6Proxy__) {
+        this.notifyPath(path, value, fromAbove);
+        return;
+      }
+
+
       // Special handling when last part is a array item: need to replace
       // item in collection associated with key for that item
       if (Array.isArray(obj)) {
@@ -63,6 +70,7 @@ BSD-style license that can be found in the LICENSE file.
           coll.setItem(key, value);
         }
       }
+
 
       // Update the item with the modifed `last` property (with keys translated
       // to indexes for arrays).

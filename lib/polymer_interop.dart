@@ -21,6 +21,7 @@ export 'src/polymer_base.dart';
 export 'src/polymer_collection.dart';
 export 'src/polymer_dom.dart';
 export 'src/polymer_render_status.dart';
+export 'src/polymer_interop_config.dart';
 
 final JsObject _PolymerBaseJs = (o) {
   // TODO(jakemac): https://github.com/dart-lang/sdk/issues/24371
