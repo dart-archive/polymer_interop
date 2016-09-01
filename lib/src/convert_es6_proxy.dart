@@ -4,14 +4,13 @@ library polymer_interop.lib.src.convert_es_proxy;
 import 'package:web_components/web_components.dart' show HtmlImport;
 
 import 'dart:js';
-
 import 'package:polymer_interop/polymer_interop.dart';
-export 'package:polymer_interop/polymer_interop.dart'
-    show convertToDart, convertToJs;
 
 final JsObject _polymerInteropDartES6 = context['Polymer']['PolymerInterop']['ES6'];
 
-final JsFunction createES6JsProxyForArray = _initES6ListProxySupport();
+final JsFunction _createES6JsProxyForArrayJs = _initES6ListProxySupport();
+
+JsObject createES6JsProxyForList(List list) => _createES6JsProxyForArrayJs.apply([list]);
 
 final JsObject _Unsupported = _polymerInteropDartES6['Unsupported'];
 

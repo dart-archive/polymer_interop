@@ -3,11 +3,10 @@ Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
 for details. All rights reserved. Use of this source code is governed by a
 BSD-style license that can be found in the LICENSE file.
 -->
+<link rel="import" href="convert.html">
 <script>
   Polymer.PolymerInterop = Polymer.PolymerInterop || {};
   Polymer.PolymerInterop.ES6 = Polymer.PolymerInterop.ES6 || {};
-
-
 
   (function(ES6) {
 
@@ -17,47 +16,13 @@ BSD-style license that can be found in the LICENSE file.
       throw new Error("This method should be overridden by dart implementation");
     };
 
-    ES6._dartGetter = isADartMethod;
-    ES6._dartSetter = isADartMethod;
+
     ES6._dartArrayGet = isADartMethod;
     ES6._dartArrayPut = isADartMethod;
     ES6._dartArraySplice = isADartMethod;
     ES6._dartArraySlice = isADartMethod;
     ES6._dartArrayLength = isADartMethod;
     ES6._dartArrayPush = isADartMethod;
-
-    /**
-     * Object ES6JsProxy support
-     */
-
-    var commonBehaviors = {
-      '__dartClass__' : function(instance) { return instance; },
-      '__isES6Proxy__' : function(instance) { return true; }
-    };
-
-    ES6.createES6JsProxy = function(instance) {
-      return new Proxy({},{
-        'get' : function(target,propertyName,proxy) {
-
-          if (commonBehaviors.hasOwnProperty(propertyName)) {
-            return commonBehaviors[propertyName](instance);
-          }
-
-          var res = ES6._dartGetter(instance,propertyName);
-          if(res === ES6.Unsupported) {
-            return target[propertyName];
-          } else {
-            return res;
-          }
-        },
-        'set' : function(target,propertyName,value,proxy) {
-          if (ES6._dartSetter(instance,propertyName,value) === ES6.Unsupported) {
-            target[propertyName] = value;
-          }
-          return true;
-        }
-      });
-    };
 
     /**
      * List ES6JsProxy support

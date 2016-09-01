@@ -6,8 +6,10 @@ library polymer_interop.lib.src.convert;
 
 import 'dart:html';
 import 'dart:js';
+import 'package:polymer_interop/polymer_interop_config.dart';
 import 'package:web_components/web_components.dart';
 import 'custom_event_wrapper.dart';
+import 'convert_es6_proxy.dart';
 
 /// An interface for objects which can create a proxy of themselves which is
 /// usable from JS. These proxies should read and write directly from the
@@ -31,6 +33,8 @@ Expando<JsObject> _jsMapExpando = new Expando<JsObject>();
 dynamic convertToJs(dartValue) {
   if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
+  } else if (dartValue is List && PolymerInteropConfiguration.listConversionStrategy == JsConversionStrategy.es6Proxy) {
+    return createES6JsProxyForList(dartValue);
   } else if (dartValue is Iterable) {
     var newList = _jsArrayExpando[dartValue];
     if (newList == null) {
