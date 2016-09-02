@@ -7,7 +7,7 @@ library polymer_interop.lib.src.convert;
 import 'dart:collection';
 import 'dart:html';
 import 'dart:js';
-import 'package:polymer_interop/polymer_interop_config.dart';
+import 'polymer_interop_config.dart';
 import 'package:web_components/web_components.dart';
 import 'custom_event_wrapper.dart';
 import 'convert_es6_proxy.dart';

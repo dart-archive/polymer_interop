@@ -40,16 +40,16 @@ JsFunction _initES6ListProxySupport() {
       int end = (howmany == null) ? instance.length : index + howmany;
 
       JsArray removed =
-          new JsArray.from(instance.sublist(index, end).map(convertToJs));
+          new JsArray.from(instance.removeRange(index, end).map(convertToJs));
 
-      items = items == null ? [] : items;
+      items ??= [];
 
-      instance.replaceRange(index, end, items.map(convertToDart));
+      instance.insertAll(index, items.map(convertToDart));
 
       return removed;
     },
     '_dartArraySlice': (List instance, [int begin, int end]) {
-      begin = begin == null ? 0 : begin;
+      begin ??= 0;
       return new JsArray.from(instance.sublist(begin, end).map(convertToJs));
     },
     '_dartArrayPush': (List instance, List items) {
@@ -58,6 +58,9 @@ JsFunction _initES6ListProxySupport() {
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });
+
+  // Patch `array.concat` to work with proxies.
+  _polymerInteropDartES6.callMethod("_patchArrayConcat",[]);
 
   return   _polymerInteropDartES6['createES6JsProxyForArray'];
 }

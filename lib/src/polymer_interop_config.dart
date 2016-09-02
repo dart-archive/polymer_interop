@@ -1,4 +1,4 @@
-library polymer_interop.polymer_interop_config;
+library polymer_interop.src.polymer_interop_config;
 
 ///
 /// Configuration options for polymer interop features.
