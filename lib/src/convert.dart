@@ -4,6 +4,7 @@
 @HtmlImport('convert.html')
 library polymer_interop.lib.src.convert;
 
+import 'dart:collection';
 import 'dart:html';
 import 'dart:js';
 import 'package:polymer_interop/polymer_interop_config.dart';
@@ -33,25 +34,32 @@ Expando<JsObject> _jsMapExpando = new Expando<JsObject>();
 dynamic convertToJs(dartValue) {
   if (dartValue is JsProxyInterface) {
     return dartValue.jsProxy;
-  } else if (dartValue is List && PolymerInteropConfiguration.listConversionStrategy == JsConversionStrategy.es6Proxy) {
-    return createES6JsProxyForList(dartValue);
   } else if (dartValue is Iterable) {
     var newList = _jsArrayExpando[dartValue];
     if (newList == null) {
-      newList = new JsArray.from(dartValue.map((item) => convertToJs(item)));
+      if (dartValue is List &&
+          PolymerInteropConfiguration.listConversionStrategy ==
+              JsConversionStrategy.es6Proxy) {
+        newList = createES6JsProxyForList(dartValue);
+      } else {
+        newList = new JsArray.from(dartValue.map((item) => convertToJs(item)));
+      }
       _jsArrayExpando[dartValue] = newList;
       setDartInstance(newList, dartValue);
     }
     return newList;
-  } else if (dartValue is Map && PolymerInteropConfiguration.mapConversionStrategy == JsConversionStrategy.es6Proxy) {
-    return createES6JsProxyForMap(dartValue);
   } else if (dartValue is Map) {
     var newMap = _jsMapExpando[dartValue];
     if (newMap == null) {
-      newMap = new JsObject(_Object);
-      dartValue.forEach((k, v) {
-        newMap[k] = convertToJs(v);
-      });
+      if (PolymerInteropConfiguration.mapConversionStrategy ==
+          JsConversionStrategy.es6Proxy) {
+        newMap = createES6JsProxyForMap(dartValue);
+      } else {
+        newMap = new JsObject(_Object);
+        dartValue.forEach((k, v) {
+          newMap[k] = convertToJs(v);
+        });
+      }
       _jsMapExpando[dartValue] = newMap;
       setDartInstance(newMap, dartValue);
     }
@@ -69,7 +77,12 @@ dynamic convertToDart(jsValue) {
   if (jsValue is JsArray) {
     var dartList = getDartInstance(jsValue);
     if (dartList != null) return dartList;
-    dartList = jsValue.map((item) => convertToDart(item)).toList();
+    if (PolymerInteropConfiguration.listConversionStrategy ==
+        JsConversionStrategy.es6Proxy) {
+      dartList = new JsArrayList.from(jsValue);
+    } else {
+      dartList = jsValue.map((item) => convertToDart(item)).toList();
+    }
     _jsArrayExpando[dartList] = jsValue;
     setDartInstance(jsValue, dartList);
     return dartList;
@@ -90,10 +103,16 @@ dynamic convertToDart(jsValue) {
           jsValue.callMethod('getTime'));
     } else if (constructor == _Object &&
         jsValue['__proto__'] == _ObjectPrototype) {
-      var dartMap = {};
-      var keys = _Object.callMethod('keys', [jsValue]);
-      for (var key in keys) {
-        dartMap[key] = convertToDart(jsValue[key]);
+      var dartMap;
+      if (PolymerInteropConfiguration.mapConversionStrategy ==
+          JsConversionStrategy.es6Proxy) {
+        dartMap = new JsObjectMap.from(jsValue);
+      } else {
+        dartMap = {};
+        var keys = _Object.callMethod('keys', [jsValue]);
+        for (var key in keys) {
+          dartMap[key] = convertToDart(jsValue[key]);
+        }
       }
       _jsMapExpando[dartMap] = jsValue;
       setDartInstance(jsValue, dartMap);
@@ -124,6 +143,76 @@ Type _dartType(JsFunction jsValue) {
   }
   // Unknown type
   return null;
+}
+
+class JsArrayList extends ListBase implements JsProxyInterface {
+  JsArray _jsArray;
+
+  JsArrayList.from(JsArray jsArray) {
+    this._jsArray = jsArray;
+  }
+
+  @override
+  int get length => _jsArray.length;
+
+  set length(l) => _jsArray.length = l;
+
+  @override
+  operator [](int index) => convertToDart(_jsArray[index]);
+
+  @override
+  void operator []=(int index, value) {
+    _jsArray[index] = convertToJs(value);
+  }
+
+  @override
+  JsObject get jsProxy => _jsArray;
+
+  @override
+  JsFunction get jsProxyConstructor => throw new Error("Not supported");
+}
+
+class JsObjectMap extends MapBase implements JsProxyInterface {
+  JsObject _jsObject;
+
+  JsObjectMap.from(JsObject jsObject) {
+    this._jsObject = jsObject;
+  }
+
+  @override
+  operator [](Object key) => convertToDart(_jsObject[key]);
+
+  @override
+  operator []=(key, value) {
+    var res = this[key];
+    _jsObject[key] = convertToJs(value);
+    return res;
+  }
+
+  @override
+  void clear() {
+    List _keys = new List.from(keys);
+    _keys.forEach((k) => remove(k));
+  }
+
+  // TODO: implement jsProxy
+  @override
+  JsObject get jsProxy => _jsObject;
+
+  // TODO: implement jsProxyConstructor
+  @override
+  JsFunction get jsProxyConstructor => throw new Error("Not supported");
+
+  // TODO: implement keys
+  @override
+  Iterable get keys => _Object.callMethod("keys", [_jsObject]);
+
+  @override
+  remove(Object key) {
+    var res = this[key];
+    _jsObject.deleteProperty(key);
+    return res;
+  }
 }
 
 final JsFunction _setDartInstance =

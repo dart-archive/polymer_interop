@@ -16,6 +16,22 @@ BSD-style license that can be found in the LICENSE file.
       throw new Error("This method should be overridden by dart implementation");
     };
 
+    // Patch array concat (concat between with a proxy is not working )
+    // see https://github.com/tvcutsem/harmony-reflect/issues/13
+
+    var _origConcat = Array.prototype.concat;
+    Array.prototype.concat = function(/*...args*/) {
+    var length;
+    for (var i = 0; i < arguments.length; i++) {
+         if (Array.isArray(arguments[i])) {
+           length = arguments[i].length;
+           arguments[i] = arguments[i].slice();
+         }
+       }
+       return _origConcat.apply(this, arguments);
+    };
+
+
 
     ES6._dartArrayGet = isADartMethod;
     ES6._dartArrayPut = isADartMethod;
@@ -26,6 +42,7 @@ BSD-style license that can be found in the LICENSE file.
 
     ES6._dartGet = isADartMethod;
     ES6._dartPut = isADartMethod;
+    ES6._dartKeys = isADartMethod;
 
     /**
      * List ES6JsProxy support
@@ -53,6 +70,7 @@ BSD-style license that can be found in the LICENSE file.
     };
 
     ES6.createES6JsProxyForArray = function(instance) {
+      var _extra = {};
       return new Proxy([],{
         'get' : function(target,propertyName,proxy) {
 
@@ -60,20 +78,60 @@ BSD-style license that can be found in the LICENSE file.
             return arrayCommonBehaviors[propertyName](instance);
           }
 
-          if (isNaN(propertyName)) {
-            return target[propertyName];
+          if (propertyName == Symbol.isConcatSpreadable) {
+            return true;
           }
+
+          if (propertyName == '__proto__') {
+            console.log("ARRAY PROTO : "+Array.prototype);
+            console.log("OR "+target.__proto__);
+            return Array.prototype;
+          }
+
+          if (isNaN(propertyName.toString())) {
+            var x =  target[propertyName];
+            console.log("ARR "+propertyName.toString()+" => " + x);
+            return x;
+          }
+
+          console.log("ARR GETTING "+(propertyName.toString()));
 
           return ES6._dartArrayGet(instance,+propertyName);
         },
 
         'set' : function(target,propertyName,value,proxy) {
-          if (isNaN(propertyName)) {
+          if (isNaN(propertyName.toString())) {
             target[propertyName] = value;
           } else {
             ES6._dartArrayPut(instance,+propertyName,value);
           }
           return true;
+        },
+
+        'defineProperty' : function(target,prop,descr) {
+          Object.defineProperty(target,prop,descr);
+          _extra[prop]=true;
+          console.log("ARR DEF "+prop+" :" +Object.keys(_extra));
+          return true;
+        },
+
+        'ownKeys' : function(target) {
+          var keys = {};
+          for (var i = 0 ; i < ES6._dartArrayLength(instance) ; i++) {
+            keys[""+i]=true;
+          }
+          for (var k in _extra) {
+            keys[k] = true;
+          }
+          for (var k in target) {
+            keys[k] = true;
+          }
+          keys['length'] = true;
+          keys = Object.keys(keys);
+          console.log("ARRAY OWN KEYS : "+keys);
+          console.log("ARRAY EXTRA "+Object.keys(_extra));
+          keys.push("___dart__$dart_dartObject_ZxYxX_0_");
+          return keys;
         }
       });
     };
@@ -89,6 +147,7 @@ BSD-style license that can be found in the LICENSE file.
     };
 
     ES6.createES6JsProxyForMaps = function(instance) {
+      var _extra = {};
       return new Proxy({},{
         'get' : function(target,propertyName,proxy) {
 
@@ -106,8 +165,20 @@ BSD-style license that can be found in the LICENSE file.
         },
 
         'set' : function(target,propertyName,value,proxy) {
-          ES6._dartArrayPut(instance,propertyName,value);
+          ES6._dartPut(instance,propertyName,value);
           return true;
+        },
+
+        'defineProperty' : function(target,prop,descr) {
+          Object.defineProperty(target,prop,descr);
+          _extra[prop]=true;
+          return true;
+        },
+
+        'ownKeys' : function(target) {
+          var keys = ES6._dartKeys(instance).concat(Object.getOwnPropertyNames(target),Object.keys(_extra));
+          console.log("MAP OWN KEYS: "+keys);
+          return keys;
         }
       });
     };
