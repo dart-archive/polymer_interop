@@ -51,6 +51,33 @@ BSD-style license that can be found in the LICENSE file.
       };
     }
 
+    function validateArray(array) {
+      var n = 0;
+      var t = 0;
+      for (var i in array) {
+        n += array[i];
+        t++;
+      }
+
+      var tt = 0;
+      var nn = 0;
+
+      var arr="nope";
+      array.forEach(function(x,i,ar) {
+        tt += x;
+        nn++;
+        arr = ar;
+      });
+
+      return {
+        count : t,
+        sum : n,
+        count2 : nn,
+        sum2 : tt,
+        arr : arr
+      };
+    }
+
     MyModelJs.prototype = Object.create(Object.prototype);
   </script>
 </body>

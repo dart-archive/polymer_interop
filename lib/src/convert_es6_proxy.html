@@ -67,6 +67,14 @@ BSD-style license that can be found in the LICENSE file.
         return function() {
           return ES6._dartArrayPush(instance,Array.prototype.slice.call(arguments));
         };
+      },
+      'forEach' : function(instance) {
+        return function(callback, thisArg) {
+          var len = ES6._dartArrayLength(instance);
+          for (var i = 0 ;i < len;i++) {
+            callback.call(thisArg,ES6._dartArrayGet(instance,i),i,this);
+          }
+        }
       }
     };
 
@@ -75,7 +83,7 @@ BSD-style license that can be found in the LICENSE file.
         'get' : function(target,propertyName,proxy) {
 
           if (arrayCommonBehaviors.hasOwnProperty(propertyName)) {
-            return arrayCommonBehaviors[propertyName](instance);
+            return arrayCommonBehaviors[propertyName].call(this,instance);
           }
 
           if (isNaN(propertyName.toString())) {
@@ -83,6 +91,15 @@ BSD-style license that can be found in the LICENSE file.
           }
 
           return ES6._dartArrayGet(instance,+propertyName);
+        },
+
+        getOwnPropertyDescriptor: function(target, prop) {
+          var len = ES6._dartArrayLength(instance);
+          var pos = +prop;
+          if (!isNaN(prop) && pos>=0 && pos < len ) {
+            return { configurable: true, enumerable: true, value: ES6._dartArrayGet(instance,pos) };
+          }
+          return Object.getOwnPropertyDescriptor(target,prop);
         },
 
         'set' : function(target,propertyName,value,proxy) {
@@ -119,11 +136,11 @@ BSD-style license that can be found in the LICENSE file.
           return ES6._dartKeys(instance).indexOf(prop) >= 0;
         },
         getOwnPropertyDescriptor: function(target, prop) {
-            if (ES6._dartKeys(instance).indexOf(prop) >= 0) {
-              return { configurable: true, enumerable: true, value: ES6._dartGet(instance,prop) };
-            }
-            return Object.getOwnPropertyDescriptor(target,prop);
-          },
+          if (ES6._dartKeys(instance).indexOf(prop) >= 0) {
+            return { configurable: true, enumerable: true, value: ES6._dartGet(instance,prop) };
+          }
+          return Object.getOwnPropertyDescriptor(target,prop);
+        },
 
         'get' : function(target,propertyName,proxy) {
 
@@ -134,7 +151,7 @@ BSD-style license that can be found in the LICENSE file.
           }
 
           if (mapCommonBehaviors.hasOwnProperty(propertyName)) {
-            return mapCommonBehaviors[propertyName](instance);
+            return mapCommonBehaviors[propertyName].call(this,instance);
           }
 
           return ES6._dartGet(instance,propertyName);

@@ -41,7 +41,7 @@ main() async {
 
         myList.add('val2');
         expect(x['length'], 2);
-        expect(x['1'], 'val2');
+        expect(x[1], 'val2');
 
         List otherList = convertToDart(x);
 
@@ -63,7 +63,7 @@ main() async {
 
         myList.add('val2');
         expect(x['length'], 2);
-        expect(x['1'], 'val2');
+        expect(x[1], 'val2');
 
         List otherList = convertToDart(x);
 
@@ -83,6 +83,20 @@ main() async {
         expect(res.length, 2);
         expect(res[0], 'a');
         expect(res[1], 'b', reason: 'this should come from l2');
+      });
+
+      test('validateArray',(){
+        List vals = [ 10, 20, 30];
+        Map res = convertToDart(context.callMethod('validateArray',[convertToJs(vals)]));
+
+        expect(res['count'],3);
+        expect(res['sum'],60);
+
+        expect(res['count2'],3);
+        expect(res['sum2'],60);
+
+        expect(res['arr'],vals);
+
       });
     });
 
@@ -125,7 +139,7 @@ main() async {
 
       test('validate',() {
         Map x = {
-          'key1':'val1',
+          'key1' : 'val1',
           'key2' : 'val2',
           'key3' : 'val3'
         };
@@ -134,7 +148,7 @@ main() async {
 
         expect(res['keys'],['key1','key2','key3']);
         expect(res['values'],['val1','val2','val3']);
-        
+
       });
     });
 
