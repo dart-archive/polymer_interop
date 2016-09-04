@@ -37,6 +37,20 @@ BSD-style license that can be found in the LICENSE file.
       return thing;
     }
 
+    function validateMap(map) {
+      var x = [];
+      var y = [];
+      for (var k in map) {
+        x.push(k);
+        y.push(map[k]);
+      }
+
+      return {
+        keys: x,
+        values : y
+      };
+    }
+
     MyModelJs.prototype = Object.create(Object.prototype);
   </script>
 </body>

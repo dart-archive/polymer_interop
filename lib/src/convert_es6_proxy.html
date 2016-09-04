@@ -92,6 +92,13 @@ BSD-style license that can be found in the LICENSE file.
             ES6._dartArrayPut(instance,+propertyName,value);
           }
           return true;
+        },
+        'ownKeys' : function(target) {
+          var x = Object.getOwnPropertyNames(target).slice();
+          for (var i = 0 ;i<ES6._dartArrayLength(instance);i++) {
+            x.push(""+i);
+          }
+          return x;
         }
       });
     };
@@ -108,6 +115,16 @@ BSD-style license that can be found in the LICENSE file.
 
     ES6.createES6JsProxyForMaps = function(instance) {
       return new Proxy({},{
+        'has' : function(target,prop){
+          return ES6._dartKeys(instance).indexOf(prop) >= 0;
+        },
+        getOwnPropertyDescriptor: function(target, prop) {
+            if (ES6._dartKeys(instance).indexOf(prop) >= 0) {
+              return { configurable: true, enumerable: true, value: ES6._dartGet(instance,prop) };
+            }
+            return Object.getOwnPropertyDescriptor(target,prop);
+          },
+
         'get' : function(target,propertyName,proxy) {
 
           // target first! (because of '__proto__' , 'constructor' , and dart interop internals ... )
@@ -129,7 +146,7 @@ BSD-style license that can be found in the LICENSE file.
         },
 
         'ownKeys' : function(target) {
-          return ES6._dartKeys(instance);
+          return Object.getOwnPropertyNames(target).concat(ES6._dartKeys(instance));
         }
       });
     };

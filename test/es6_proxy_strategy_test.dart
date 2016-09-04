@@ -122,6 +122,20 @@ main() async {
 
         expect(otherMap == myMap, isTrue);
       });
+
+      test('validate',() {
+        Map x = {
+          'key1':'val1',
+          'key2' : 'val2',
+          'key3' : 'val3'
+        };
+
+        Map res = convertToDart(context.callMethod('validateMap',[convertToJs(x)]));
+
+        expect(res['keys'],['key1','key2','key3']);
+        expect(res['values'],['val1','val2','val3']);
+        
+      });
     });
 
     group('maps and list', () {
