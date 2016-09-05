@@ -1,7 +1,7 @@
 // Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-@TestOn('browser')
+@TestOn('chrome')
 library polymer_interop.test.convert_test;
 
 import 'dart:html';
@@ -18,7 +18,7 @@ main() async {
   smoke.useMirrors();
   await initWebComponents();
 
-  JsConversionStrategy.values.forEach((JsConversionStrategy strategy) {
+  JsInteropStrategy.values.forEach((JsInteropStrategy strategy) {
     group('strategy ${strategy}', () {
       setUpAll(() {
         PolymerInteropConfiguration.listConversionStrategy = strategy;
@@ -26,8 +26,8 @@ main() async {
       });
 
       tearDownAll(() {
-        PolymerInteropConfiguration.listConversionStrategy = JsConversionStrategy.deepCopy;
-        PolymerInteropConfiguration.mapConversionStrategy = JsConversionStrategy.deepCopy;
+        PolymerInteropConfiguration.listConversionStrategy = JsInteropStrategy.mixedMode;
+        PolymerInteropConfiguration.mapConversionStrategy = JsInteropStrategy.mixedMode;
       });
 
       group('conversions', () {

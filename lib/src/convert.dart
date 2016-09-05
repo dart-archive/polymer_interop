@@ -39,7 +39,7 @@ dynamic convertToJs(dartValue) {
     if (newList == null) {
       if (dartValue is List &&
           PolymerInteropConfiguration.listConversionStrategy ==
-              JsConversionStrategy.es6Proxy) {
+              JsInteropStrategy.es6Proxy) {
         newList = createES6JsProxyForList(dartValue);
       } else {
         newList = new JsArray.from(dartValue.map((item) => convertToJs(item)));
@@ -52,7 +52,7 @@ dynamic convertToJs(dartValue) {
     var newMap = _jsMapExpando[dartValue];
     if (newMap == null) {
       if (PolymerInteropConfiguration.mapConversionStrategy ==
-          JsConversionStrategy.es6Proxy) {
+          JsInteropStrategy.es6Proxy) {
         newMap = createES6JsProxyForMap(dartValue);
       } else {
         newMap = new JsObject(_Object);
@@ -78,7 +78,7 @@ dynamic convertToDart(jsValue) {
     var dartList = getDartInstance(jsValue);
     if (dartList != null) return dartList;
     if (PolymerInteropConfiguration.listConversionStrategy ==
-        JsConversionStrategy.es6Proxy) {
+        JsInteropStrategy.es6Proxy) {
       dartList = new JsArrayList.from(jsValue);
     } else {
       dartList = jsValue.map((item) => convertToDart(item)).toList();
@@ -105,7 +105,7 @@ dynamic convertToDart(jsValue) {
         jsValue['__proto__'] == _ObjectPrototype) {
       var dartMap;
       if (PolymerInteropConfiguration.mapConversionStrategy ==
-          JsConversionStrategy.es6Proxy) {
+          JsInteropStrategy.es6Proxy) {
         dartMap = new JsObjectMap.from(jsValue);
       } else {
         dartMap = {};

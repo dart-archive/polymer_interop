@@ -7,9 +7,10 @@ library polymer_interop.src.polymer_interop_config;
 ///
 /// Possible strategies that can be applied in `convertToJs` / `convertToDart`
 ///
-enum JsConversionStrategy {
-  /// Create a deep js copy of the dart object.
-  deepCopy,
+enum JsInteropStrategy {
+  /// Use a mixed strategy.
+  /// Proxy through `property defines` for model objects (see `polymer-dart`/`JsProxy`) and deep copy for lists and maps
+  mixedMode,
 
   /// Uses ES6 proxies.
   /// *warning* experimental feature that may cause browser compatibility issues
@@ -18,10 +19,8 @@ enum JsConversionStrategy {
 
 class PolymerInteropConfiguration {
   /// Conversion strategy to be applied to `List` derived objects
-  static JsConversionStrategy listConversionStrategy =
-      JsConversionStrategy.deepCopy;
+  static JsInteropStrategy listConversionStrategy = JsInteropStrategy.mixedMode;
 
   /// Conversion strategy to be applied to `Map` derived objects
-  static JsConversionStrategy mapConversionStrategy =
-      JsConversionStrategy.deepCopy;
+  static JsInteropStrategy mapConversionStrategy = JsInteropStrategy.mixedMode;
 }

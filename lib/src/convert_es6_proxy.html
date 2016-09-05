@@ -12,7 +12,7 @@ BSD-style license that can be found in the LICENSE file.
 
     ES6.Unsupported = {};
 
-    var isADartMethod = function() {
+    var _throwShouldBeOverridden = function() {
       throw new Error("This method should be overridden by dart implementation");
     };
 
@@ -34,16 +34,16 @@ BSD-style license that can be found in the LICENSE file.
     }
 
 
-    ES6._dartArrayGet = isADartMethod;
-    ES6._dartArrayPut = isADartMethod;
-    ES6._dartArraySplice = isADartMethod;
-    ES6._dartArraySlice = isADartMethod;
-    ES6._dartArrayLength = isADartMethod;
-    ES6._dartArrayPush = isADartMethod;
+    ES6._dartArrayGet = _throwShouldBeOverridden;
+    ES6._dartArrayPut = _throwShouldBeOverridden;
+    ES6._dartArraySplice = _throwShouldBeOverridden;
+    ES6._dartArraySlice = _throwShouldBeOverridden;
+    ES6._dartArrayLength = _throwShouldBeOverridden;
+    ES6._dartArrayPush = _throwShouldBeOverridden;
 
-    ES6._dartGet = isADartMethod;
-    ES6._dartPut = isADartMethod;
-    ES6._dartKeys = isADartMethod;
+    ES6._dartGet = _throwShouldBeOverridden;
+    ES6._dartPut = _throwShouldBeOverridden;
+    ES6._dartKeys = _throwShouldBeOverridden;
 
     /**
      * List ES6JsProxy support
