@@ -49,14 +49,6 @@ BSD-style license that can be found in the LICENSE file.
         return function() {
           return ES6._dartArrayPush(instance,Array.prototype.slice.call(arguments));
         };
-      },
-      'forEach' : function(instance) {
-        return function(callback, thisArg) {
-          var len = ES6._dartArrayLength(instance);
-          for (var i = 0 ;i < len;i++) {
-            callback.call(thisArg,ES6._dartArrayGet(instance,i),i,this);
-          }
-        }
       }
     };
 
