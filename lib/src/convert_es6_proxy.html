@@ -20,6 +20,7 @@ BSD-style license that can be found in the LICENSE file.
     // see https://github.com/tvcutsem/harmony-reflect/issues/13 for example
     // called from `_initES6ListProxySupport`
     ES6._patchArrayConcat = function() {
+
       var _origConcat = Array.prototype.concat;
       Array.prototype.concat = function(/*...args*/) {
       var length;

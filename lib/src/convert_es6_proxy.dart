@@ -1,7 +1,6 @@
 @HtmlImport('convert_es6_proxy.html')
 library polymer_interop.lib.src.convert_es_proxy;
 
-import 'dart:collection';
 import 'package:web_components/web_components.dart' show HtmlImport;
 
 import 'dart:js';

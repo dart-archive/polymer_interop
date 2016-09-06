@@ -18,10 +18,8 @@ main() async {
 
   group('es6 proxy strategy', () {
     setUpAll(() {
-      PolymerInteropConfiguration.listConversionStrategy =
-          JsInteropStrategy.es6Proxy;
-      PolymerInteropConfiguration.mapConversionStrategy =
-          JsInteropStrategy.es6Proxy;
+      PolymerInteropConfiguration.listConversionStrategy = checkForEs6ProxySupport();
+      PolymerInteropConfiguration.mapConversionStrategy = checkForEs6ProxySupport();
     });
 
     tearDownAll(() {
@@ -29,6 +27,12 @@ main() async {
           JsInteropStrategy.mixedMode;
       PolymerInteropConfiguration.mapConversionStrategy =
           JsInteropStrategy.mixedMode;
+    });
+
+    group('checks',() {
+      test('es6 proxy support',() {
+        expect(checkForEs6ProxySupport(),JsInteropStrategy.es6Proxy,reason:'es6 proxy not supported');
+      });
     });
 
     group('list', () {

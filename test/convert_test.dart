@@ -1,7 +1,7 @@
 // Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-@TestOn('chrome')
+@TestOn('browser')
 library polymer_interop.test.convert_test;
 
 import 'dart:html';
@@ -26,8 +26,10 @@ main() async {
       });
 
       tearDownAll(() {
-        PolymerInteropConfiguration.listConversionStrategy = JsInteropStrategy.mixedMode;
-        PolymerInteropConfiguration.mapConversionStrategy = JsInteropStrategy.mixedMode;
+        PolymerInteropConfiguration.listConversionStrategy =
+            JsInteropStrategy.mixedMode;
+        PolymerInteropConfiguration.mapConversionStrategy =
+            JsInteropStrategy.mixedMode;
       });
 
       group('conversions', () {
@@ -160,7 +162,11 @@ main() async {
           });
         });
       });
-    });
+    },
+        skip: (strategy == JsInteropStrategy.es6Proxy &&
+                checkForEs6ProxySupport() != JsInteropStrategy.es6Proxy)
+            ? "es6 proxy not supported"
+            : null);
   });
 }
 

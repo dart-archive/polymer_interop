@@ -169,7 +169,7 @@ class JsArrayList extends ListBase implements JsProxyInterface {
   JsObject get jsProxy => _jsArray;
 
   @override
-  JsFunction get jsProxyConstructor => throw new Error("Not supported");
+  JsFunction get jsProxyConstructor => throw new UnsupportedError("Costructor not supported");
 }
 
 class JsObjectMap extends MapBase implements JsProxyInterface {
@@ -201,7 +201,7 @@ class JsObjectMap extends MapBase implements JsProxyInterface {
 
   // TODO: implement jsProxyConstructor
   @override
-  JsFunction get jsProxyConstructor => throw new Error("Not supported");
+  JsFunction get jsProxyConstructor => throw new UnsupportedError("Costructor not supported");
 
   // TODO: implement keys
   @override
