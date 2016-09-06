@@ -16,25 +16,6 @@ BSD-style license that can be found in the LICENSE file.
       throw new Error("This method should be overridden by dart implementation");
     };
 
-    // Patch array concat (concat between with a proxy is not working )
-    // see https://github.com/tvcutsem/harmony-reflect/issues/13 for example
-    // called from `_initES6ListProxySupport`
-    ES6._patchArrayConcat = function() {
-
-      var _origConcat = Array.prototype.concat;
-      Array.prototype.concat = function(/*...args*/) {
-      var length;
-      for (var i = 0; i < arguments.length; i++) {
-           if (Array.isArray(arguments[i])) {
-             length = arguments[i].length;
-             arguments[i] = arguments[i].slice();
-           }
-         }
-         return _origConcat.apply(this, arguments);
-      };
-    }
-
-
     ES6._dartArrayGet = _throwShouldBeOverridden;
     ES6._dartArrayPut = _throwShouldBeOverridden;
     ES6._dartArraySplice = _throwShouldBeOverridden;
@@ -94,7 +75,16 @@ BSD-style license that can be found in the LICENSE file.
           return ES6._dartArrayGet(instance,+propertyName);
         },
 
-        getOwnPropertyDescriptor: function(target, prop) {
+        'has' : function(target,prop) {
+          var len = ES6._dartArrayLength(instance);
+          var pos = +prop;
+          if (!isNaN(prop) && pos>=0 && pos < len ) {
+            return true;
+          }
+          return prop in target;
+        },
+
+        'getOwnPropertyDescriptor': function(target, prop) {
           var len = ES6._dartArrayLength(instance);
           var pos = +prop;
           if (!isNaN(prop) && pos>=0 && pos < len ) {

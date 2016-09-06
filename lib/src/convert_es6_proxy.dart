@@ -68,9 +68,6 @@ JsFunction _initES6ListProxySupport() {
     _polymerInteropDartES6[k] = fun;
   });
 
-  // Patch `array.concat` to work with proxies.
-  _polymerInteropDartES6.callMethod("_patchArrayConcat", []);
-
   return _polymerInteropDartES6['createES6JsProxyForArray'];
 }
 
