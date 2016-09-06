@@ -52,6 +52,8 @@ BSD-style license that can be found in the LICENSE file.
       }
     };
 
+    // TODO(dam0vment) investigate if overriding only get/setOwnPropertyDescriptor and ownKeys
+    // is enough (all the other methods could just depend on those)
     ES6.createES6JsProxyForArray = function(instance) {
       return new Proxy([],{
         'get' : function(target,propertyName,proxy) {
