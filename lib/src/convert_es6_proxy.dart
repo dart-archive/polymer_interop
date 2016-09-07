@@ -59,6 +59,8 @@ JsFunction _initES6ListProxySupport() {
       if (begin < 0) begin = instance.length + begin;
       end ??= instance.length;
       if (end < 0) end = instance.length + end;
+      if (end > instance.length) end = instance.length;
+      
       return new JsArray.from(instance.sublist(begin, end).map(convertToJs));
     },
     '_dartArrayPush': (List instance, List items) {
