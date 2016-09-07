@@ -36,6 +36,42 @@ main() async {
     });
 
     group('list', () {
+      test('push',() {
+        List myList = [];
+        JsArray jsArray = convertToJs(myList);
+        jsArray.callMethod('push',['a']);
+        expect(myList.length,1);
+        expect(myList[0],'a');
+      });
+
+      test('slice',() {
+        List myList = ['a','b','c'];
+        JsArray jsArray = convertToJs(myList);
+
+        JsArray sliced = jsArray.callMethod('slice',[1]);
+
+        expect(sliced.length,2);
+        expect(sliced[0],'b');
+        expect(sliced[1],'c');
+
+      });
+
+      test('spice',() {
+        List myList = ['a','b','c'];
+        JsArray jsArray = convertToJs(myList);
+
+        JsArray removed = jsArray.callMethod('splice',[1,1,'b1','b2']);
+
+        expect(removed.length,1);
+        expect(removed[0],'b');
+        expect(myList.length,4);
+        expect(myList[1],'b1');
+        expect(myList[2],'b2');
+        expect(myList[3],'c');
+
+      });
+
+
       test('in and out', () {
         List myList = [];
         JsObject x = convertToJs(myList);

@@ -29,43 +29,13 @@ JsFunction _initES6ListProxySupport() {
   <String, Function>{
     '_dartArrayGet': (List instance, int index) => convertToJs(instance[index]),
     '_dartArrayPut': (List instance, int index, val) {
+      if (index>=instance.length) {
+        instance.length = index+1;
+      }
       instance[index] = convertToDart(val);
       return true;
     },
     '_dartArrayLength': (List instance) => instance.length,
-    '_dartArraySplice': (List instance, int index, int howmany, List items) {
-      index ??= 0;
-
-      if (index > instance.length) index = instance.length;
-      if (index < 0) index = instance.length + index;
-      if (index < 0) index = 0;
-
-      int end = (howmany == null) ? instance.length : index + howmany;
-      if (end > instance.length) end = instance.length;
-
-      JsArray removed =
-          new JsArray.from(instance.sublist(index, end).map(convertToJs));
-
-      instance.removeRange(index, end);
-
-      items ??= [];
-
-      instance.insertAll(index, items.map(convertToDart));
-
-      return removed;
-    },
-    '_dartArraySlice': (List instance, [int begin, int end]) {
-      begin ??= 0;
-      if (begin < 0) begin = instance.length + begin;
-      end ??= instance.length;
-      if (end < 0) end = instance.length + end;
-      if (end > instance.length) end = instance.length;
-      
-      return new JsArray.from(instance.sublist(begin, end).map(convertToJs));
-    },
-    '_dartArrayPush': (List instance, List items) {
-      instance.addAll(items.map(convertToDart));
-    }
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });
