@@ -36,6 +36,7 @@ JsFunction _initES6ListProxySupport() {
       return true;
     },
     '_dartArrayLength': (List instance) => instance.length,
+    '_dartArraySetLength' : (List instance,num len) => instance.length = len,
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });

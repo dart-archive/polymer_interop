@@ -19,7 +19,8 @@ BSD-style license that can be found in the LICENSE file.
     ES6._dartArrayGet = _throwShouldBeOverridden;
     ES6._dartArrayPut = _throwShouldBeOverridden;
     ES6._dartArrayLength = _throwShouldBeOverridden;
-  
+    ES6._dartArraySetLength = _throwShouldBeOverridden;
+
     ES6._dartGet = _throwShouldBeOverridden;
     ES6._dartPut = _throwShouldBeOverridden;
     ES6._dartKeys = _throwShouldBeOverridden;
@@ -71,7 +72,9 @@ BSD-style license that can be found in the LICENSE file.
         },
 
         'set' : function(target,propertyName,value,proxy) {
-          if (isNaN(propertyName.toString())) {
+          if (propertyName.toString() == 'length') {
+            ES6._dartArraySetLength(instance,+value);
+          } else if (isNaN(propertyName.toString())) {
             target[propertyName] = value;
           } else {
             ES6._dartArrayPut(instance,+propertyName,value);
