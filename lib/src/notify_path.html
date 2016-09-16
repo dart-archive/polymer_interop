@@ -44,7 +44,7 @@ BSD-style license that can be found in the LICENSE file.
       var obj = this.get(parts);
 
       // Take care of conversion strategies
-      if (obj.__isES6Proxy__) {
+      if (obj!=null && obj.__isES6Proxy__) {
         this.notifyPath(path, value, fromAbove);
         return;
       }
@@ -74,7 +74,7 @@ BSD-style license that can be found in the LICENSE file.
 
       // Update the item with the modifed `last` property (with keys translated
       // to indexes for arrays).
-      obj[last] = value;
+      if (obj) obj[last] = value;
 
       this.notifyPath(path, value, fromAbove);
     }
