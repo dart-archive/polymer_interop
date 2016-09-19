@@ -150,6 +150,17 @@ class JsArrayList extends ListBase implements JsProxyInterface {
 
   JsArrayList.from(JsArray jsArray) {
     this._jsArray = jsArray;
+    // in order to skip replicating splices
+    _Object.callMethod('defineProperty', [
+      jsArray,
+      '__isES6Proxy__',
+      new JsObject.jsify({
+        "configurable": false,
+        "enumerable": false,
+        "value": true,
+        "writable": false
+      })
+    ]);
   }
 
   @override
@@ -169,7 +180,8 @@ class JsArrayList extends ListBase implements JsProxyInterface {
   JsObject get jsProxy => _jsArray;
 
   @override
-  JsFunction get jsProxyConstructor => throw new UnsupportedError("Costructor not supported");
+  JsFunction get jsProxyConstructor =>
+      throw new UnsupportedError("Costructor not supported");
 }
 
 class JsObjectMap extends MapBase implements JsProxyInterface {
@@ -177,6 +189,17 @@ class JsObjectMap extends MapBase implements JsProxyInterface {
 
   JsObjectMap.from(JsObject jsObject) {
     this._jsObject = jsObject;
+    // in order to skip replicating operations
+    _Object.callMethod('defineProperty', [
+      jsObject,
+      '__isES6Proxy__',
+      new JsObject.jsify({
+        "configurable": false,
+        "enumerable": false,
+        "value": true,
+        "writable": false
+      })
+    ]);
   }
 
   @override
@@ -201,7 +224,8 @@ class JsObjectMap extends MapBase implements JsProxyInterface {
 
   // TODO: implement jsProxyConstructor
   @override
-  JsFunction get jsProxyConstructor => throw new UnsupportedError("Costructor not supported");
+  JsFunction get jsProxyConstructor =>
+      throw new UnsupportedError("Costructor not supported");
 
   // TODO: implement keys
   @override

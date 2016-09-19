@@ -56,6 +56,18 @@ main() async {
 
       });
 
+      test('delete',() {
+        List myList = ['a','b','c'];
+        JsArray jsArray = convertToJs(myList);
+
+        jsArray.callMethod('delete',['1']);
+
+        expect(jsArray.length,2);
+        expect(jsArray[0],'b');
+        expect(jsArray[1],'c');
+
+      },skip:'fix this test');
+
       test('spice',() {
         List myList = ['a','b','c'];
         JsArray jsArray = convertToJs(myList);
