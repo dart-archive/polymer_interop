@@ -213,11 +213,6 @@ abstract class PolymerBase implements CustomElementProxyMixin {
     }
   }
 
-  /// Notify that a value at a path has been changed (without passing the value).
-  void notifyPath1(String path) {
-    _PolymerDartNotifyPath.apply([path], thisArg: jsElement);
-  }
-
   /// Serializes a property to its associated attribute.
   ///
   /// Generally users should set reflectToAttribute: true in the properties
