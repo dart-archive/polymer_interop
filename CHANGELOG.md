@@ -1,3 +1,6 @@
+## 1.0.0-rc.11
+  * Update to Polymer JS [v1.7.0](https://github.com/Polymer/polymer/tree/v1.7.0)
+
 ## 1.0.0-rc.10
   * Update to Polymer JS [v1.6.0](https://github.com/Polymer/polymer/tree/v1.6.0)
   * __breaking change__ : `notifyPath` signature has been changed in order to
