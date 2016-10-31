@@ -47,6 +47,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // disable mouse handlers for MOUSE_TIMEOUT ms after
   // a touchend to ignore synthetic mouse events
   var mouseCanceller = function(mouseEvent) {
+    // Check for sourceCapabilities, used to distinguish synthetic events
+    // if mouseEvent did not come from a device that fires touch events,
+    // it was made by a real mouse and should be counted
+    // http://wicg.github.io/InputDeviceCapabilities/#dom-inputdevicecapabilities-firestouchevents
+    var sc = mouseEvent.sourceCapabilities;
+    if (sc && !sc.firesTouchEvents) {
+      return;
+    }
     // skip synthetic mouse events
     mouseEvent[HANDLED_OBJ] = {skip: true};
     // disable "ghost clicks"
@@ -63,8 +71,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   };
 
   function setupTeardownMouseCanceller(setup) {
-    for (var i = 0, en; i < MOUSE_EVENTS.length; i++) {
-      en = MOUSE_EVENTS[i];
+    var events = IS_TOUCH_ONLY ? ['click'] : MOUSE_EVENTS;
+    for (var i = 0, en; i < events.length; i++) {
+      en = events[i];
       if (setup) {
         document.addEventListener(en, mouseCanceller, true);
       } else {
@@ -74,9 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
 
   function ignoreMouse() {
-    if (IS_TOUCH_ONLY) {
-      return;
-    }
     if (!POINTERSTATE.mouse.mouseIgnoreJob) {
       setupTeardownMouseCanceller(true);
     }
@@ -310,7 +316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       for (var i = 0, dep, gd; i < deps.length; i++) {
         dep = deps[i];
         // don't add mouse handlers on iOS because they cause gray selection overlays
-        if (IS_TOUCH_ONLY && MOUSE_EVENTS.indexOf(dep) > -1) {
+        if (IS_TOUCH_ONLY && MOUSE_EVENTS.indexOf(dep) > -1 && dep !== 'click') {
           continue;
         }
         gd = gobj[dep];
@@ -539,7 +545,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // first move is 'start', subsequent moves are 'move', mouseup is 'end'
           self.info.state = self.info.started ? (e.type === 'mouseup' ? 'end' : 'track') : 'start';
           if (self.info.state === 'start') {
-            // iff tracking, always prevent tap
+            // if and only if tracking, always prevent tap
             Gestures.prevent('tap');
           }
           self.info.addMove({x: x, y: y});
@@ -578,7 +584,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var x = ct.clientX, y = ct.clientY;
       if (this.hasMovedEnough(x, y)) {
         if (this.info.state === 'start') {
-          // iff tracking, always prevent tap
+          // if and only if tracking, always prevent tap
           Gestures.prevent('tap');
         }
         this.info.addMove({x: x, y: y});

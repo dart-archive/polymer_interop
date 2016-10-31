@@ -13,7 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
 
   /**
-   * Stamps the template iff the `if` property is truthy.
+   * Stamps the template if and only if the `if` property is truthy.
    *
    * When `if` becomes falsey, the stamped content is hidden but not
    * removed from dom. When `if` subsequently becomes truthy again, the content
@@ -169,7 +169,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // notifying parent.<prop> path change on instance
     _forwardParentProp: function(prop, value) {
       if (this._instance) {
-        this._instance[prop] = value;
+        this._instance.__setProperty(prop, value, true);
       }
     },
 
