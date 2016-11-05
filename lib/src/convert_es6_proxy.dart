@@ -29,14 +29,14 @@ JsFunction _initES6ListProxySupport() {
   <String, Function>{
     '_dartArrayGet': (List instance, int index) => convertToJs(instance[index]),
     '_dartArrayPut': (List instance, int index, val) {
-      if (index>=instance.length) {
-        instance.length = index+1;
+      if (index >= instance.length) {
+        instance.length = index + 1;
       }
       instance[index] = convertToDart(val);
       return true;
     },
     '_dartArrayLength': (List instance) => instance.length,
-    '_dartArraySetLength' : (List instance,num len) => instance.length = len,
+    '_dartArraySetLength': (List instance, num len) => instance.length = len,
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });
@@ -50,6 +50,9 @@ JsFunction _initES6MapProxySupport() {
     '_dartPut': (Map instance, key, val) => instance[key] = convertToDart(val),
     '_dartKeys': (Map instance) =>
         new JsArray.from(instance.keys.map(convertToJs)),
+    '_dartMapDelete': (Map instance, key) {
+      instance.remove(key);
+    },
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });

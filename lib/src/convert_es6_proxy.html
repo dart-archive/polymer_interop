@@ -24,6 +24,7 @@ BSD-style license that can be found in the LICENSE file.
     ES6._dartGet = _throwShouldBeOverridden;
     ES6._dartPut = _throwShouldBeOverridden;
     ES6._dartKeys = _throwShouldBeOverridden;
+    ES6._dartMapDelete = _throwShouldBeOverridden;
 
     /**
      * List ES6JsProxy support
@@ -32,7 +33,7 @@ BSD-style license that can be found in the LICENSE file.
     var arrayCommonBehaviors = {
       '__dartClass__' : function(instance) { return instance; },
       '__isES6Proxy__' : function(instance) { return true; },
-
+      'toString' : function(instance) { return function() { return "Array["+ES6._dartArrayLength(instance)+"]"; }; },
       'length' : function(instance) { return ES6._dartArrayLength(instance); }
     };
 
@@ -128,8 +129,33 @@ BSD-style license that can be found in the LICENSE file.
           return ES6._dartGet(instance,propertyName);
         },
 
+        deleteProperty: function(target, prop) {
+          if (ES6._dartKeys(instance).indexOf(prop)>=0) {
+            ES6._dartMapDelete(instance,prop);
+          } else {
+            delete target[prop];
+          }
+          return true;
+        },
+
         'set' : function(target,propertyName,value,proxy) {
-          ES6._dartPut(instance,propertyName,value);
+          var pd = Object.getOwnPropertyDescriptor(target.__proto__,propertyName);
+          var overridden = ES6._dartKeys(instance).indexOf(propertyName) >= 0;
+          if (propertyName=='__proto__' ) {
+            target[propertyName] = value;
+          } else if (pd && pd.set && !overridden) {
+            /**
+             * GWT components (ex. vaadin-grid) will try to override the "__proto__" of the object we pass in order
+             * to add some nice getters and setters to it and then it will reset existing properties using this pattern:
+             * 1. remove prop from object
+             * 2. reset the prop on the object with the just removed value
+             * After the first step the prop is no longer an Own prop and the __proto__ setter will be called instead.
+             * TODO : Add a test for this case.
+             */
+            pd.set.call(proxy,value);
+          } else {
+            ES6._dartPut(instance,propertyName,value);
+          }
           return true;
         },
 
