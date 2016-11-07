@@ -102,6 +102,17 @@ BSD-style license that can be found in the LICENSE file.
       '__isES6Proxy__' : function(instance) { return true; }
     };
 
+    function getPropertyDescriptor(obj,prop) {
+      while(obj!=null) {
+        var pd = Object.getOwnPropertyDescriptor(obj,prop);
+        if (pd) {
+          return pd;
+        }
+        obj = obj.__proto__;
+      }
+      return undefined;
+    }
+
     ES6.createES6JsProxyForMaps = function(instance) {
       return new Proxy({},{
         'has' : function(target,prop){
@@ -116,8 +127,23 @@ BSD-style license that can be found in the LICENSE file.
 
         'get' : function(target,propertyName,proxy) {
 
+          if (ES6._dartKeys(instance).indexOf(propertyName)>=0) {
+            return ES6._dartGet(instance,propertyName);
+          }
+
           // target first! (because of '__proto__' , 'constructor' , and dart interop internals ... )
-          var _cache = target[propertyName];
+          var _cache;
+          try {
+            var pd = getPropertyDescriptor(target,propertyName);
+            if (pd) {
+              if (pd.get) {
+               _cache = pd.get.call(proxy);
+               } else  {
+                 _cache = pd.value;
+               }
+             }
+          } catch (error) {}  // ignore errors
+
           if(_cache) {
             return _cache;
           }
@@ -126,7 +152,7 @@ BSD-style license that can be found in the LICENSE file.
             return mapCommonBehaviors[propertyName].call(this,instance);
           }
 
-          return ES6._dartGet(instance,propertyName);
+          return undefined;
         },
 
         deleteProperty: function(target, prop) {
@@ -139,17 +165,20 @@ BSD-style license that can be found in the LICENSE file.
         },
 
         'set' : function(target,propertyName,value,proxy) {
-          var pd = Object.getOwnPropertyDescriptor(target.__proto__,propertyName);
+          var pd = getPropertyDescriptor(target,propertyName);
           var overridden = ES6._dartKeys(instance).indexOf(propertyName) >= 0;
           if (propertyName=='__proto__' ) {
             target[propertyName] = value;
           } else if (pd && pd.set && !overridden) {
             /**
              * GWT components (ex. vaadin-grid) will try to override the "__proto__" of the object we pass in order
-             * to add some nice getters and setters to it and then it will reset existing properties using this pattern:
-             * 1. remove prop from object
-             * 2. reset the prop on the object with the just removed value
-             * After the first step the prop is no longer an Own prop and the __proto__ setter will be called instead.
+             * to add some nice getters and setters to it and then it will copy existing properties values using this pattern:
+             * 1. get and remove prop from object
+             * 2. set the prop on the object with the previous value
+             * After the first step the prop is no longer an "own" prop and the __proto__ setter will be called instead.
+             * *WARNING* : not sure if this is the right solution as the Dart view and the JS view of the same object
+             *  will start to diverge from this point on. Probably is better to throw an exception when tryin to change the proto ?
+             *  another option is to limit this use case to write only properties (like in the vaadin case).
              * TODO : Add a test for this case.
              */
             pd.set.call(proxy,value);
