@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../case-map.html">
 
 <script>
+(function() {
 /**
  * Scans a template to produce an annotation list that that associates
  * metadata culled from markup with tree locations
@@ -65,6 +66,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // null-array (shared empty array to avoid null-checks)
   Polymer.nar = [];
 
+  var disableUpgradeEnabled = Polymer.Settings.disableUpgradeEnabled;
+
   Polymer.Annotations = {
 
     // preprocess-time
@@ -72,11 +75,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // construct and return a list of annotation records
     // by scanning `template`'s content
     //
-    parseAnnotations: function(template) {
+    parseAnnotations: function(template, stripWhiteSpace) {
       var list = [];
       var content = template._content || template.content;
       this._parseNodeAnnotations(content, list,
-        template.hasAttribute('strip-whitespace'));
+        stripWhiteSpace || template.hasAttribute('strip-whitespace'));
       return list;
     },
 
@@ -231,7 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var next = node.nextSibling;
           if (node.localName === 'template' &&
             !node.hasAttribute('preserve-content')) {
-            this._parseTemplate(node, i, list, annote);
+            this._parseTemplate(node, i, list, annote, stripWhiteSpace);
           }
           if (node.localName == 'slot') {
             node = this._replaceSlotWithContent(node);
@@ -281,8 +284,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         content.setAttribute(attr.name, attr.value);
       }
       var name = slot.getAttribute('name');
-      var select = name ? '[slot=\'' + name + '\']' : ':not([slot])'; 
-      content.setAttribute('select', select);
+      if (name) {
+        content.setAttribute('select', '[slot=\'' + name + '\']');
+      }
       slot.parentNode.replaceChild(content, slot);
       return content;
     },
@@ -294,11 +298,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     //    (this is both an optimization to avoid re-stamping nested template
     //    children and avoids a bug in Chrome where nested template children
     //    upgrade)
-    _parseTemplate: function(node, index, list, parent) {
+    _parseTemplate: function(node, index, list, parent, stripWhiteSpace) {
       // TODO(sjmiles): simply altering the .content reference didn't
       // work (there was some confusion, might need verification)
       var content = document.createDocumentFragment();
-      content._notes = this.parseAnnotations(node);
+      content._notes = this.parseAnnotations(node, stripWhiteSpace);
       content.appendChild(node.content);
       // TODO(sjmiles): using `nar` to avoid unnecessary allocation;
       // in general the handling of these arrays needs some cleanup
@@ -365,6 +369,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (node.localName === 'input' && origName === 'value') {
           node.setAttribute(origName, '');
         }
+        // Support `disable-upgrade` feature by maintaining this
+        // attribute so that it can be found on an element at
+        // `createdCallback` time.
+        if (disableUpgradeEnabled && origName === 'disable-upgrade$') {
+          node.setAttribute(name, '');
+        }
         // Remove annotation
         node.removeAttribute(origName);
         // Case hackery: attributes are lower-case, but bind targets
@@ -407,5 +417,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
   };
+
+})();
 
 </script>

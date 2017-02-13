@@ -143,7 +143,7 @@ MyElement = Polymer({
 
   is: 'my-element',
 
-  // See below for lifecycle callbacks
+  // See above for lifecycle callbacks
   created: function() {
     this.innerHTML = 'My element!';
   }
@@ -467,7 +467,8 @@ Example:
 We say that an element definition has an imperative and declarative portion. The imperative
 portion is the call to `Polymer({...})`, and the declarative portion is the `<dom-module>`
 element. The imperative and declarative portions of an element's definition may be placed
-in the same html file or in separate files.
+in the same HTML file or in separate files. They are matched based on the `dom-module`'s `id`
+having the same value as the element's `is` property.
 
 **NOTE:** Defining an element in the main html document is not currently supported.
 
