@@ -60,15 +60,16 @@ main() async {
         List myList = ['a','b','c'];
         JsArray jsArray = convertToJs(myList);
 
-        jsArray.callMethod('delete',['1']);
+        context.callMethod('deleteJs',[jsArray,1]);
 
-        expect(jsArray.length,2);
-        expect(jsArray[0],'b');
-        expect(jsArray[1],'c');
+        expect(jsArray.length,3);
+        expect(jsArray[0],'a');
+        expect(jsArray[1],null);
+        expect(jsArray[2],'c');
 
-      },skip:'fix this test');
+      }/*,skip:'fix this test'*/);
 
-      test('spice',() {
+      test('splice',() {
         List myList = ['a','b','c'];
         JsArray jsArray = convertToJs(myList);
 
@@ -77,6 +78,7 @@ main() async {
         expect(removed.length,1);
         expect(removed[0],'b');
         expect(myList.length,4);
+        expect(myList[0],'a');
         expect(myList[1],'b1');
         expect(myList[2],'b2');
         expect(myList[3],'c');
@@ -97,7 +99,7 @@ main() async {
 
         List otherList = convertToDart(x);
 
-        expect(otherList == myList, isTrue);
+        expect(identical(otherList,myList), isTrue);
       });
 
       test('from js', () {
@@ -119,7 +121,7 @@ main() async {
 
         List otherList = convertToDart(x);
 
-        expect(otherList == myList, isTrue);
+        expect(identical(otherList,myList), isTrue);
       });
 
       // An jsArrayProxy should be concatanatable with a standard js array
@@ -164,7 +166,7 @@ main() async {
         expect(x['fromDart'], 'yes');
 
         Map otherMap = convertToDart(x);
-        expect(otherMap == myMap, isTrue);
+        expect(identical(otherMap,myMap), isTrue);
       });
 
       test('from js', () {
@@ -186,7 +188,7 @@ main() async {
 
         Map otherMap = convertToDart(x);
 
-        expect(otherMap == myMap, isTrue);
+        expect(identical(otherMap,myMap), isTrue);
       });
 
       test('validate',() {

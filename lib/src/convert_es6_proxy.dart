@@ -53,6 +53,7 @@ JsFunction _initES6MapProxySupport() {
     '_dartMapDelete': (Map instance, key) {
       instance.remove(key);
     },
+    '_dartContains': (Map instance, key) => instance.containsKey(key),
   }.forEach((String k, Function fun) {
     _polymerInteropDartES6[k] = fun;
   });

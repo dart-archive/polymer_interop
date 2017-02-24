@@ -25,6 +25,7 @@ BSD-style license that can be found in the LICENSE file.
     ES6._dartPut = _throwShouldBeOverridden;
     ES6._dartKeys = _throwShouldBeOverridden;
     ES6._dartMapDelete = _throwShouldBeOverridden;
+    ES6._dartContains = _throwShouldBeOverridden;
 
     /**
      * List ES6JsProxy support
@@ -50,7 +51,8 @@ BSD-style license that can be found in the LICENSE file.
           if (isNaN(propertyName.toString())) {
             return target[propertyName];
           }
-
+          // propertyName here is always a String (even if isNaN is false ...) but dart wants a real Number
+          // so "+propertyName" will convert the string to a number
           return ES6._dartArrayGet(instance,+propertyName);
         },
 
@@ -88,6 +90,16 @@ BSD-style license that can be found in the LICENSE file.
             x.push(""+i);
           }
           return x;
+        },
+        'deleteProperty': function(target, propertyName) {
+          if (isNaN(propertyName.toString())) {
+            delete target[propertyName];
+          } else {
+            // Delete for array will actually set the prop to undefined ...
+            ES6._dartArrayPut(instance,+propertyName,null);
+          }
+
+          return true;
         }
       });
     };
@@ -116,10 +128,10 @@ BSD-style license that can be found in the LICENSE file.
     ES6.createES6JsProxyForMaps = function(instance) {
       return new Proxy({},{
         'has' : function(target,prop){
-          return ES6._dartKeys(instance).indexOf(prop) >= 0;
+          return ES6._dartContains(instance,prop);
         },
         getOwnPropertyDescriptor: function(target, prop) {
-          if (ES6._dartKeys(instance).indexOf(prop) >= 0) {
+          if (ES6._dartContains(instance,prop)) {
             return { configurable: true, enumerable: true, value: ES6._dartGet(instance,prop) };
           }
           return Object.getOwnPropertyDescriptor(target,prop);
@@ -127,25 +139,24 @@ BSD-style license that can be found in the LICENSE file.
 
         'get' : function(target,propertyName,proxy) {
 
-          if (ES6._dartKeys(instance).indexOf(propertyName)>=0) {
+          if (ES6._dartContains(instance,propertyName)) {
             return ES6._dartGet(instance,propertyName);
           }
 
           // target first! (because of '__proto__' , 'constructor' , and dart interop internals ... )
-          var _cache;
+
           try {
             var pd = getPropertyDescriptor(target,propertyName);
             if (pd) {
               if (pd.get) {
-               _cache = pd.get.call(proxy);
+               return pd.get.call(proxy);
                } else  {
-                 _cache = pd.value;
+                 return  pd.value;
                }
              }
-          } catch (error) {}  // ignore errors
-
-          if(_cache) {
-            return _cache;
+          } catch (error) {
+            // Getter could throw, should we throw too ?
+            console.dir(error);
           }
 
           if (mapCommonBehaviors.hasOwnProperty(propertyName)) {
@@ -156,7 +167,7 @@ BSD-style license that can be found in the LICENSE file.
         },
 
         deleteProperty: function(target, prop) {
-          if (ES6._dartKeys(instance).indexOf(prop)>=0) {
+          if (ES6._dartContains(instance,prop)) {
             ES6._dartMapDelete(instance,prop);
           } else {
             delete target[prop];
@@ -166,7 +177,7 @@ BSD-style license that can be found in the LICENSE file.
 
         'set' : function(target,propertyName,value,proxy) {
           var pd = getPropertyDescriptor(target,propertyName);
-          var overridden = ES6._dartKeys(instance).indexOf(propertyName) >= 0;
+          var overridden = ES6._dartContains(instance,propertyName);
           if (propertyName=='__proto__' ) {
             target[propertyName] = value;
           } else if (pd && pd.set && !overridden) {

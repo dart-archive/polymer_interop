@@ -206,10 +206,8 @@ class JsObjectMap extends MapBase implements JsProxyInterface {
   operator [](Object key) => convertToDart(_jsObject[key]);
 
   @override
-  operator []=(key, value) {
-    var res = this[key];
+  void operator []=(key, value) {
     _jsObject[key] = convertToJs(value);
-    return res;
   }
 
   @override
@@ -218,7 +216,6 @@ class JsObjectMap extends MapBase implements JsProxyInterface {
     _keys.forEach((k) => remove(k));
   }
 
-  // TODO: implement jsProxy
   @override
   JsObject get jsProxy => _jsObject;
 
