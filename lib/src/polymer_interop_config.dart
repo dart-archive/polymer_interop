@@ -37,7 +37,7 @@ class PolymerInteropConfiguration {
 /// Will return `es6Proxy` strategy if supported or `fallbackStrategy` otherwise.
 JsInteropStrategy checkForEs6ProxySupport(
     {JsInteropStrategy fallbackStrategy: JsInteropStrategy.mixedMode}) {
-  if (new JsObject.fromBrowserObject(window)['Proxy'] == null)
+  if (window.navigator.userAgent.contains('(Dart)')||new JsObject.fromBrowserObject(window)['Proxy'] == null)
     return fallbackStrategy;
   return JsInteropStrategy.es6Proxy;
 }

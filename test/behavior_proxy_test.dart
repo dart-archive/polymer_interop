@@ -7,7 +7,7 @@ library polymer_interop.test.convert_test;
 
 import 'package:polymer_interop/polymer_interop.dart';
 import 'package:web_components/web_components.dart';
-import 'package:smoke/mirrors.dart' as smoke;
+//import 'package:smoke/mirrors.dart' as smoke;
 import 'package:test/test.dart';
 
 /// Uses [smoke]
