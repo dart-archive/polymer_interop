@@ -510,9 +510,12 @@ suite('2-way binding effects between elements', function() {
     el.$.basic1.addEventListener('notifyingvalue-changed', listener);
     el.boundnotifyingvalue = 678;
     assert.equal(el.$.basic1.notifyingvalue, 678);
-    assert.isTrue(listener.calledOnce);
-    assert.equal(listener.getCalls()[0].args[0].detail.value, 678);
-  });
+    assert.equal(listener.callCount,
+      Polymer.Settings.suppressBindingNotifications ? 0 : 1);
+    if (!Polymer.Settings.suppressBindingNotifications) {
+      assert.equal(listener.getCalls()[0].args[0].detail.value, 678);
+    }
+  });    
 
   test('negated binding update negates value for parent', function() {
     assert.equal(el.negatedValue, false);
@@ -868,6 +871,20 @@ suite('binding corner cases', function() {
     assert.equal(el.$.check.textContent, 'true');
     assert.isTrue(el._isAttachedChanged.calledOnce);
     document.body.removeChild(el);
+  });
+
+  test('do not override property when going downwards', function() {
+    var value = 5, value_set_again = false, targetObj = {
+      get value () {
+        return value;
+      },
+      set value (v) {
+        value = v;
+        value_set_again = true;
+      }
+    };
+    Polymer.Bind._modelApi.__setProperty('value', 5, false, targetObj);
+    assert.isFalse(value_set_again);
   });
 });
 

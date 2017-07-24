@@ -607,3 +607,49 @@
     Polymer({is: 'x-content'});
   </script>
 </dom-module>
+
+<dom-module id="x-slotted">
+  <template>
+    <style>
+    ::slotted(.auto-content) {
+      border: 2px solid orange;
+    }
+    .bar, ::slotted(.complex-child) {
+      border: 6px solid navy;
+    }
+    #container ::slotted(*) {
+      border: 8px solid green;
+    }
+    </style>
+    <div id="container">
+      <slot name="container"></slot>
+    </div>
+    <slot></slot>
+  </template>
+  <script>
+    Polymer({is: 'x-slotted'});
+  </script>
+</dom-module>
+
+<dom-module id="root-styles">
+  <template>
+    <style>
+    :root {
+      color: rgb(123, 123, 123);
+      --root-padding: 10px;
+    }
+    :host > * {
+      border: 2px solid black;
+      --host-margin: 10px;
+    }
+    #child {
+      padding: var(--root-padding);
+      margin: var(--host-margin);
+    }
+    </style>
+    <div id="child">Child</div>
+  </template>
+  <script>
+  Polymer({is: 'root-styles'});
+  </script>
+</dom-module>

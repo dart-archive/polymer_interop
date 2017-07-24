@@ -51,7 +51,7 @@ Example:
 Notifications for changes to items sub-properties will be forwarded to template
 instances, which will update via the normal structured data notification system.
 
-Mutations to the `items` array itself should me made using the Array
+Mutations to the `items` array itself should be made using the Array
 mutation API's on `Polymer.Base` (`push`, `pop`, `splice`, `shift`,
 `unshift`), and template instances will be kept in sync with the data in the
 array.
@@ -69,14 +69,25 @@ a `dom-repeat` can be obtained using the `modelForElement` API on the
 This may be useful for manipulating instance data of event targets obtained
 by event handlers on parents of the `dom-repeat` (event delegation).
 
-A view-specific filter/sort may be applied to each `dom-repeat` by supplying a
-`filter` and/or `sort` property.  This may be a string that names a function on
-the host, or a function may be assigned to the property directly.  The functions
-should implemented following the standard `Array` filter/sort API.
+To filter or sort the _displayed_ items in your list, specify a `filter` or
+`sort` property on the `dom-repeat` (or both):
 
-In order to re-run the filter or sort functions based on changes to sub-fields
-of `items`, the `observe` property may be set as a space-separated list of
-`item` sub-fields that should cause a re-filter/sort when modified.  If
+*   `filter`. Specifies a filter callback function, that takes a single argument
+    (the item) and returns true to display the item, false to omit it.
+    (Note that this is **similar** to the standard
+    `Array` [`filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) API, but the callback only takes a single argument.)
+*   `sort`. Specifies a comparison function following the standard `Array`
+    [`sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) API.
+
+In both cases, the value can be either a function object, or a string identifying a
+function defined on the host element.
+
+By default, the `filter` and `sort` functions only run when the array itself
+is mutated (for example, by adding or removing items).
+
+To re-run the `filter` or `sort` functions when certain sub-fields
+of `items` change, set the `observe` property to a space-separated list of
+`item` sub-fields that should cause the list to be re-filtered or re-sorted. If
 the filter or sort function depends on properties not contained in `items`,
 the user should observe changes to those properties and call `render` to update
 the view based on the dependency change.
@@ -159,11 +170,12 @@ Then the `observe` property should be configured as follows:
       },
 
       /**
-       * A function that can be used to filter items out of the view.  This
-       * property should either be provided as a string, indicating a method
-       * name on the element's host, or else be an actual function.  The
-       * function should match the sort function passed to `Array.filter`.
-       * Using a filter function has no effect on the underlying `items` array.
+       * `filter`. Specifies a filter callback function, that takes a single
+       * argument (the item) and returns true to display the item, false to omit
+       * it. Using a filter callback has no effect on the underlying `items`
+       * array.
+       * (Note that this is **similar** to the standard `Array`
+       * [`filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) API, but the callback only takes a single argument.)
        */
       filter: {
         type: Function,
@@ -199,7 +211,7 @@ Then the `observe` property should be configured as follows:
        */
       renderedItemCount: {
         type: Number,
-        notify: true,
+        notify: !Polymer.Settings.suppressTemplateNotifications,
         readOnly: true
       },
 
@@ -226,6 +238,15 @@ Then the `observe` property should be configured as follows:
       targetFramerate: {
         type: Number,
         value: 20
+      },
+
+      /**
+       * When the global `Polymer.Settings.suppressDomChange` setting is used,
+       * setting `notifyDomChange: true` will enable firing `dom-change` events
+       * on this element.
+       */
+      notifyDomChange: {
+        type: Boolean
       },
 
       _targetFrameTime: {
@@ -264,9 +285,18 @@ Then the `observe` property should be configured as follows:
       // only perform attachment if the element was previously detached.
       if (this.__isDetached) {
         this.__isDetached = false;
-        var parent = Polymer.dom(Polymer.dom(this).parentNode);
+        var refNode;
+        var parentNode = Polymer.dom(this).parentNode;
+        // Affordance for 2.x hybrid mode
+        if (parentNode.localName == this.is) {
+          refNode = parentNode;
+          parentNode = Polymer.dom(parentNode).parentNode;
+        } else {
+          refNode = this;
+        }
+        var parent = Polymer.dom(parentNode);
         for (var i=0; i<this._instances.length; i++) {
-          this._attachInstance(i, parent);
+          this._attachInstance(i, parent, refNode);
         }
       }
     },
@@ -458,7 +488,9 @@ Then the `observe` property should be configured as follows:
       // Set rendered item count
       this._setRenderedItemCount(this._instances.length);
       // Notify users
-      this.fire('dom-change');
+      if (!Polymer.Settings.suppressTemplateNotifications || this.notifyDomChange) {
+        this.fire('dom-change');
+      }
       // Check to see if we need to render more items
       this._tryRenderChunk();
     },
@@ -643,10 +675,10 @@ Then the `observe` property should be configured as follows:
       }
     },
 
-    _attachInstance: function(idx, parent) {
+    _attachInstance: function(idx, parent, refNode) {
       var inst = this._instances[idx];
       if (!inst.isPlaceholder) {
-        parent.insertBefore(inst.root, this);
+        parent.insertBefore(inst.root, refNode);
       }
     },
 
@@ -687,6 +719,13 @@ Then the `observe` property should be configured as follows:
       var beforeRow = this._instances[idx + 1];
       var beforeNode = beforeRow && !beforeRow.isPlaceholder ? beforeRow._children[0] : this;
       var parentNode = Polymer.dom(this).parentNode;
+      // Affordance for 2.x hybrid mode
+      if (parentNode.localName == this.is) {
+        if (beforeNode == this) {
+          beforeNode = parentNode;
+        }
+        parentNode = Polymer.dom(parentNode).parentNode;
+      }
       Polymer.dom(parentNode).insertBefore(inst.root, beforeNode);
       this._instances[idx] = inst;
       return inst;
@@ -708,7 +747,8 @@ Then the `observe` property should be configured as follows:
     // Implements extension point from Templatizer mixin
     _showHideChildren: function(hidden) {
       for (var i=0; i<this._instances.length; i++) {
-        this._instances[i]._showHideChildren(hidden);
+        if (!this._instances[i].isPlaceholder)
+          this._instances[i]._showHideChildren(hidden);
       }
     },
 

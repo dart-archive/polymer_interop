@@ -7,127 +7,166 @@ library polymer_interop.test.convert_test;
 import 'dart:html';
 import 'dart:js';
 import 'package:polymer_interop/polymer_interop.dart';
-import 'package:smoke/mirrors.dart' as smoke;
-import 'package:smoke/smoke.dart';
+//import 'package:smoke/mirrors.dart' as smoke;
+//import 'package:smoke/smoke.dart';
 import 'package:test/test.dart';
 import 'package:web_components/web_components.dart';
 
 MyModel model;
 
 main() async {
-  smoke.useMirrors();
+ // smoke.useMirrors();
   await initWebComponents();
 
-  group('conversions', () {
-    setUp(() {
-      model = new MyModel();
-    });
-
-    group('convertToDart', () {
-      test('array', () {
-        var model = new MyModel();
-        var array = new JsArray.from([1, convertToJs(model), 'a']);
-        var dartList = convertToDart(array) as List;
-        expect(dartList, [1, model, 'a']);
-        expect(getDartInstance(array), dartList);
+  JsInteropStrategy.values.forEach((JsInteropStrategy strategy) {
+    group('strategy ${strategy}', () {
+      setUpAll(() {
+        PolymerInteropConfiguration.listConversionStrategy = strategy;
+        PolymerInteropConfiguration.mapConversionStrategy = strategy;
       });
 
-      test('proxy array', () {
-        var model = new MyModel();
-        var list = [1, model, 'a'];
-        var array = convertToJs(list) as JsArray;
-        expect(convertToDart(array), list);
+      tearDownAll(() {
+        PolymerInteropConfiguration.listConversionStrategy =
+            JsInteropStrategy.mixedMode;
+        PolymerInteropConfiguration.mapConversionStrategy =
+            JsInteropStrategy.mixedMode;
       });
 
-      test('object', () {
-        var model = new MyModel();
-        var object = new JsObject.jsify(
-            {'1': 1, 'model': convertToJs(model), 'a': 'a',});
-        var dartMap = convertToDart(object) as Map;
-        expect(dartMap, {'1': 1, 'model': model, 'a': 'a',});
-        expect(getDartInstance(object), dartMap);
-      });
+      group('conversions', () {
+        setUp(() {
+          model = new MyModel();
+        });
 
-      test('proxy object', () {
-        var model = new MyModel();
-        var map = {'1': 1, 'model': model, 'a': 'a',};
-        var object = convertToJs(map) as JsObject;
-        expect(convertToDart(object), map);
-      });
+        group('convertToDart', () {
+          test('array', () {
+            var model = new MyModel();
+            var array = new JsArray.from([1, convertToJs(model), 'a']);
+            var dartList = convertToDart(array) as List;
+            expect(dartList, [1, model, 'a']);
+            expect(getDartInstance(array), dartList);
+          });
 
-      test('custom js objects are left alone', () {
-        var constructor = new JsFunction.withThis((_) {});
-        var object = new JsObject(constructor);
-        expect(convertToDart(object), object);
-      });
+          test('proxy array', () {
+            var model = new MyModel();
+            var list = [1, model, 'a'];
+            var array = convertToJs(list) as JsArray;
+            expect(convertToDart(array), list);
+          });
 
-      test('objects created with Object.create() are left alone', () {
-        var object = context['Object']
-            .callMethod('create', [new JsObject(context['Object'])]);
-        expect(convertToDart(object), object);
-      });
+          test('object', () {
+            var model = new MyModel();
+            var object = new JsObject.jsify({
+              '1': 1,
+              'model': convertToJs(model),
+              'a': 'a',
+            });
+            var dartMap = convertToDart(object) as Map;
+            expect(dartMap, {
+              '1': 1,
+              'model': model,
+              'a': 'a',
+            });
+            expect(getDartInstance(object), dartMap);
+          });
 
-      test('Date objects', () {
-        var jsDate = new JsObject(context['Date'], [1000]);
-        var dartDate = convertToDart(jsDate) as DateTime;
-        expect(dartDate.millisecondsSinceEpoch, 1000);
-      });
+          test('proxy object', () {
+            var model = new MyModel();
+            var map = {
+              '1': 1,
+              'model': model,
+              'a': 'a',
+            };
+            var object = convertToJs(map) as JsObject;
+            expect(convertToDart(object), map);
+          });
 
-      test('CustomEvent objects', () {
-        var detail = new MyModel();
-        var jsEvent = context.callMethod(
-            'createEvent', ['my-event', convertToJs(detail)]);
-        var dartEvent = convertToDart(jsEvent);
-        expect(dartEvent.detail, detail);
-        expect(new JsObject.fromBrowserObject(jsEvent)['detail'],
-            convertToJs(detail));
-      });
-    });
+          test('custom js objects are left alone', () {
+            var constructor = new JsFunction.withThis((_) {});
+            var object = new JsObject(constructor);
+            expect(convertToDart(object), object);
+          });
 
-    group('convertToJs', () {
-      test('JsProxy objects', () {
-        var model = new MyModel();
-        expect(convertToJs(model), model.jsProxy);
-      });
+          test('objects created with Object.create() are left alone', () {
+            var object = context['Object']
+                .callMethod('create', [new JsObject(context['Object'])]);
+            expect(convertToDart(object), object);
+          });
 
-      test('JsObject objects', () {
-        var object = new JsObject(context['Object']);
-        expect(convertToJs(object), object);
-      });
+          test('Date objects', () {
+            var jsDate = new JsObject(context['Date'], [1000]);
+            var dartDate = convertToDart(jsDate) as DateTime;
+            expect(dartDate.millisecondsSinceEpoch, 1000);
+          });
 
-      test('Iterables', () {
-        var model = new MyModel();
-        var list = [1, model, 2];
-        var jsArray = convertToJs(list) as JsArray;
-        expect(jsArray, new JsArray.from([1, model.jsProxy, 2]));
-        expect(getDartInstance(jsArray), list);
-      });
+          test('CustomEvent objects', () {
+            var detail = new MyModel();
+            var jsEvent = context
+                .callMethod('createEvent', ['my-event', convertToJs(detail)]);
+            var dartEvent = convertToDart(jsEvent);
+            expect(dartEvent.detail, detail);
+            expect(new JsObject.fromBrowserObject(jsEvent)['detail'],
+                convertToJs(detail));
+          });
+        });
 
-      test('Maps', () {
-        var model = new MyModel();
-        var map = {'1': 1, 'model': model, 'a': 'a',};
-        var jsObject = convertToJs(map) as JsObject;
-        expectEqual(jsObject,
-            {'1': 1, 'model': model.jsProxy, 'a': 'a', '__dartClass__': map,});
-      });
+        group('convertToJs', () {
+          test('JsProxy objects', () {
+            var model = new MyModel();
+            expect(convertToJs(model), model.jsProxy);
+          });
 
-      test('Arbitrary class', () {
-        var model = new EmptyModel();
-        expect(convertToJs(model), model);
-      });
+          test('JsObject objects', () {
+            var object = new JsObject(context['Object']);
+            expect(convertToJs(object), object);
+          });
 
-      test('DateTime objects', () {
-        var dartDate = new DateTime.fromMillisecondsSinceEpoch(1000);
-        var jsDate = convertToJs(dartDate);
-        expect(jsDate.callMethod('getTime'), 1000);
-      });
+          test('Iterables', () {
+            var model = new MyModel();
+            var list = [1, model, 2];
+            var jsArray = convertToJs(list) as JsArray;
+            expect(jsArray, new JsArray.from([1, model.jsProxy, 2]));
+            expect(getDartInstance(jsArray), list);
+          });
 
-      test('CustomEvent objects', () {
-        var event = new CustomEvent('hello');
-        var wrapper = new CustomEventWrapper(event);
-        expect(convertToJs(wrapper), event);
+          test('Maps', () {
+            var model = new MyModel();
+            var map = {
+              '1': 1,
+              'model': model,
+              'a': 'a',
+            };
+            var jsObject = convertToJs(map) as JsObject;
+            expectEqual(jsObject, {
+              '1': 1,
+              'model': model.jsProxy,
+              'a': 'a',
+              '__dartClass__': map,
+            });
+          });
+
+          test('Arbitrary class', () {
+            var model = new EmptyModel();
+            expect(convertToJs(model), model);
+          });
+
+          test('DateTime objects', () {
+            var dartDate = new DateTime.fromMillisecondsSinceEpoch(1000);
+            var jsDate = convertToJs(dartDate);
+            expect(jsDate.callMethod('getTime'), 1000);
+          });
+
+          test('CustomEvent objects', () {
+            var event = new CustomEvent('hello');
+            var wrapper = new CustomEventWrapper(event);
+            expect(convertToJs(wrapper), event);
+          });
+        });
       });
-    });
+    },
+        skip: (strategy == JsInteropStrategy.es6Proxy &&
+                checkForEs6ProxySupport() != JsInteropStrategy.es6Proxy)
+            ? "es6 proxy not supported"
+            : null);
   });
 }
 
@@ -141,9 +180,9 @@ class MyModel extends Object with JsProxyInterface {
 
     var prototype = _jsProxyConstructor['prototype'];
     _jsProxyConstructor['prototype'] = prototype;
-    _addDescriptor(prototype, #value);
-    _addDescriptor(prototype, #readOnlyVal);
-    _addDescriptor(prototype, #finalVal);
+    _addDescriptor(prototype, #value,'value',(x)=>x.value,(x,v)=>x.value=v);
+    _addDescriptor(prototype, #readOnlyVal,'readOnlyVal',(x)=>x.readOnlyVal,(x,v)=>null);
+    _addDescriptor(prototype, #finalVal,'finalVal',(x)=>x.finalVal,(x,v)=>null);
     prototype['incrementBy'] =
         new JsFunction.withThis((jsThis, [int amount = 1]) {
       return getDartInstance(jsThis).incrementBy(amount);
@@ -174,16 +213,16 @@ void expectEqual(JsObject actual, Map expected) {
   }
 }
 
-void _addDescriptor(JsObject prototype, Symbol name) {
+void _addDescriptor(JsObject prototype, Symbol name,String nm,getter(instance),setter(instance,val)) {
   var descriptor = {
     'get': new JsFunction.withThis((JsObject instance) {
-      return convertToJs(read(getDartInstance(instance), name));
+      return convertToJs(getter(getDartInstance(instance)));
     }),
     'set': new JsFunction.withThis((JsObject instance, value) {
-      write(getDartInstance(instance), name, convertToDart(value));
+      setter(getDartInstance(instance), convertToDart(value));
     }),
   };
   // Add a proxy getter/setter for this property.
   context['Object'].callMethod('defineProperty',
-      [prototype, symbolToName(name), new JsObject.jsify(descriptor)]);
+      [prototype, nm, new JsObject.jsify(descriptor)]);
 }

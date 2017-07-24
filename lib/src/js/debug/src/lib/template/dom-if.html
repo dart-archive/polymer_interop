@@ -13,7 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
 
   /**
-   * Stamps the template iff the `if` property is truthy.
+   * Stamps the template if and only if the `if` property is truthy.
    *
    * When `if` becomes falsey, the stamped content is hidden but not
    * removed from dom. When `if` subsequently becomes truthy again, the content
@@ -60,6 +60,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Boolean,
         value: false,
         observer: '_queueRender'
+      },
+
+      /**
+       * When the global `Polymer.Settings.suppressDomChange` setting is used,
+       * setting `notifyDomChange: true` will enable firing `dom-change` events
+       * on this element.
+       */
+      notifyDomChange: {
+        type: Boolean
       }
 
     },
@@ -73,10 +82,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     detached: function() {
-      if (!this.parentNode ||
-          (this.parentNode.nodeType == Node.DOCUMENT_FRAGMENT_NODE &&
+      var parentNode = this.parentNode;
+      if (parentNode && parentNode.localName == this.is) {
+        parentNode = Polymer.dom(parentNode).parentNode;
+      }
+      if (!parentNode ||
+          (parentNode.nodeType == Node.DOCUMENT_FRAGMENT_NODE &&
            (!Polymer.Settings.hasShadow ||
-            !(this.parentNode instanceof ShadowRoot)))) {
+            !(parentNode instanceof ShadowRoot)))) {
         this._teardownInstance();
       }
     },
@@ -114,28 +127,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._showHideChildren();
       }
       if (this.if != this._lastIf) {
-        this.fire('dom-change');
+        if (!Polymer.Settings.suppressTemplateNotifications || this.notifyDomChange) {
+          this.fire('dom-change');
+        }
         this._lastIf = this.if;
       }
     },
 
     _ensureInstance: function() {
+      var refNode;
       var parentNode = Polymer.dom(this).parentNode;
+      // Affordance for 2.x hybrid mode
+      if (parentNode && parentNode.localName == this.is) {
+        refNode = parentNode;
+        parentNode = Polymer.dom(parentNode).parentNode;
+      } else {
+        refNode = this;
+      }
       // Guard against element being detached while render was queued
       if (parentNode) {
-        var parent = Polymer.dom(parentNode);
         if (!this._instance) {
           this._instance = this.stamp();
           var root = this._instance.root;
-          parent.insertBefore(root, this);
+          Polymer.dom(parentNode).insertBefore(root, refNode);
         } else {
           var c$ = this._instance._children;
           if (c$ && c$.length) {
             // Detect case where dom-if was re-attached in new position
-            var lastChild = Polymer.dom(this).previousSibling;
+            var lastChild = Polymer.dom(refNode).previousSibling;
             if (lastChild !== c$[c$.length-1]) {
               for (var i=0, n; (i<c$.length) && (n=c$[i]); i++) {
-                parent.insertBefore(n, this);
+                Polymer.dom(parentNode).insertBefore(n, refNode);
               }
             }
           }
@@ -169,7 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // notifying parent.<prop> path change on instance
     _forwardParentProp: function(prop, value) {
       if (this._instance) {
-        this._instance[prop] = value;
+        this._instance.__setProperty(prop, value, true);
       }
     },
 

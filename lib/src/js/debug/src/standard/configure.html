@@ -43,6 +43,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   var usePolyfillProto = Polymer.Settings.usePolyfillProto;
 
+  // When true, `this.properties` is bad juju due to obsolete `properties`
+  // accessors on instances of HTMLElement
+  var avoidInstanceProperties =
+    Boolean(Object.getOwnPropertyDescriptor(document.documentElement, 'properties'));
+
   Polymer.Base._addFeature({
 
     // storage for configuration
@@ -90,6 +95,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // e.g. hand template content stored in notes to children as part of
       // configure flow so templates have their content at ready time
       this._configureAnnotationReferences();
+      // configure instance properties that may have been bound prior to upgrade
+      this._configureInstanceProperties();
       // save copy of configuration that came from above
       this._aboveConfig = this.mixin({}, this._config);
       // get individual default values from property configs
@@ -99,7 +106,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._configureProperties(this.behaviors[i].properties, config);
       }
       // prototypical behavior
-      this._configureProperties(this.properties, config);
+      // Read `properties` off of the prototype, as a concession to non-spec
+      // compliant browsers (e.g. Android UC Browser 11.2.0.915) where
+      // a.) HTMLElement's have a non-spec `properties` property, and
+      // b.) the `properties` accessor is on instances rather than
+      // `HTMLElement.prototype`; going under the instance to the prototype
+      // avoids the problem. Note can't always go to __proto__ due to IE10
+      // hence conditional, but IE10 doesn't suffer from the instance properties
+      // issue (happy coincidence of browser quirks).
+      this._configureProperties(avoidInstanceProperties ?
+        this.__proto__.properties : this.properties, config);
       // TODO(sorvell): it *may* be faster to loop over _propertyInfo but
       // there are some test issues.
       //this._configureProperties(this._propertyInfo, config);
@@ -113,18 +129,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    _configureProperties: function(properties, config) {
-      for (var i in properties) {
-        var c = properties[i];
+    _configureInstanceProperties: function() {
+      for (var i in this._propertyEffects) {
         // Allow properties set before upgrade on the instance
         // to override default values. This allows late upgrade + an early set
         // to not b0rk accessors on the prototype.
         // Perf testing has shown `hasOwnProperty` to be ok here.
-        if (!usePolyfillProto && this.hasOwnProperty(i) &&
-            this._propertyEffects && this._propertyEffects[i]) {
-          config[i] = this[i];
+        if (!usePolyfillProto && this.hasOwnProperty(i)) {
+          this._configValue(i, this[i]);
           delete this[i];
-        } else if (c.value !== undefined) {
+        }
+      }
+    },
+
+    _configureProperties: function(properties, config) {
+      for (var i in properties) {
+        var c = properties[i];
+        if (c.value !== undefined) {
           var value = c.value;
           if (typeof value == 'function') {
             // pass existing config values (this._config) to value function
@@ -175,6 +196,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Override polymer-mini thunk
     _afterClientsReady: function() {
+      // set path properties
+      this.importPath = this._importPath;
+      this.rootPath = Polymer.rootPath;
       // process static effects, e.g. computations that have only literal arguments
       this._executeStaticEffects();
       this._applyConfig(this._config, this._aboveConfig);

@@ -34,7 +34,7 @@ elements to the template itself as the binding scope.
 
   <template is="dom-bind">
 
-    <iron-ajax url="http://..." lastresponse="{{data}}" auto></iron-ajax>
+    <iron-ajax url="http://..." last-response="{{data}}" auto></iron-ajax>
 
     <template is="dom-repeat" items="{{data}}">
         <div><span>{{item.first}}</span> <span>{{item.last}}</span></div>
@@ -61,6 +61,19 @@ elements to the template itself as the binding scope.
 
     is: 'dom-bind',
 
+    properties: {
+
+      /**
+       * When the global `Polymer.Settings.suppressDomChange` setting is used,
+       * setting `notifyDomChange: true` will enable firing `dom-change` events
+       * on this element.
+       */
+      notifyDomChange: {
+        type: Boolean
+      }
+
+    },
+
     extends: 'template',
     _template: null,
 
@@ -71,9 +84,9 @@ elements to the template itself as the binding scope.
       Polymer.RenderStatus.whenReady(function() {
         if (document.readyState == 'loading') {
           document.addEventListener('DOMContentLoaded', function() {
-            self._markImportsReady(); 
+            self._markImportsReady();
           });
-        } else {  
+        } else {
           self._markImportsReady();
         }
       });
@@ -95,8 +108,16 @@ elements to the template itself as the binding scope.
     },
 
     _insertChildren: function() {
-      var parentDom = Polymer.dom(Polymer.dom(this).parentNode);
-      parentDom.insertBefore(this.root, this);
+      var refNode;
+      var parentNode = Polymer.dom(this).parentNode;
+      // Affordance for 2.x hybrid mode
+      if (parentNode.localName == this.is) {
+        refNode = parentNode;
+        parentNode = Polymer.dom(parentNode).parentNode;
+      } else {
+        refNode = this;
+      }
+      Polymer.dom(parentNode).insertBefore(this.root, refNode);
     },
 
     _removeChildren: function() {
@@ -121,6 +142,11 @@ elements to the template itself as the binding scope.
       } else {
         return selector;
       }
+    },
+
+    _configureInstanceProperties: function() {
+      // We use the _prepConfigure code below to read instance values before
+      // creating instance accessors, rather than the standard method here
     },
 
     _prepConfigure: function() {
@@ -163,7 +189,9 @@ elements to the template itself as the binding scope.
         this._children = Polymer.TreeApi.arrayCopyChildNodes(this.root);
       }
       this._insertChildren();
-      this.fire('dom-change');
+      if (!Polymer.Settings.suppressTemplateNotifications || this.notifyDomChange) {
+        this.fire('dom-change');
+      }
     }
 
   });

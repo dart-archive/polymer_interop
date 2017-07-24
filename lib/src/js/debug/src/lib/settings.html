@@ -21,10 +21,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var settings = window.Polymer || {};
 
       // via url
-      var parts = location.search.slice(1).split('&');
-      for (var i=0, o; (i < parts.length) && (o=parts[i]); i++) {
-        o = o.split('=');
-        o[0] && (settings[o[0]] = o[1] || true);
+      if (!settings.noUrlSettings) {
+        var parts = location.search.slice(1).split('&');
+        for (var i=0, o; (i < parts.length) && (o=parts[i]); i++) {
+          o = o.split('=');
+          o[0] && (settings[o[0]] = o[1] || true);
+        }
       }
 
       settings.wantShadow = (settings.dom === 'shadow');
@@ -52,6 +54,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       settings.useNativeCSSProperties = settings.hasNativeCSSProperties &&
         settings.lazyRegister && settings.useNativeCSSProperties;
+
+      settings.isIE = navigator.userAgent.match('Trident');
 
       return settings;
     })()

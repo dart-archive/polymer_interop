@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../lib/bind/accessors.html">
 <link rel="import" href="../lib/bind/effects.html">
-
+<link rel="import" href="../lib/path.html">
 <script>
   /**
    * Support for property side effects.
@@ -298,9 +298,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       // if not literal, look for structured path
       if (!a.literal) {
-        a.model = this._modelForPath(arg);
+        a.model = Polymer.Path.root(arg);
         // detect structured path (has dots)
-        a.structured = arg.indexOf('.') > 0;
+        a.structured = Polymer.Path.isDeep(arg);
         if (a.structured) {
           a.wildcard = (arg.slice(-2) == '.*');
           if (a.wildcard) {
@@ -325,12 +325,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       value = this._computeFinalAnnotationValue(node, property, value, info);
 
-      // For better interop, dirty check before setting when custom events
-      // are used, since the target element may not dirty check (e.g. <input>)
-      if (info.customEvent && node[property] === value) {
-        return;
-      }
-
       if (info.kind == 'attribute') {
         this.serializeValueToAttribute(value, property, node);
       } else {
@@ -338,10 +332,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (pinfo && pinfo.readOnly) {
           return;
         }
-        // Ideally we would call setProperty using fromAbove: true to avoid
-        // spinning the wheel needlessly, but we found that users were listening
-        // for change events outside of bindings
-        this.__setProperty(property, value, false, node);
+        // Downward data-flow via bindings uses `fromAbove: true` if the
+        // global `suppressBindingNotifications` opt-in flag is set as a
+        // perf optimization to avoid needless event dispatch cost
+        this.__setProperty(property, value,
+          Polymer.Settings.suppressBindingNotifications, node);
       }
     },
 

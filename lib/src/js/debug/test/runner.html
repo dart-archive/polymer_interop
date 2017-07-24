@@ -25,6 +25,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'unit/dom-module-inline.html',
       'unit/async.html',
       'unit/behaviors.html',
+      'unit/behaviors.html?lazyRegister=true',
+      'unit/behaviors.html?lazyRegister=max',
       'unit/template.html',
       'unit/template-whitespace.html',
       'unit/ready.html',
@@ -40,12 +42,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'unit/polymer-dom-observeNodes.html?dom=shadow',
       'unit/debounce.html',
       'unit/bind.html',
+      'unit/bind.html?suppressBindingNotifications&suppressTemplateNotifications',
       'unit/bind.html?dom=shadow',
       'unit/notify-path.html',
+      'unit/path.html',
       'unit/array-selector.html',
       'unit/events.html',
       'unit/gestures.html',
       'unit/gestures.html?dom=shadow',
+      'unit/settings.html?dom=shadow&useNativeCSSProperties=true',
       'unit/utils.html',
       'unit/utils-content.html',
       'unit/utils.html?dom=shadow',
@@ -53,6 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'unit/resolveurl.html',
       'unit/css-parse.html',
       'unit/styling-scoped.html',
+      'unit/preserve-style-include/styling-scoped.html',
       'unit/styling-extends.html',
       'unit/styling-remote.html',
       'unit/styling-cross-scope-var.html',
@@ -63,9 +69,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'unit/styling-cross-scope-apply.html?lazyRegister=true&useNativeCSSProperties=true',
       'unit/styling-cross-scope-apply.html?dom=shadow',
       'unit/styling-cross-scope-apply.html?dom=shadow&lazyRegister=true&useNativeCSSProperties=true',
-      'unit/styling-cross-scope-unknown-host.html',
+      'unit/styling-cross-scope-unknown-host-shadow.html',
       'unit/style-cache.html',
       'unit/custom-style.html',
+      'unit/custom-style-scope-cache.html',
       'unit/custom-style.html?lazyRegister=true&useNativeCSSProperties=true',
       'unit/custom-style.html?dom=shadow',
       'unit/custom-style.html?dom=shadow&lazyRegister=true&useNativeCSSProperties=true',
@@ -76,23 +83,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'unit/custom-style-async.html?lazyRegister=true&useNativeCSSProperties=true&dom=shadow',
       'unit/dynamic-import.html',
       'unit/templatizer.html',
+      'unit/template-preserve-content.html',
       'unit/dom-repeat.html',
+      'unit/dom-repeat.html?suppressBindingNotifications&suppressTemplateNotifications',
       'unit/dom-if.html',
+      'unit/dom-if.html?suppressBindingNotifications&suppressTemplateNotifications',
       'unit/dom-template.html',
       'unit/dom-bind.html',
       'unit/dom-bind-yield.html',
       'unit/script-after-import-in-head.html',
       'unit/globals.html',
-      'unit/lazy-register.html'
+      'unit/lazy-register.html',
+      'unit/element-disable-upgrade.html'
     ];
 
-    if (document.body.createShadowRoot) {
-      var idx = suites.indexOf('unit/polymer-dom-shadow.html');
-      suites.splice(idx, 0, 'unit/polymer-dom-native-shadow.html');
-    }
     if (window.customElements || document.registerElement) {
       suites.push('unit/attach-detach-timing.html');
     }
+    if (/edge/i.test(navigator.userAgent)) {
+      // Skip testing on ShadowDOM Polyfill on Edge; it lacks workarounds for
+      // Edge DocumentFragment bugs
+      suites = suites.filter(function(s) { return s.indexOf('-shadow.html') < 0; });
+    }
+
     WCT.loadSuites(suites);
   </script>
 </body>

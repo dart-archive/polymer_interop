@@ -52,6 +52,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * @return {String} the computed value
      */
       getComputedStyleValue: function(property) {
+        // refresh the style properties for this node
+        if (!nativeVariables && !this._styleProperties) {
+          this._computeStyleProperties();
+        }
         return !nativeVariables && this._styleProperties &&
           this._styleProperties[property] ||
           getComputedStyle(this).getPropertyValue(property);
@@ -67,17 +71,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._customStyle = null;
       },
 
-      // TODO(dfreedm): should only be true iff browser doesn't support
-      // native custom properties.
+      // TODO(dfreedm): should only be true if and only if browser doesn't
+      // support native custom properties.
       _needsStyleProperties: function() {
         return Boolean(!nativeVariables && this._ownStylePropertyNames &&
           this._ownStylePropertyNames.length);
       },
 
+      _validateApplyShim: function() {
+        if (this.__applyShimInvalid) {
+          // rerun apply shim
+          Polymer.ApplyShim.transform(this._styles, this.__proto__);
+          var cssText = styleTransformer.elementStyles(this);
+          if (nativeShadow) {
+            // replace style in template
+            var templateStyle = this._template.content.querySelector('style');
+            if (templateStyle) {
+              templateStyle.textContent = cssText;
+            }
+          } else {
+            // replace scoped style
+            var shadyStyle = this._scopeStyle && this._scopeStyle.nextSibling;
+            if (shadyStyle) {
+              shadyStyle.textContent = cssText;
+            }
+          }
+        }
+      },
+
       _beforeAttached: function() {
         // note: do this once automatically,
         // then requires calling `updateStyles`
-        if ((!this._scopeSelector || this.__stylePropertiesInvalid) && 
+        if ((!this._scopeSelector || this.__stylePropertiesInvalid) &&
           this._needsStyleProperties()) {
           this.__stylePropertiesInvalid = false;
           this._updateStyleProperties();
@@ -97,6 +122,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _updateStyleProperties: function() {
         var info, scope = this._findStyleHost();
+        // ensure scope properties exist before any access of scope cache.
+        if (!scope._styleProperties) {
+          scope._computeStyleProperties();
+        }
         // install cache in host if it doesn't exist.
         if (!scope._styleCache) {
           scope._styleCache = new Polymer.StyleCache();
@@ -163,8 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _computeStyleProperties: function(scopeProps) {
         // get scope and make sure it has properties
         var scope = this._findStyleHost();
-        // force scope to compute properties if they don't exist or if forcing
-        // and it doesn't need properties
+        // force scope to compute properties if they don't exist
         if (!scope._styleProperties) {
           scope._computeStyleProperties();
         }
@@ -226,8 +254,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value = host._scopeElementClass(node, value);
           }
         }
-        // note: using Polymer.dom here ensures that any attribute sets
-        // will provoke distribution if necessary; do this iff necessary
+        // note: using Polymer.dom here ensures that any attribute sets will
+        // provoke distribution if necessary; do this if and only if necessary
         node = (this.shadyRoot && this.shadyRoot._hasDistributed) ?
           Polymer.dom(node) : node;
         serializeValueToAttribute.call(this, value, attribute, node);
@@ -263,7 +291,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (nativeVariables) {
           propertyUtils.updateNativeStyleProperties(this, this.customStyle);
         } else {
-          // actually process styling changes iff attached
+          // actually process styling changes if and only if attached
           if (this.isAttached) {
             // skip applying properties to self if not used
             if (this._needsStyleProperties()) {
@@ -273,7 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             } else {
               this._styleProperties = null;
             }
-          // if called when an element is not attached, invalidate 
+          // if called when an element is not attached, invalidate
           // styling by unsetting scopeSelector.
           } else {
             this.__stylePropertiesInvalid = true;

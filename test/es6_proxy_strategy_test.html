@@ -1,0 +1,88 @@
+<!--
+Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+for details. All rights reserved. Use of this source code is governed by a
+BSD-style license that can be found in the LICENSE file.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="packages/web_components/webcomponents-lite.min.js"></script>
+  <link rel="x-dart-test" href="es6_proxy_strategy_test.dart">
+  <!--<script type="application/dart" src="convert_test.dart"></script>-->
+  <!--<script src="packages/browser/dart.js"></script>-->
+  <script src="packages/test/dart.js"></script>
+</head>
+<body>
+  <script type="application/javascript">
+    function createEvent(type, detail) {
+      return new CustomEvent(type, {detail: detail});
+    }
+
+    function MyModelJs(dartInstance) {
+      this.__dartClass__ = dartInstance;
+    }
+
+    function createJsMap() {
+      return {};
+    }
+
+    function doSomethingWith(thing) {
+      thing.f1[0].x1++;
+      if (thing.f2.f2[1].x!='strange') {
+        throw new Error('x is not strange');
+      }
+      thing.f2.f2[1].x = {
+        'changed' : 'replaced'
+      };
+      return thing;
+    }
+
+    function deleteJs(arr,index) {
+	delete arr[index];
+    }
+
+    function validateMap(map) {
+      var x = [];
+      var y = [];
+      for (var k in map) {
+        x.push(k);
+        y.push(map[k]);
+      }
+
+      return {
+        keys: x,
+        values : y
+      };
+    }
+
+    function validateArray(array) {
+      var n = 0;
+      var t = 0;
+      for (var i in array) {
+        n += array[i];
+        t++;
+      }
+
+      var tt = 0;
+      var nn = 0;
+
+      var arr="nope";
+      array.forEach(function(x,i,ar) {
+        tt += x;
+        nn++;
+        arr = ar;
+      });
+
+      return {
+        count : t,
+        sum : n,
+        count2 : nn,
+        sum2 : tt,
+        arr : arr
+      };
+    }
+
+    MyModelJs.prototype = Object.create(Object.prototype);
+  </script>
+</body>
+</html>

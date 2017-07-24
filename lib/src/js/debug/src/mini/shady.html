@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer.Base._addFeature({
 
       _prepShady: function() {
-        // Use this system iff localDom is needed.
+        // Use this system if and only if localDom is needed.
         this._useContent = this._useContent || Boolean(this._template);
       },
 
@@ -91,16 +91,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           TreeApi.Logical.saveChildNodes(c.parentNode);
         }
         this.shadyRoot.host = this;
-      },
-
-      /**
-       * Return the element whose local dom within which this element
-       * is contained. This is a shorthand for
-       * `Polymer.dom(this).getOwnerRoot().host`.
-       */
-      get domHost() {
-        var root = Polymer.dom(this).getOwnerRoot();
-        return root && root.host;
       },
 
       /**
@@ -389,6 +379,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _elementRemove: function() {}
 
     });
+
+
+    var domHostDesc = {
+      get: function() {
+        var root = Polymer.dom(this).getOwnerRoot();
+        return root && root.host;
+      },
+      configurable: true
+    };
+    /**
+     * Return the element whose local dom within which this element
+     * is contained. This is a shorthand for
+     * `Polymer.dom(this).getOwnerRoot().host`.
+     */
+    Object.defineProperty(Polymer.Base, 'domHost', domHostDesc);
+    Polymer.BaseDescriptors.domHost = domHostDesc;
 
     function distributeNodeInto(child, insertionPoint) {
       insertionPoint._distributedNodes.push(child);

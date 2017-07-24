@@ -1,0 +1,209 @@
+<!--
+Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+for details. All rights reserved. Use of this source code is governed by a
+BSD-style license that can be found in the LICENSE file.
+-->
+<link rel="import" href="convert.html">
+<script>
+  Polymer.PolymerInterop = Polymer.PolymerInterop || {};
+  Polymer.PolymerInterop.ES6 = Polymer.PolymerInterop.ES6 || {};
+
+  (function(ES6) {
+
+    ES6.Unsupported = {};
+
+    var _throwShouldBeOverridden = function() {
+      throw new Error("This method should be overridden by dart implementation");
+    };
+
+    ES6._dartArrayGet = _throwShouldBeOverridden;
+    ES6._dartArrayPut = _throwShouldBeOverridden;
+    ES6._dartArrayLength = _throwShouldBeOverridden;
+    ES6._dartArraySetLength = _throwShouldBeOverridden;
+
+    ES6._dartGet = _throwShouldBeOverridden;
+    ES6._dartPut = _throwShouldBeOverridden;
+    ES6._dartKeys = _throwShouldBeOverridden;
+    ES6._dartMapDelete = _throwShouldBeOverridden;
+    ES6._dartContains = _throwShouldBeOverridden;
+
+    /**
+     * List ES6JsProxy support
+     */
+
+    var arrayCommonBehaviors = {
+      '__dartClass__' : function(instance) { return instance; },
+      '__isES6Proxy__' : function(instance) { return true; },
+      'toString' : function(instance) { return function() { return "Array["+ES6._dartArrayLength(instance)+"]"; }; },
+      'length' : function(instance) { return ES6._dartArrayLength(instance); }
+    };
+
+    // TODO(dam0vment) investigate if overriding only get/setOwnPropertyDescriptor and ownKeys
+    // is enough (all the other methods could just depend on those)
+    ES6.createES6JsProxyForArray = function(instance) {
+      return new Proxy([],{
+        'get' : function(target,propertyName,proxy) {
+
+          if (arrayCommonBehaviors.hasOwnProperty(propertyName)) {
+            return arrayCommonBehaviors[propertyName].call(this,instance);
+          }
+
+          if (isNaN(propertyName.toString())) {
+            return target[propertyName];
+          }
+          // propertyName here is always a String (even if isNaN is false ...) but dart wants a real Number
+          // so "+propertyName" will convert the string to a number
+          return ES6._dartArrayGet(instance,+propertyName);
+        },
+
+        'has' : function(target,prop) {
+          var len = ES6._dartArrayLength(instance);
+          var pos = +prop;
+          if (!isNaN(prop) && pos>=0 && pos < len ) {
+            return true;
+          }
+          return prop in target;
+        },
+
+        'getOwnPropertyDescriptor': function(target, prop) {
+          var len = ES6._dartArrayLength(instance);
+          var pos = +prop;
+          if (!isNaN(prop) && pos>=0 && pos < len ) {
+            return { configurable: true, enumerable: true, value: ES6._dartArrayGet(instance,pos) };
+          }
+          return Object.getOwnPropertyDescriptor(target,prop);
+        },
+
+        'set' : function(target,propertyName,value,proxy) {
+          if (propertyName.toString() == 'length') {
+            ES6._dartArraySetLength(instance,+value);
+          } else if (isNaN(propertyName.toString())) {
+            target[propertyName] = value;
+          } else {
+            ES6._dartArrayPut(instance,+propertyName,value);
+          }
+          return true;
+        },
+        'ownKeys' : function(target) {
+          var x = Object.getOwnPropertyNames(target).slice();
+          for (var i = 0 ;i<ES6._dartArrayLength(instance);i++) {
+            x.push(""+i);
+          }
+          return x;
+        },
+        'deleteProperty': function(target, propertyName) {
+          if (isNaN(propertyName.toString())) {
+            delete target[propertyName];
+          } else {
+            // Delete for array will actually set the prop to undefined ...
+            ES6._dartArrayPut(instance,+propertyName,null);
+          }
+
+          return true;
+        }
+      });
+    };
+
+
+    /**
+     * Maps ES6JsProxy support
+     */
+
+    var mapCommonBehaviors = {
+      '__dartClass__' : function(instance) { return instance; },
+      '__isES6Proxy__' : function(instance) { return true; }
+    };
+
+    function getPropertyDescriptor(obj,prop) {
+      while(obj!=null) {
+        var pd = Object.getOwnPropertyDescriptor(obj,prop);
+        if (pd) {
+          return pd;
+        }
+        obj = obj.__proto__;
+      }
+      return undefined;
+    }
+
+    ES6.createES6JsProxyForMaps = function(instance) {
+      return new Proxy({},{
+        'has' : function(target,prop){
+          return ES6._dartContains(instance,prop);
+        },
+        getOwnPropertyDescriptor: function(target, prop) {
+          if (ES6._dartContains(instance,prop)) {
+            return { configurable: true, enumerable: true, value: ES6._dartGet(instance,prop) };
+          }
+          return Object.getOwnPropertyDescriptor(target,prop);
+        },
+
+        'get' : function(target,propertyName,proxy) {
+
+          if (ES6._dartContains(instance,propertyName)) {
+            return ES6._dartGet(instance,propertyName);
+          }
+
+          // target first! (because of '__proto__' , 'constructor' , and dart interop internals ... )
+
+          try {
+            var pd = getPropertyDescriptor(target,propertyName);
+            if (pd) {
+              if (pd.get) {
+               return pd.get.call(proxy);
+               } else  {
+                 return  pd.value;
+               }
+             }
+          } catch (error) {
+            // Getter could throw, should we throw too ?
+            console.dir(error);
+          }
+
+          if (mapCommonBehaviors.hasOwnProperty(propertyName)) {
+            return mapCommonBehaviors[propertyName].call(this,instance);
+          }
+
+          return undefined;
+        },
+
+        deleteProperty: function(target, prop) {
+          if (ES6._dartContains(instance,prop)) {
+            ES6._dartMapDelete(instance,prop);
+          } else {
+            delete target[prop];
+          }
+          return true;
+        },
+
+        'set' : function(target,propertyName,value,proxy) {
+          var pd = getPropertyDescriptor(target,propertyName);
+          var overridden = ES6._dartContains(instance,propertyName);
+          if (propertyName=='__proto__' ) {
+            target[propertyName] = value;
+          } else if (pd && pd.set && !overridden) {
+            /**
+             * GWT components (ex. vaadin-grid) will try to override the "__proto__" of the object we pass in order
+             * to add some nice getters and setters to it and then it will copy existing properties values using this pattern:
+             * 1. get and remove prop from object
+             * 2. set the prop on the object with the previous value
+             * After the first step the prop is no longer an "own" prop and the __proto__ setter will be called instead.
+             * *WARNING* : not sure if this is the right solution as the Dart view and the JS view of the same object
+             *  will start to diverge from this point on. Probably is better to throw an exception when tryin to change the proto ?
+             *  another option is to limit this use case to write only properties (like in the vaadin case).
+             * TODO : Add a test for this case.
+             */
+            pd.set.call(proxy,value);
+          } else {
+            ES6._dartPut(instance,propertyName,value);
+          }
+          return true;
+        },
+
+        'ownKeys' : function(target) {
+          return Object.getOwnPropertyNames(target).concat(ES6._dartKeys(instance));
+        }
+      });
+    };
+
+  })(Polymer.PolymerInterop.ES6);
+</script>

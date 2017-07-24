@@ -21,7 +21,7 @@ Polymer's styling system:
 
 * Document styles defined in a `custom-style` will be shimmed to ensure they do
 not leak into local DOM when running on browsers without non-native Shadow DOM.
-* Shadow DOM-specific `/deep/` and `::shadow` combinators will be shimmed on
+* For backwards compatibility, the deprecated shadow DOM-specific `/deep/` and `::shadow` combinators will be shimmed on
 browsers without non-native Shadow DOM.
 * Custom properties used by Polymer's shim for cross-scope styling
 may be defined in an `custom-style`.
@@ -43,11 +43,6 @@ Example:
     /* Will be prevented from affecting local DOM of Polymer elements */
     * {
       box-sizing: border-box;
-    }
-
-    /* Can use /deep/ and ::shadow combinators */
-    body /deep/ .my-special-view::shadow #thing-inside {
-      background: yellow;
     }
 
     /* Custom properties that inherit down the document tree may be defined */
@@ -83,7 +78,7 @@ Example:
 </html>
 ```
 
-Note, all features of `custom-style` are available when defining styles as part of Polymer elements (e.g. `<style>` elements within `<dom-module>`'s used for defining Polymer elements. The `custom-style` extension should only be used for defining document styles, outside of a custom element's local DOM.
+Note, all features of `custom-style` are available when defining styles as part of Polymer elements, e.g. `<style>` elements within `<dom-module>`'s used for defining Polymer elements. The `custom-style` extension should only be used for defining document styles, outside of a custom element's local DOM.
 
 -->
 
@@ -129,9 +124,10 @@ Note, all features of `custom-style` are available when defining styles as part 
         this.__appliedElement.__cssBuild = this.__cssBuild;
       }
       // needed becuase elements in imports do not get 'attached'
-      // TODO(sorvell): we could only do this iff this.ownerDocument != document;
+      // TODO(sorvell): we could only do this if and only if
+      // this.ownerDocument != document;
       // however, if we do that, we also have to change the `attached`
-      // code to go at `_beforeAttached` time because this is when 
+      // code to go at `_beforeAttached` time because this is when
       // elements produce styles (otherwise this breaks @apply shim)
       this._tryApply();
     },
@@ -144,14 +140,15 @@ Note, all features of `custom-style` are available when defining styles as part 
 
     _tryApply: function() {
       if (!this._appliesToDocument) {
-        // only apply variables iff this style is not inside a dom-module
+        // only apply variables if and only if this style is not inside
+        // a dom-module
         if (this.parentNode &&
           (this.parentNode.localName !== 'dom-module')) {
           this._appliesToDocument = true;
           var e = this.__appliedElement;
           // used applied element from HTMLImports polyfill or this
           if (!settings.useNativeCSSProperties) {
-            // if default style properties exist when 
+            // if default style properties exist when
             // this element tries to apply styling then,
             // it has been loaded async and needs to trigger a full updateStyles
             // to guarantee properties it provides update correctly.
@@ -211,12 +208,12 @@ Note, all features of `custom-style` are available when defining styles as part 
           function(rule) {
             // shim the selector for current runtime settings
             styleTransformer.documentRule(rule);
-            // run the apply shim if unbuilt and using native css custom properties
-            if (settings.useNativeCSSProperties && !buildType) {
-              applyShim.transformRule(rule);
-            }
           }
         );
+        // run the apply shim if unbuilt and using native css custom properties
+        if (settings.useNativeCSSProperties && !buildType) {
+          applyShim.transform([e]);
+        }
       }
       // custom properties shimming
       // (if we use native custom properties, no need to apply any property shimming)
@@ -254,7 +251,7 @@ Note, all features of `custom-style` are available when defining styles as part 
     _flushCustomProperties: function() {
       // if this style has not yet applied at all and it was loaded asynchronously
       // (detected by Polymer being ready when this element tried to apply), then
-      // do a full updateStyles to ensure that 
+      // do a full updateStyles to ensure that
       if (this.__needsUpdateStyles) {
         this.__needsUpdateStyles = false;
         updateDebouncer = debounce(updateDebouncer, this._updateStyles);

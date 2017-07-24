@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-  /* global earlyDomBind earlyBoundChild decEl1 decEl2 decDomBind z container needsHost*/
+  /* global earlyDomBind earlyBoundChild decEl1 decEl2 decDomBind z container needsHost hybridDomBind hybridEl1 hybridEl2*/
     earlyDomBind.value = 'hi!';
   </script>
 
@@ -41,6 +41,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template is="dom-bind" id="timingDomBind" config="config">
     <x-needs-host id="needsHost"></x-needs-host>
   </template>
+
+  <dom-bind>
+    <template is="dom-bind" id="hybridDomBind">
+      <x-basic value="{{value}}" id="hybridEl1"></x-basic>
+      <x-basic value="{{value}}" id="hybridEl2"></x-basic>
+    </template>
+  </dom-bind>
 
   <script>
 
@@ -223,6 +230,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     });
 
+    suite('dom-change', function() {
+
+      test('dom-change when stamped', function(done) {
+        var bind = document.createElement('template', 'dom-bind');
+        var changed = sinon.spy();
+        bind.addEventListener('dom-change', changed);
+        document.body.appendChild(bind);
+        setTimeout(function() {
+          assert.equal(changed.callCount,
+            Polymer.Settings.suppressTemplateNotifications ? 0 : 1);
+          done();
+        });
+      });
+
+      test('re-enable dom-change', function(done) {
+        if (Polymer.Settings.suppressTemplateNotifications) {
+          var bind = document.createElement('template', 'dom-bind');
+          bind.notifyDomChange = true;
+          var changed = sinon.spy();
+          bind.addEventListener('dom-change', changed);
+          document.body.appendChild(bind);
+          setTimeout(function() {
+            assert.equal(changed.callCount, 1);
+            done();
+          });
+        } else {
+          done();
+        }
+      });
+
+    });
+
+    suite('hybrid dom-bind', function() {
+
+      var domBind;
+      var el1;
+      var el2;
+
+      setup(function() {
+        domBind = hybridDomBind;
+        el1 = hybridEl1;
+        el2 = hybridEl2;
+      });
+
+      test('value binds top-down', function() {
+        domBind.value = 'foo';
+        assert.equal(el1.value, 'foo');
+        assert.equal(el2.value, 'foo');
+      });
+
+      test('parent is parent of <dom-bind>', function() {
+        domBind.value = 'foo';
+        assert.equal(el1.parentNode, document.body);
+        assert.equal(el2.parentNode, document.body);
+      });
+
+    });
 
   </script>
 

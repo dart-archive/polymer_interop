@@ -143,7 +143,7 @@ MyElement = Polymer({
 
   is: 'my-element',
 
-  // See below for lifecycle callbacks
+  // See above for lifecycle callbacks
   created: function() {
     this.innerHTML = 'My element!';
   }
@@ -279,7 +279,7 @@ Polymer({
 });
 ```
 
-Remember that the fields assigned to `count`, such as `readOnly` and `notify` don't do anything by themselves, it requires other features to give them life, and may depend on which layer of Polymer is in use.
+Remember that the fields assigned to `count` - such as `readOnly` and `notify` don't do anything by themselves - it requires other features to give them life, and may depend on which layer of Polymer is in use.
 
 <a name="attribute-deserialization"></a>
 ## Attribute deserialization
@@ -467,7 +467,8 @@ Example:
 We say that an element definition has an imperative and declarative portion. The imperative
 portion is the call to `Polymer({...})`, and the declarative portion is the `<dom-module>`
 element. The imperative and declarative portions of an element's definition may be placed
-in the same html file or in separate files.
+in the same HTML file or in separate files. They are matched based on the `dom-module`'s `id`
+having the same value as the element's `is` property.
 
 **NOTE:** Defining an element in the main html document is not currently supported.
 
