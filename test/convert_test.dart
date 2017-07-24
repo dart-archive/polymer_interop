@@ -180,9 +180,9 @@ class MyModel extends Object with JsProxyInterface {
 
     var prototype = _jsProxyConstructor['prototype'];
     _jsProxyConstructor['prototype'] = prototype;
-    _addDescriptor(prototype, #value,'value');
-    _addDescriptor(prototype, #readOnlyVal,'readOnlyVal');
-    _addDescriptor(prototype, #finalVal,'finalVal');
+    _addDescriptor(prototype, #value,'value',(x)=>x.value,(x,v)=>x.value=v);
+    _addDescriptor(prototype, #readOnlyVal,'readOnlyVal',(x)=>x.readOnlyVal,(x,v)=>null);
+    _addDescriptor(prototype, #finalVal,'finalVal',(x)=>x.finalVal,(x,v)=>null);
     prototype['incrementBy'] =
         new JsFunction.withThis((jsThis, [int amount = 1]) {
       return getDartInstance(jsThis).incrementBy(amount);
@@ -213,13 +213,13 @@ void expectEqual(JsObject actual, Map expected) {
   }
 }
 
-void _addDescriptor(JsObject prototype, Symbol name,String nm) {
+void _addDescriptor(JsObject prototype, Symbol name,String nm,getter(instance),setter(instance,val)) {
   var descriptor = {
     'get': new JsFunction.withThis((JsObject instance) {
-      return convertToJs(read(getDartInstance(instance), name));
+      return convertToJs(getter(getDartInstance(instance)));
     }),
     'set': new JsFunction.withThis((JsObject instance, value) {
-      write(getDartInstance(instance), name, convertToDart(value));
+      setter(getDartInstance(instance), convertToDart(value));
     }),
   };
   // Add a proxy getter/setter for this property.

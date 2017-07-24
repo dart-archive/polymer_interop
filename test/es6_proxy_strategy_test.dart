@@ -7,13 +7,11 @@ library polymer_interop.test.convert_test;
 import 'dart:html';
 import 'dart:js';
 import 'package:polymer_interop/polymer_interop.dart';
-import 'package:smoke/mirrors.dart' as smoke;
-import 'package:smoke/smoke.dart';
 import 'package:test/test.dart';
 import 'package:web_components/web_components.dart';
 
 main() async {
-  smoke.useMirrors();
+//  smoke.useMirrors();
   await initWebComponents();
 
   group('es6 proxy strategy', () {
